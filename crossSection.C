@@ -17,16 +17,21 @@ void crossSection(){
   //TFile* dataFile = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_newIsoDef_wPurity.root", "READ");
   //TFile* dataFile = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction.root", "READ");
   //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_fernandoIsoDef_wPurityFitFunction.root", "READ");
-  TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_wNonLinCorr_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_fernandoIsoDef_wPurityFitFunction_nonLinCorrTest.root", "READ");
+  //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_wNonLinCorr_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_fernandoIsoDef_wPurityFitFunction_nonLinCorrTest.root", "READ");
+  //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13de_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction.root", "READ");
+  TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13de_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal.root", "READ");
 
 
   //pp
-  TFile* dataFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_ZcutsFirst.root", "READ");
-
+  //TFile* dataFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_ZcutsFirst.root", "READ");
+  //TFile* dataFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction.root", "READ");
+  //TFile* dataFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete.root", "READ");
+  TFile* dataFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal.root", "READ");
 
   TH1F* hClusterSpectra_pp = (TH1F*)dataFile_pp->Get("hCluster_pt");
   TH1F* hClusterSpectra_pPb = (TH1F*)dataFile_pPb->Get("hCluster_pt");
-  TH1D* hNumEvents = (TH1D*)dataFile_pPb->Get("hNormalizer");
+  TH1D* hNumEvents_pPb = (TH1D*)dataFile_pPb->Get("hNormalizer");
+  TH1D* hNumEvents_pp = (TH1D*)dataFile_pp->Get("hNormalizer");
 
   hClusterSpectra_pPb->Sumw2();
   hClusterSpectra_pPb->SetName("hClusterSpectra_pPb");
@@ -44,7 +49,7 @@ void crossSection(){
 
   TLegend* legYield = new TLegend(0.6,0.7,0.9,0.9);
   legYield->SetHeader("Photon Yield");
-  legYield->AddEntry(hClusterSpectra_pPb,"pPb (13d)");
+  legYield->AddEntry(hClusterSpectra_pPb,"pPb (13de)");
   legYield->AddEntry(hClusterSpectra_pp,"pp (17q)");
 
 
@@ -62,20 +67,23 @@ void crossSection(){
   hEff->SetMarkerStyle(4);
 
   //Luminosity Calulation
-  double Nevtot = hNumEvents->GetBinContent(3);
-  double NevEG1 = hNumEvents->GetBinContent(5);
-  double NevEG2 = hNumEvents->GetBinContent(6);
-  cout << NevEG2 << endl;
+  double Nevtot_pPb = hNumEvents_pPb->GetBinContent(3);
+  double Nevtot_pp = hNumEvents_pp->GetBinContent(3);
+  //double NevEG1 = hNumEvents->GetBinContent(5);
+  //double NevEG2 = hNumEvents->GetBinContent(6);
+  //cout << NevEG2 << endl;
+  cout << "pPb Events (tot, EG1, EG2): \t" << hNumEvents_pPb->GetBinContent(3) << "\t" << hNumEvents_pPb->GetBinContent(5) << "\t" << hNumEvents_pPb->GetBinContent(6) << endl;
+  cout << "pp Events (tot, EG1, EG2): \t" << hNumEvents_pp->GetBinContent(3) << "\t" << hNumEvents_pp->GetBinContent(5) << "\t" << hNumEvents_pp->GetBinContent(6) << endl;
   double xSectionMB = 2.11;
 
   //const double lumi_pPb = 4.64;
   //const double lumi_err_pPb = 0.041;
   
-  const double lumi_pPb = 0.531;
-  const double lumi_error_pPb = .006;
+  const double lumi_pPb = 1.29;
+  const double lumi_error_pPb = .14;
   double relLumiError_pPb = lumi_error_pPb/lumi_pPb;
-  const double lumi_pp = 3.97;//0.531;
-  const double lumi_error_pp = 0.27;//.006;
+  const double lumi_pp = 5.03;
+  const double lumi_error_pp = 0.35;
   double relLumiError_pp = lumi_error_pp/lumi_pp;
 
   //Cross Section Calculation
@@ -94,7 +102,7 @@ void crossSection(){
     double relEffError = eff_error/eff;
     
     double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_pp,2));
-    double xsection = (content*Nevtot)/(lumi_pp*eff);
+    double xsection = (content*Nevtot_pp)/(lumi_pp*eff);
     double xsection_error = relXSectionError*xsection;
 
     crossSection_pp->SetBinContent(i, xsection);
@@ -117,7 +125,7 @@ void crossSection(){
     double relEffError = eff_error/eff;
     
     double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_pPb,2));
-    double xsection = (content*Nevtot)/(lumi_pPb*eff);
+    double xsection = (content*Nevtot_pPb)/(lumi_pPb*eff);
     double xsection_error = relXSectionError*xsection;
 
     crossSection_pPb->SetBinContent(i, xsection);
@@ -187,7 +195,7 @@ void crossSection(){
   crossSection_pPb->SetMarkerColor(kRed);
   
   TLegend* leg = new TLegend(0.6,0.7,0.9,0.9);
-  leg->SetHeader("p-Pb (13d) and pp (17q)");
+  leg->SetHeader("p-Pb (13de) and pp (17q)");
   leg->AddEntry(crossSection_pp,"pp");
   leg->AddEntry(crossSection_pPb,"pPb");
   leg->AddEntry(crossSection_erwann,"Erwann's pPb");

@@ -309,25 +309,26 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   /*//////////////////////////////////////////////////////////////////////////////////
     17q triggers
  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_17q_trigs1[3];//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_17q_trigs1[0] = (one1 << 6);
-  //trigMask_13d_tri1gs[1] = (one1 << 14);
-  trigMask_17q_trigs1[2] = (one1 << 14) | (one1 << 26);
+  ULong64_t trigMask_17q_trigs1[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  //trigMask_17q_trigs1[0] = (one1 << 6);
+  //trigMask_17q_tri1gs[1] = (one1 << 14);
+  trigMask_17q_trigs1[2] = (one1 << 14) | (one1 << 27);
 
-  ULong64_t trigMask_17q_trigs2[3];//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_17q_trigs2[0] = (one1 << 6);
-  //trigMask_13d_trigs[1] = (one1 << 14);
+  ULong64_t trigMask_17q_trigs2[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  //trigMask_17q_trigs2[0] = (one1 << 6);
+  //trigMask_17q_trigs[1] = (one1 << 14);
   trigMask_17q_trigs2[2] = (one1 << 12) | (one1 << 23);
 
-  //ULong64_t trigMask_17q_trigs3[3];//0 = MB, 1 = EG1, 2 = EG2
-  //trigMask_13d_trigs[0] = (one1 << 6);
-  //trigMask_13d_trigs[1] = (one1 << 14);
-  //trigMask_13d_trigs[2] = (one1 << 45) | (one1 << 54);
+  ULong64_t trigMask_17q_trigs3[4];//0 = MB, 1 = EG1, 2 = EG2
+  //trigMask_17q_trigs3[0] = (one1 << 6);
+  //trigMask_17q_trigs[1] = (one1 << 14);
+  trigMask_17q_trigs3[2] = (one1 << 45);
+  trigMask_17q_trigs3[3] = (one1 << (54-50));
 
   /*//////////////////////////////////////////////////////////////////////////////////
     13d triggers
  //////////////////////////////////////////////////////////////////////////////////*/
- ULong64_t trigMask_13d_trigs[3];//0 = MB, 1 = EG1, 2 = EG2
+ ULong64_t trigMask_13d_trigs[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13d_trigs[0] = (one1 << 2);
   trigMask_13d_trigs[1] = (one1 << 18);
   trigMask_13d_trigs[2] = (one1 << 19);
@@ -335,12 +336,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   /*//////////////////////////////////////////////////////////////////////////////////
     13e triggers
  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13e_trigs[3];//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13e_trigs[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13e_trigs[0] = (one1 << 2);
   trigMask_13e_trigs[1] = (one1 << 17);
   trigMask_13e_trigs[2] = (one1 << 18);
 
-  ULong64_t trigMask_13e_trigs_r196208[3];//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13e_trigs_r196208[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13e_trigs_r196208[0] = (one1 << 2);
   trigMask_13e_trigs_r196208[1] = (one1 << 12);
   trigMask_13e_trigs_r196208[2] = (one1 << 13);
@@ -348,17 +349,17 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     13c triggers
  //////////////////////////////////////////////////////////////////////////////////*/
 
-  ULong64_t trigMask_13c_trigs_r195529[3];//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13c_trigs_r195529[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13c_trigs_r195529[0] = (one1 << 6);
   trigMask_13c_trigs_r195529[1] = (one1 << 18);
   trigMask_13c_trigs_r195529[2] = (one1 << 19);
 
-  ULong64_t trigMask_13c_trigs_r195531[3];//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13c_trigs_r195531[4] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13c_trigs_r195531[0] = (one1 << 6);
   trigMask_13c_trigs_r195531[1] = (one1 << 17);
   trigMask_13c_trigs_r195531[2] = (one1 << 18);
 
-  ULong64_t trigMask[3] = {0};
+  ULong64_t trigMask[4] = {0};
 
   Long64_t totEvents = _tree_event->GetEntries();
   Long64_t restrictEvents = 300000000000;
@@ -383,7 +384,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     //Event Selection:
 
     if(not( TMath::Abs(primary_vertex[2])<10.0)) {hEventCut->Fill(1); numEvents_Zmore10++; continue;} //vertex z position
-    if(primary_vertex[2] == 0.0000) {hEventCut->Fill(2); numEvents_noZ++;}// continue;}
+    if(primary_vertex[2] == 0.0000) {hEventCut->Fill(2); numEvents_noZ++; continue;}// continue;}
     if(is_pileup_from_spd_3_08) {hEventCut->Fill(3); continue;} //removes pileup
     if(not(ntrack > 0)) {hEventCut->Fill(4); continue;} //no track
     //if(is_incomplete_daq){hEventCut->Fill(5); continue;}
@@ -400,10 +401,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
       std::memcpy(trigMask, trigMask_13e_trigs_r196208, sizeof(trigMask));
     
     //17q
-    if(run_number == 282367 || run_number == 282366 || run_number == 282365) continue;
-    if(run_number == 282415 || run_number == 282411 || run_number == 282402) {
+    if(run_number >= 282391 && run_number <= 282441)
+      std::memcpy(trigMask, trigMask_17q_trigs1, sizeof(trigMask));
+    if(run_number == 282415 || run_number == 282411 || run_number == 282402)
       std::memcpy(trigMask, trigMask_17q_trigs2, sizeof(trigMask));
-    }
+    if(run_number == 282367 || run_number == 282366 || run_number == 282365) 
+      std::memcpy(trigMask, trigMask_17q_trigs3, sizeof(trigMask));
     
     
     //cout << trigMask[1] << "\t" << trigMask_13e_trigs[1] << endl;
@@ -423,6 +426,13 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
       localTrigBit |= (1 << 2);
       numEvents_EG2++;
     }
+    if(trigMask[3] != 0)
+      {
+	if(not ((trigMask[3] & trigger_mask[1]) == 0))  {
+	  localTrigBit |= (1 << 2);
+	  numEvents_EG2++;
+    }
+      }
     //cout << localTrigBit << endl;
     //001 = 1 = MB
     //110 = 6 = EG1||EG2
@@ -486,11 +496,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	//cout << clusterCutBits << "\t" << clusterCutPassed << endl;
 
 	//fiducial cut
-	if((TMath::Abs(clusterEta)) < 0.52)                                 clusterCutBits |= (1 << 7); clusterCutPassed |= (1 << 7);//eta cut
-	if((clusterPhi > 1.58) && (clusterPhi <2.96))                   clusterCutBits |= (1 << 8); clusterCutPassed |= (1 << 8);//eta cut
+	if((TMath::Abs(clusterEta)) < 0.667)                                 clusterCutBits |= (1 << 7); clusterCutPassed |= (1 << 7);//eta cut
+	if((clusterPhi > 1.396) && (clusterPhi <3.28))                   clusterCutBits |= (1 << 8); clusterCutPassed |= (1 << 8);//eta cut
 	
 	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0)) continue;
-	if(ievent%10000==0)
+	if(ievent%1000==0)
 	  {
 	    std::cout << "cluster accepted" << std::endl;
 	    
@@ -519,14 +529,14 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
   cout << numEvents_tracks << endl;
   cout << filename(0,3) << "\tTotal Events: " << numEntries << "\tEvent selection: " << numEvents << "\tPre-Cluster selection: " << numClustersPre << "\tPostCluster selection: " << numClustersPost << endl;
-  const double deltaEta = 1.04;
-  const double deltaPhi = 1.39;
+  const double deltaEta = 1.334;
+  const double deltaPhi = 1.884;
   double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
 
 
   //Adjusting event scaling for pp
   cout << numEvents << "\t" << numEvents_Zless10 << "\t" << numEvents_Zmore10 << "\t" << numEvents_noZ << "\t";
-  numEvents = numEvents_Zless10+(numEvents_Zless10/(numEvents_Zless10 + numEvents_Zmore10))*numEvents_noZ;
+  //numEvents = numEvents_Zless10+(numEvents_Zless10/(numEvents_Zless10 + numEvents_Zmore10))*numEvents_noZ;
   cout << numEvents << endl;
   
 
@@ -537,8 +547,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   normalizer->SetBinContent(4, numEvents_MB);
   normalizer->SetBinContent(5, numEvents_EG1);
   normalizer->SetBinContent(6, numEvents_EG2);
-  normalizer->SetBinContent(6, numEvents_Zmore10);
-  normalizer->SetBinContent(6, numEvents_noZ);
+  normalizer->SetBinContent(7, numEvents_Zmore10);
+  normalizer->SetBinContent(8, numEvents_noZ);
   
   //scaling for clusters
   for(int i = 1; i <  hCluster_pt->GetNbinsX()+1; i++)
@@ -635,9 +645,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   normalizer->GetXaxis()->SetBinLabel(4,"numEvents_MB");
   normalizer->GetXaxis()->SetBinLabel(5,"numEvents_EG1");
   normalizer->GetXaxis()->SetBinLabel(6,"numEvents_EG2");
+  normalizer->GetXaxis()->SetBinLabel(7,"numEvents_Zmore10");
+  normalizer->GetXaxis()->SetBinLabel(8,"numEvents_noZ");
 
   //Writing to file
-  filename += "_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction";
+  filename += "_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal";
   auto fout = new TFile(Form("isoPhotonOutput/fout_%i_%ibins_%s.root",TrackBit, nbinscluster, filename.Data()), "RECREATE");  
 
 
@@ -684,7 +696,7 @@ p-Pb data sets:
 
   //pp data sets
   //Run(16, "pp/17q/17q_CENT_wSDD_3run_forTrig_noEThresh.root", false, true, true);
-  //Run(16, "pp/17q/17q.root", false);
+  Run(16, "pp/17q/17q.root", false);
 
 
 
@@ -694,3 +706,27 @@ p-Pb data sets:
 
 
 
+/*///////////////////////////////////////////////////////////////
+Notes:
+
+EMCal acceptance:
+-0.667 < eta < 0.667
+1.396 < phi < 3.28
+
+DCal acceptance:
+-0.667 < eta < -0.2275 and 0.2275 < eta < 0.667
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ *///////////////////////////////////////////////////////////////
