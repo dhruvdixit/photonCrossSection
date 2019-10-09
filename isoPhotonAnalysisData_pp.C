@@ -258,17 +258,15 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   auto hTrackCut = new TH1F("hTrackCut", "", 15, -0.5, 14.5);
   auto hNumTracks = new TH1F("hNumTracks", "", 500, -0.5, 499.5);
   auto hEventCounts = new TH1F("hEventCounts","", 10, -0.5, 9.5);
-  auto hEventCounts_EG1 = new TH1F("hEventCounts_EG1","", 10, -0.5, 9.5);
+  auto hEventCounts_DG2 = new TH1F("hEventCounts_DG2","", 10, -0.5, 9.5);
   auto hEventCounts_EG2 = new TH1F("hEventCounts_EG2","", 10, -0.5, 9.5);
   auto hZvertex = new TH1F("hZvertez", "", 60, -30, 30);
   auto hZvertexAfter = new TH1F("hZvertezAfter", "", 60, -30, 30);
   auto hHitsITS = new TH1F("hHitsITS", "", 10, -0.5, 9.5);
   auto hEventCut = new TH1F("hEventCut", "", 10, -0.5, 9.5);
   auto hEventCut_MB = new TH1F("hEventCut_MB", "", 10, -0.5, 9.5);
-  auto hEventCut_EG1 = new TH1F("hEventCut_EG1", "", 10, -0.5, 9.5);
+  auto hEventCut_DG2 = new TH1F("hEventCut_DG2", "", 10, -0.5, 9.5);
   auto hEventCut_EG2 = new TH1F("hEventCut_EG2", "", 10, -0.5, 9.5);
-  auto hEventCut_EJ1 = new TH1F("hEventCut_EJ1", "", 10, -0.5, 9.5);
-  auto hEventCut_EJ2 = new TH1F("hEventCut_EJ2", "", 10, -0.5, 9.5);
   auto hClusterCut = new TH1F("hClusterCut", "", 20, -0.5, 19.5);
   auto hClusterCutFlow = new TH1F("hClusterCutFlow", "", 20, -0.5, 19.5);
   auto hPileUpVertex = new TH1F("hPileUpVertex", "", 20, -0.5, 19.5);
@@ -286,20 +284,20 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   Double_t clusterbinsTrig[25] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00};
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
-  auto hEG1_E = new TH1F("hEG1_E", "", 24, clusterbinsTrig);
+  auto hDG2_E = new TH1F("hDG2_E", "", 24, clusterbinsTrig);
   auto hEG2_E = new TH1F("hEG2_E", "", 24, clusterbinsTrig);
   auto hMB_E = new TH1F("hMB_E", "", 24, clusterbinsTrig);
 
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
-  hEG1_E->Sumw2();  
+  hDG2_E->Sumw2();  
   hEG2_E->Sumw2();
   hMB_E->Sumw2();
 
   hCluster_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hReco_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hMB_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
-  hEG1_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
+  hDG2_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{DG2}dN/dE_{T}");
   hEG2_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
 
   int nevent = 0; 
@@ -310,15 +308,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   int numEvents_passTrig = 0;
   int numEvents_passAll = 0;
   int numEvents_MB = 0;
-  int numEvents_EG1 = 0;
+  int numEvents_DG2 = 0;
   int numEvents_EG2 = 0;
-  int numEvents_EJ1 = 0;
-  int numEvents_EJ2 = 0;
   int numEvents_MB_before = 0;
-  int numEvents_EG1_before = 0;
+  int numEvents_DG2_before = 0;
   int numEvents_EG2_before = 0;
-  int numEvents_EJ1_before = 0;
-  int numEvents_EJ2_before = 0;
   int numEvents_Zmore10 = 0;
   int numEvents_Zless10 = 0;
   int numEvents_noZ = 0;
@@ -329,91 +323,32 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   const ULong64_t one1 = 1;
   
   /*//////////////////////////////////////////////////////////////////////////////////
-    13d triggers
-  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13d_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13d_trigs[0] = (one1 << 2);
-  trigMask_13d_trigs[1] = (one1 << 18);
-  trigMask_13d_trigs[2] = (one1 << 19);
-  trigMask_13d_trigs[3] = (one1 << 20);//EJ1
-  trigMask_13d_trigs[4] = (one1 << 21);//EJ2
-  
-  ULong64_t trigMask_13d_trigs_r195767[5] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
-  trigMask_13d_trigs_r195767[0] = (one1 << 2);
-  trigMask_13d_trigs_r195767[1] = (one1 << 18);//EG1
-  trigMask_13d_trigs_r195767[2] = (one1 << 19);//EG2
-  trigMask_13d_trigs_r195767[3] = (one1 << 21);//EJ1
-  trigMask_13d_trigs_r195767[4] = (one1 << 22);//EJ2
-  
-  
-  /*//////////////////////////////////////////////////////////////////////////////////
-    13e triggers
-  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13e_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13e_trigs[0] = (one1 << 2);
-  trigMask_13e_trigs[1] = (one1 << 17);
-  trigMask_13e_trigs[2] = (one1 << 18);
-  trigMask_13e_trigs[3] = (one1 << 19);
-  trigMask_13e_trigs[4] = (one1 << 20);
-
-  ULong64_t trigMask_13e_trigs_r196208[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13e_trigs_r196208[0] = (one1 << 2);
-  trigMask_13e_trigs_r196208[1] = (one1 << 12);
-  trigMask_13e_trigs_r196208[2] = (one1 << 13);
-  trigMask_13e_trigs_r196208[3] = (one1 << 14);
-  trigMask_13e_trigs_r196208[4] = (one1 << 15);
-
-  /*//////////////////////////////////////////////////////////////////////////////////
-    13f triggers
+    17q triggers
  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13f_trigs1[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13f_trigs1[0] = (one1 << 2);
-  trigMask_13f_trigs1[1] = (one1 << 17);
-  trigMask_13f_trigs1[2] = (one1 << 18);
-  trigMask_13f_trigs1[3] = (one1 << 19);
-  trigMask_13f_trigs1[4] = (one1 << 20);
+  const int numTrigs = 5; 
+  ULong64_t trigMask_17q_trigs1[numTrigs] = {0};//0 = MB, 1 = DG2, 2 = EG2
+  trigMask_17q_trigs1[0] = (one1 << 6);
+  trigMask_17q_trigs1[1] = (one1 << 30);//calo
+  trigMask_17q_trigs1[2] = (one1 << 27);//calo
 
-  ULong64_t trigMask_13f_trigs2[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13f_trigs2[0] = (one1 << 2);
-  trigMask_13f_trigs2[1] = (one1 << 12);
-  trigMask_13f_trigs2[2] = (one1 << 13);
-  trigMask_13f_trigs2[3] = (one1 << 14);
-  trigMask_13f_trigs2[4] = (one1 << 15);
+  ULong64_t trigMask_17q_trigs2[numTrigs] = {0};//0 = MB, 1 = DG2, 2 = EG2
+  trigMask_17q_trigs2[0] = (one1 << 6);
+  trigMask_17q_trigs2[1] = (one1 << 26);//calo
+  trigMask_17q_trigs2[2] = (one1 << 23);//calo
+
+  ULong64_t trigMask_17q_trigs3[numTrigs];//0 = MB, 1 = DG2, 2 = EG2
+  trigMask_17q_trigs3[0] = (one1 << 6);
+  trigMask_17q_trigs3[1] = (one1 << (13));//cent
+  trigMask_17q_trigs3[2] = (one1 << (10));//cent
+  trigMask_17q_trigs3[3] = (one1 << (57-50));//calo
+  trigMask_17q_trigs3[4] = (one1 << (54-50));//calo
   
-  ULong64_t trigMask_13f_trigs3[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13f_trigs3[0] = (one1 << 2);
-  trigMask_13f_trigs3[1] = (one1 << 16);
-  trigMask_13f_trigs3[2] = (one1 << 17);
-  trigMask_13f_trigs3[3] = (one1 << 18);
-  trigMask_13f_trigs3[4] = (one1 << 19);
 
-  ULong64_t trigMask_13f_trigs4[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13f_trigs3[0] = (one1 << 2);
-  trigMask_13f_trigs3[1] = (one1 << 13);
-  trigMask_13f_trigs3[2] = (one1 << 14);
-  trigMask_13f_trigs3[3] = (one1 << 15);
-  trigMask_13f_trigs3[4] = (one1 << 16);
-
-  
-  /*//////////////////////////////////////////////////////////////////////////////////
-    13c triggers
- //////////////////////////////////////////////////////////////////////////////////*/
-
-  ULong64_t trigMask_13c_trigs_r195529[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13c_trigs_r195529[0] = (one1 << 6);
-  trigMask_13c_trigs_r195529[1] = (one1 << 18);
-  trigMask_13c_trigs_r195529[2] = (one1 << 19);
-
-  ULong64_t trigMask_13c_trigs_r195531[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13c_trigs_r195531[0] = (one1 << 6);
-  trigMask_13c_trigs_r195531[1] = (one1 << 17);
-  trigMask_13c_trigs_r195531[2] = (one1 << 18);
-
-  ULong64_t trigMask[5] = {0};
+  ULong64_t trigMask[numTrigs] = {0};
 
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
-  Long64_t restrictEvents = 1000000;
+  Long64_t restrictEvents = 3000000000000;
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
   for (Long64_t ievent=0;ievent< numEntries ;ievent++) {
@@ -421,13 +356,13 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     nevent += 1;
     if(ievent%10000==0)
       {
-	//std::cout << ievent << std::endl;
-	//cout << run_number << endl;
+	std::cout << ievent << std::endl;
+	cout << run_number << endl;
       }
     
     bool eventChange = true;
-    bool isMB, isEG1, isEG2, isEJ1, isEJ2;
-    isMB = isEG1 = isEG2 = isEJ1 = isEJ2 = false;
+    bool isMB, isDG2, isEG2;
+    isMB = isDG2 = isEG2 = false;
 
     
 
@@ -441,48 +376,15 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     hMultiplicityBefore->Fill(multp_sum);
 
     //Event Selection:    
-    //13d
-    if(run_number >= 195724 && run_number <= 195872) {
-      std::memcpy(trigMask, trigMask_13d_trigs, sizeof(trigMask));
-      //cout << "run is from 13d" << endl;
-    }
-    //13e
-    if(run_number >= 195935 && run_number <= 196310)
-      std::memcpy(trigMask, trigMask_13e_trigs, sizeof(trigMask));
-    if(run_number == 196208)
-      std::memcpy(trigMask, trigMask_13e_trigs_r196208, sizeof(trigMask));
-    //13f
-    if(run_number >= 196433 && run_number <=197388)
-    //if((run_number >= 197298 && run_number <= 197342) || 
-    //   (run_number >= 197254 && run_number <= 197258) || 
-    //   (run_number >= 197153 && run_number <= 197153) ||
-    //   (run_number >= 196972 && run_number <= 197012) ||
-    //   (run_number >= 196528 && run_number <= 196965) ||
-    //   (run_number == 197247))
-      std::memcpy(trigMask, trigMask_13f_trigs1, sizeof(trigMask));
-    if(run_number == 196967 ||
-       run_number == 197015 ||
-       run_number == 197027 ||
-       run_number == 197248 ||
-       run_number == 197260 ||
-       run_number == 197296 ||
-       run_number == 197297 ||
-       run_number == 197351)
-      std::memcpy(trigMask, trigMask_13f_trigs2, sizeof(trigMask));
-    if(run_number == 197091 || run_number == 197092)
-      std::memcpy(trigMask, trigMask_13f_trigs3, sizeof(trigMask));
-    if(run_number == 196433)
-      std::memcpy(trigMask, trigMask_13f_trigs4, sizeof(trigMask));
-    if(run_number == 197189) continue;
     
 
-    // //17q
-    // if(run_number >= 282391 && run_number <= 282441)
-    //   std::memcpy(trigMask, trigMask_17q_trigs1, sizeof(trigMask));
-    // if(run_number == 282415 || run_number == 282411 || run_number == 282402)
-    //   std::memcpy(trigMask, trigMask_17q_trigs2, sizeof(trigMask));
-    // if(run_number == 282367 || run_number == 282366 || run_number == 282365) 
-    //   std::memcpy(trigMask, trigMask_17q_trigs3, sizeof(trigMask));
+    //17q
+    if(run_number >= 282391 && run_number <= 282441)
+      std::memcpy(trigMask, trigMask_17q_trigs1, sizeof(trigMask));
+    if(run_number == 282415 || run_number == 282411 || run_number == 282402)
+      std::memcpy(trigMask, trigMask_17q_trigs2, sizeof(trigMask));
+    if(run_number == 282367 || run_number == 282366 || run_number == 282365) 
+      std::memcpy(trigMask, trigMask_17q_trigs3, sizeof(trigMask));
     
     
     //cout << trigMask[1] << "\t" << trigMask_13e_trigs[1] << endl;
@@ -492,57 +394,51 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     if(not ((trigMask[0] & trigger_mask[0]) == 0))  {
       localTrigBit |= (1 << 0);
       
-    }//*/
+      }//*/
     if(not ((trigMask[1] & trigger_mask[0]) == 0))  {
       localTrigBit |= (1 << 1);
     }//*/
     if(not ((trigMask[2] & trigger_mask[0]) == 0))  {
       localTrigBit |= (1 << 2);
       
-    }//*/
-    if(not ((trigMask[3] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 3);
-      
-    }//*/
-    if(not ((trigMask[4] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 4);
-      
-    }//*/
+    }
+    if(trigMask[3] != 0){
+      if(not ((trigMask[3] & trigger_mask[1]) == 0))  {
+	localTrigBit |= (1 << 1);
+      }
+    }
+    if(trigMask[4] != 0){
+      if(not ((trigMask[4] & trigger_mask[1]) == 0))  {
+	localTrigBit |= (1 << 2);
+      }
+    }
+
     //cout << localTrigBit << endl;
     //001 = 1 = MB
-    //110 = 6 = EG1||EG2
-    //111 = 7 = MB||EG1||EG2
-    //11000 = 24 = EJ1|EJ2
-    //11110 = 30 = EG1|EG2|EJ1|EJ2
+    //110 = 6 = DG2||EG2
+    //111 = 7 = MB||DG2||EG2
     if((localTrigBit & 1) != 0) {isMB = true; hEventCut_MB->Fill(0);numEvents_MB_before++;}
-    if((localTrigBit & 2) != 0) {isEG1 = true;hEventCut_EG1->Fill(0);numEvents_EG1_before++;}
+    if((localTrigBit & 2) != 0) {isDG2 = true;hEventCut_DG2->Fill(0);numEvents_DG2_before++;}
     if((localTrigBit & 4) != 0) {isEG2 = true;hEventCut_EG2->Fill(0);numEvents_EG2_before++;}
-    if((localTrigBit & 8) != 0) {isEJ1 = true;hEventCut_EJ1->Fill(0);numEvents_EJ1_before++;}
-    if((localTrigBit & 16) != 0) {isEJ2 = true;hEventCut_EJ2->Fill(0);numEvents_EJ2_before++;}
     
     
-    if((localTrigBit & 7) == 0) {
+    if((localTrigBit & 6) == 0) {
       hEventCut->Fill(1);
       if(isMB) hEventCut_MB->Fill(1);
-      if(isEG1) hEventCut_EG1->Fill(1);
+      if(isDG2) hEventCut_DG2->Fill(1);
       if(isEG2) hEventCut_EG2->Fill(1);
-      if(isEJ1) hEventCut_EJ1->Fill(1);
-      if(isEJ2) hEventCut_EJ2->Fill(1);
-      //cout << ievent << "\t" << run_number << "\t" <<trigger_mask[0] << "\t" << trigger_mask[1] << endl;
-      continue;
-    }//no emcal gamma or jet triggers
-
-    if((localTrigBit & 7) != 0) {
+      
+      continue;}//no emcal triggers
+    if((localTrigBit & 6) != 0) {
       numEvents_passTrig++;
     }
+
     if(not( TMath::Abs(primary_vertex[2])<10.0)){
 	hEventCut->Fill(2);
 	if(isMB) hEventCut_MB->Fill(2);
-	if(isEG1) hEventCut_EG1->Fill(2);
+	if(isDG2) hEventCut_DG2->Fill(2);
 	if(isEG2) hEventCut_EG2->Fill(2);
-	if(isEJ1) hEventCut_EJ1->Fill(2);
-	if(isEJ2) hEventCut_EJ2->Fill(3);
-      
+
 	numEvents_Zmore10++;
 	continue;
       } //vertex z position
@@ -550,50 +446,35 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     if(primary_vertex[2] == 0.0000) {
       hEventCut->Fill(3);
       if(isMB) hEventCut_MB->Fill(3);
-      if(isEG1) hEventCut_EG1->Fill(3);
+      if(isDG2) hEventCut_DG2->Fill(3);
       if(isEG2) hEventCut_EG2->Fill(3);
-      if(isEJ1) hEventCut_EJ1->Fill(3);
-      if(isEJ2) hEventCut_EJ2->Fill(4);
-      
+
       numEvents_noZ++;
-      continue;}//vertex exists
+      continue;}//removes no vertex found
 
     if(is_pileup_from_spd_5_08) {
       hEventCut->Fill(4);
       if(isMB) hEventCut_MB->Fill(4);
-      if(isEG1) hEventCut_EG1->Fill(4);
+      if(isDG2) hEventCut_DG2->Fill(4);
       if(isEG2) hEventCut_EG2->Fill(4);
-      if(isEJ1) hEventCut_EJ1->Fill(4);
-      if(isEJ2) hEventCut_EJ2->Fill(4);
-      
-      continue;
-    } //removes pileup*/
+	continue;
+    } //removes pileup
+
     /*if(not(ntrack > 0)) {
       hEventCut->Fill(5);
       if(isMB) hEventCut_MB->Fill(5);
-      if(isEG1) hEventCut_EG1->Fill(5);
+      if(isDG2) hEventCut_DG2->Fill(5);
       if(isEG2) hEventCut_EG2->Fill(5);
       continue;
       } //no track*/
     //if(is_incomplete_daq){hEventCut->Fill(5); continue;}
 
-    bool skim12GeV = false;
-    for(ULong64_t n=0; n< ncluster; n++){
-      if(cluster_pt[n] > 12.0)
-	skim12GeV = true;
-    }
-    if(!skim12GeV) {hEventCut->Fill(5); continue;} //fail skimming
-
     
     hEventCut->Fill(6);//all cuts
     if(isMB) {hEventCut_MB->Fill(6); numEvents_MB++;}
-    if(isEG1) {hEventCut_EG1->Fill(6); numEvents_EG1++;}
+    if(isDG2) {hEventCut_DG2->Fill(6); numEvents_DG2++;}
     if(isEG2) {hEventCut_EG2->Fill(6); numEvents_EG2++;}
-    if(isEJ1) {hEventCut_EJ1->Fill(6); numEvents_EJ1++;}
-    if(isEJ2) {hEventCut_EJ2->Fill(6); numEvents_EJ2++;}
     
-
-
 
     hZvertexAfter->Fill(primary_vertex[2]);
     hMultiplicityAfter->Fill(multp_sum);
@@ -604,8 +485,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     int eventFill = 0;    
     hEventCounts->Fill(eventFill);
 
-
-    //continue;
+    continue;
     
     eventChange = true;
     bool eventChange2 = true;
@@ -662,16 +542,16 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	if( (cluster_ncell[n]>=2)){                    
 	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
 	} clusterCutPassed |= (1 << 0); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(1); //removes clusters with 1 or 2 cells
-	if( ((cluster_e_cross[n]/clusterE)>0.05)){
+	if( ((cluster_e_cross[n]/clusterE)>0.03)){
 	  clusterCutBits |= (1 << 1); hClusterCut->Fill(2);
 	} clusterCutPassed |= (1 << 1); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(2);//removes "spiky" clusters
-	if( (cluster_nlocal_maxima[n]<= 2)){
+	if( (cluster_nlocal_maxima[n]< 3)){
 	  clusterCutBits |= (1 << 2); hClusterCut->Fill(3);
 	} clusterCutPassed |= (1 << 2); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(3);//require to have at most 2 local maxima.
-	if( (cluster_distance_to_bad_channel[n]>=1.0)){                          
+	if( (cluster_distance_to_bad_channel[n] > 1)){                          
 	  clusterCutBits |= (1 << 3); hClusterCut->Fill(4);
 	} clusterCutPassed |= (1 << 3); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(4);//distnace to bad channels
-	if( ((cluster_tof[n] > -30) && (cluster_tof[n]) < 30)){
+	if( (cluster_tof[n] > -20) && (cluster_tof[n] < 20)){
 	  clusterCutBits |= (1 << 4); hClusterCut->Fill(5);
 	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//distnace to bad channels
 
@@ -680,8 +560,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	  clusterCutBits |= (1 << 5); hClusterCut->Fill(6);
 	} clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 2
 	//if( (cluster_iso_its_04[n]  < 2))                                       clusterCutBits |= (1 << 5); clusterCutPassed |= (1 << 5);//isolation r = 0.4 and energy < 2
-	if(( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0])){
 	//if( (ptDepShowerShapeCut(clusterPt, cluster_lambda_square[n][0]))){
+	if((cluster_lambda_square[n][0] > 0.1) && (cluster_lambda_square[n][0] < 0.3)){
 	  clusterCutBits |= (1 << 6); hClusterCut->Fill(7);
 	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged
 	//cout << clusterCutBits << "\t" << clusterCutPassed << endl;
@@ -690,9 +570,9 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	if((TMath::Abs(clusterEta)) < 0.67){
 	  clusterCutBits |= (1 << 7); hClusterCut->Fill(8);
 	} clusterCutPassed |= (1 << 7); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(8);//eta cut
-	if((clusterPhi > 1.396) && (clusterPhi <3.28)){
-	  clusterCutBits |= (1 << 8); hClusterCut->Fill(9);
-	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
+	//if((clusterPhi > 1.396) && (clusterPhi <3.28)){
+	//  clusterCutBits |= (1 << 8); hClusterCut->Fill(9);
+	//} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
 	
 
 	//ULong64_t cutFlow = 0;
@@ -716,7 +596,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	double purity = Get_Purity_ErrFunction(clusterPt);
 	hReco_pt->Fill(clusterPt);
 	if((localTrigBit & 1) != 0) hMB_E->Fill(clusterPt);
-	if((localTrigBit & 2) != 0) hEG1_E->Fill(clusterPt);
+	if((localTrigBit & 2) != 0) hDG2_E->Fill(clusterPt);
 	if((localTrigBit & 4) != 0) hEG2_E->Fill(clusterPt);
 	hCluster_pt->Fill(clusterPt,purity);
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
@@ -729,17 +609,9 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   }//loop over events
   std::cout << " END LOOP  " << std::endl;
   cout << "total events: " << numEvents_tot << endl;
-  cout << "total/minbias/EG1/EG2/EJ1/EJ2 events:" << endl;
-  cout << "before:" << "\t" <<
-    numEvents_passTrig << "\t" << numEvents_MB_before << "\t" <<
-    numEvents_EG1_before << "\t" << numEvents_EG2_before << "\t" <<
-    numEvents_EJ1_before << "\t" << numEvents_EJ2_before << "\t" <<
-    endl;
-  cout << "after:" << "\t"  <<
-    numEvents_passAll << "\t" << numEvents_MB << "\t" <<
-    numEvents_EG1 << "\t" << numEvents_EG2 << "\t" <<
-    numEvents_EJ1 << "\t" << numEvents_EJ2 << "\t" <<
-    endl;  
+  cout << "total/minbias/DG2/EG2 events:" << endl;
+  cout << "before:" << "\t" << numEvents_passTrig << "\t" << numEvents_MB_before << "\t" << numEvents_DG2_before << "\t" << numEvents_EG2_before << "\t" << endl;
+  cout << "after:" << "\t"  << numEvents_passAll << "\t" << numEvents_MB << "\t" << numEvents_DG2 << "\t" << numEvents_EG2 << "\t" << endl;  
   
   //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
   cout << numEvents_tracks << endl;
@@ -748,6 +620,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   const double deltaPhi = 1.884;
   double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
 
+
+  //Adjusting event scaling for pp
+  //cout << numEvents_passAll << "\t" << numEvents_Zless10 << "\t" << numEvents_Zmore10 << "\t" << numEvents_noZ << "\t";
+  //numEvents_passAll = numEvents_Zless10+(numEvents_Zless10/(numEvents_Zless10 + numEvents_Zmore10))*numEvents_noZ;
+  //cout << numEvents_passAll << endl;
   
 
   auto normalizer = new TH1D("normalizer", "normalizer", 20, -0.5, 19.5);
@@ -757,18 +634,13 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   normalizer->SetBinContent(4, numEvents_passTrig);
   normalizer->SetBinContent(5, numEvents_passAll);
   normalizer->SetBinContent(6, numEvents_MB_before);
-  normalizer->SetBinContent(7, numEvents_EG1_before);
+  normalizer->SetBinContent(7, numEvents_DG2_before);
   normalizer->SetBinContent(8, numEvents_EG2_before);
-  normalizer->SetBinContent(9, numEvents_EJ1_before);
-  normalizer->SetBinContent(10, numEvents_EJ2_before);
-  normalizer->SetBinContent(11, numEvents_MB);
-  normalizer->SetBinContent(12, numEvents_EG1);
-  normalizer->SetBinContent(13, numEvents_EG2);
-  normalizer->SetBinContent(14, numEvents_EJ1);
-  normalizer->SetBinContent(15, numEvents_EJ2);
-  normalizer->SetBinContent(16, numEvents_Zmore10);
-  normalizer->SetBinContent(17, numEvents_noZ);
-
+  normalizer->SetBinContent(9, numEvents_MB);
+  normalizer->SetBinContent(10, numEvents_DG2);
+  normalizer->SetBinContent(11, numEvents_EG2);
+  normalizer->SetBinContent(12, numEvents_Zmore10);
+  normalizer->SetBinContent(13, numEvents_noZ);
   
   normalizer->GetXaxis()->SetBinLabel(1,"deltaEta");
   normalizer->GetXaxis()->SetBinLabel(2,"deltaPhi");
@@ -776,15 +648,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   normalizer->GetXaxis()->SetBinLabel(4,"numEvents_passTrig");
   normalizer->GetXaxis()->SetBinLabel(5,"numEvents_passAll");
   normalizer->GetXaxis()->SetBinLabel(6,"numEvents_MB_before");
-  normalizer->GetXaxis()->SetBinLabel(7,"numEvents_EG1_before");
+  normalizer->GetXaxis()->SetBinLabel(7,"numEvents_DG2_before");
   normalizer->GetXaxis()->SetBinLabel(8,"numEvents_EG2_before");
-  normalizer->GetXaxis()->SetBinLabel(7,"numEvents_EJ1_before");
-  normalizer->GetXaxis()->SetBinLabel(8,"numEvents_EJ2_before");
   normalizer->GetXaxis()->SetBinLabel(9,"numEvents_MB");
-  normalizer->GetXaxis()->SetBinLabel(10,"numEvents_EG1");
+  normalizer->GetXaxis()->SetBinLabel(10,"numEvents_DG2");
   normalizer->GetXaxis()->SetBinLabel(11,"numEvents_EG2");
-  normalizer->GetXaxis()->SetBinLabel(10,"numEvents_EJ1");
-  normalizer->GetXaxis()->SetBinLabel(11,"numEvents_EJ2");
   normalizer->GetXaxis()->SetBinLabel(12,"numEvents_Zmore10");
   normalizer->GetXaxis()->SetBinLabel(13,"numEvents_noZ");
 
@@ -828,30 +696,30 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
       double dE = hMB_E->GetBinWidth(i);
       
       double contentMB = hMB_E->GetBinContent(i);
-      double tempMB = contentMB/((double)numEvents_passAll_MB*dE);
+      double tempMB = contentMB/((double)numEvents_MB*dE);
       double errorMB = hMB_E->GetBinError(i);
-      double tempErrMB = errorMB/((double)numEvents_passAll_MB*dE);
-      if(numEvents_passAll_MB) 
+      double tempErrMB = errorMB/((double)numEvents_MB*dE);
+      if(numEvents_MB) 
 	{
 	  hMB_E->SetBinContent(i,tempMB);
 	  hMB_E->SetBinError(i, tempErrMB);
 	}
 
-      double contentEG1 = hEG1_E->GetBinContent(i);
-      double tempEG1 = contentEG1/((double)numEvents_passAll_EG1*dE);
-      double errorEG1 = hEG1_E->GetBinError(i);
-      double tempErrEG1 = errorEG1/((double)numEvents_passAll_EG1*dE);
-      if(numEvents_passAll_EG1) 
+      double contentDG2 = hDG2_E->GetBinContent(i);
+      double tempDG2 = contentDG2/((double)numEvents_DG2*dE);
+      double errorDG2 = hDG2_E->GetBinError(i);
+      double tempErrDG2 = errorDG2/((double)numEvents_DG2*dE);
+      if(numEvents_DG2) 
 	{
-	  hEG1_E->SetBinContent(i,tempEG1);
-	  hEG1_E->SetBinError(i, tempErrEG1);
+	  hDG2_E->SetBinContent(i,tempDG2);
+	  hDG2_E->SetBinError(i, tempErrDG2);
 	}
 
       double contentEG2 = hEG2_E->GetBinContent(i);
-      double tempEG2 = contentEG2/((double)numEvents_passAll_EG2*dE);
+      double tempEG2 = contentEG2/((double)numEvents_EG2*dE);
       double errorEG2 = hEG2_E->GetBinError(i);
-      double tempErrEG2 = errorEG2/((double)numEvents_passAll_EG2*dE);
-      if(numEvents_passAll_EG2) 
+      double tempErrEG2 = errorEG2/((double)numEvents_EG2*dE);
+      if(numEvents_EG2) 
 	{
 	  hEG2_E->SetBinContent(i,tempEG2);
 	  hEG2_E->SetBinError(i, tempErrEG2);
@@ -859,11 +727,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
    }
 
   
-  TH1F* rTrig1 = (TH1F*)hEG1_E->Clone();
+  TH1F* rTrig1 = (TH1F*)hDG2_E->Clone();
   rTrig1->Divide(hMB_E);
   TH1F* rTrig2 = (TH1F*)hEG2_E->Clone();
   rTrig2->Divide(hMB_E);
-  rTrig1->SetTitle(";E (GeV);EG1/MB");
+  rTrig1->SetTitle(";E (GeV);DG2/MB");
   rTrig2->SetTitle(";E (GeV);EG2/MB");//*/
 
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
@@ -892,60 +760,43 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
 
   hEventCut->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut->GetXaxis()->SetBinLabel(2,"no GA/GJ trigger");
+  hEventCut->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
   hEventCut->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
   hEventCut->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
   hEventCut->GetXaxis()->SetBinLabel(5,"pile up");
-  hEventCut->GetXaxis()->SetBinLabel(6,"skimming");
+  hEventCut->GetXaxis()->SetBinLabel(6,"ntrack < 0");
   hEventCut->GetXaxis()->SetBinLabel(7,"passed");
 
   hEventCut_MB->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_MB->GetXaxis()->SetBinLabel(2,"no GA/GJ trigger");
+  hEventCut_MB->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
   hEventCut_MB->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
   hEventCut_MB->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
   hEventCut_MB->GetXaxis()->SetBinLabel(5,"pile up");
   hEventCut_MB->GetXaxis()->SetBinLabel(6,"ntrack < 0");
   hEventCut_MB->GetXaxis()->SetBinLabel(7,"passed");
 
-  hEventCut_EG1->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_EG1->GetXaxis()->SetBinLabel(2,"no GA/GJ trigger");
-  hEventCut_EG1->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
-  hEventCut_EG1->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
-  hEventCut_EG1->GetXaxis()->SetBinLabel(5,"pile up");
-  hEventCut_EG1->GetXaxis()->SetBinLabel(6,"ntrack < 0");
-  hEventCut_EG1->GetXaxis()->SetBinLabel(7,"passed");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(1,"All events");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(5,"pile up");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(6,"ntrack < 0");
+  hEventCut_DG2->GetXaxis()->SetBinLabel(7,"passed");
 
   hEventCut_EG2->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_EG2->GetXaxis()->SetBinLabel(2,"no GA/GJ trigger");
+  hEventCut_EG2->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
   hEventCut_EG2->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
   hEventCut_EG2->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
   hEventCut_EG2->GetXaxis()->SetBinLabel(5,"pile up");
   hEventCut_EG2->GetXaxis()->SetBinLabel(6,"ntrack < 0");
   hEventCut_EG2->GetXaxis()->SetBinLabel(7,"passed");
 
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(2,"no GA/GJ trigger");
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(5,"pile up");
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(6,"ntrack < 0");
-  hEventCut_EJ1->GetXaxis()->SetBinLabel(7,"passed");
-
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(2,"no GA/GJ trigger");
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(5,"pile up");
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(6,"ntrack < 0");
-  hEventCut_EJ2->GetXaxis()->SetBinLabel(7,"passed");
-
-  
   hEventCounts->GetXaxis()->SetBinLabel(1, "Passing Event Selection only");
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  //filename += "_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal_clusterCutFlow_multiplicity_dist2bad1_ncell1_eventCuts_noT";
-  filename += "_cluster_emcalTrigOnly_1Mevents_eventCounts_wTrigPileUpSkimEGCut";
+  //filename += "_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal_clusterCutFlow_multiplicity_dist2bad1_ncell1_eventCuts";
+  filename += "_cluster_EMCandDMCTrigOnly_Allevents_wCENT_eventCounts";
   auto fout = new TFile(Form("isoPhotonOutput/fout_%i_%ibins_%s.root",TrackBit, nbinscluster, filename.Data()), "RECREATE");  
 
 
@@ -955,7 +806,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   hReco_pt->Write("hReco_pt");
   hEventCounts->Write("hEventCounts");
   hMB_E->Write("hMB_E");
-  hEG1_E->Write("hEG1_E");
+  hDG2_E->Write("hDG2_E");
   hEG2_E->Write("hEG2_E");
   //rTrig1->Write("rTrig1");  
   //rTrig2->Write("rTrig2");  
@@ -965,10 +816,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   hPileUpVertex->Write("hPileUpVertex");
   hEventCut->Write("hEventCut");
   hEventCut_MB->Write("hEventCut_MB");
-  hEventCut_EG1->Write("hEventCut_EG1");
+  hEventCut_DG2->Write("hEventCut_DG2");
   hEventCut_EG2->Write("hEventCut_EG2");
-  hEventCut_EJ1->Write("hEventCut_EJ1");
-  hEventCut_EJ2->Write("hEventCut_EJ2");
   hClusterCut->Write("hClusterCut");
   hClusterCutFlow->Write("hClusterCutFlow");
   hMultiplicityBefore->Write("hMultiplicityBefore");
@@ -981,7 +830,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 }
 
     
-void isoPhotonAnalysisData(){  
+void isoPhotonAnalysisData_pp(){  
   //Input to Run is as follow: Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool hasAliDir = true, bool triggered = true)
   
 /*/////////////////////////////////////////////////////////////////
@@ -990,22 +839,11 @@ p-Pb data sets:
 13d,e: p-Pb emcal trigger   
 13f  : Pb-p emcal trigger    
 /////////////////////////////////////////////////////////////////*/
-  //Run(16, "pPb/13c/13c_2runs_al.root", false, true, true);
-  
-  //Run(16, "pPb/13d/13d.root", false);
-  //Run(16, "pPb/13d/13d_wNonLinCorr.root", true);
-  //Run(16, "pPb/13d/13d_3run_forTrig_noEThresh.root", false, true, true);
-  //Run(16, "pPb/13d/13d_7runs_noThresh.root", false, true, true);
-
-  //Run(16, "pPb/13e/13e.root", false);
-  Run(16, "pPb/13f/13f.root", false);
-  //Run(16, "pPb/13f/13f_new_skimClusterMinE12.root", false);
-  //Run(16, "", false, false)
-
 
   //pp data sets
   //Run(16, "pp/17q/17q_CENT_wSDD_3run_forTrig_noEThresh.root", false, true, true);
-  //Run(16, "pp/17q/17q.root", false);
+  Run(16, "pp/17q/17q.root", false);
+  Run(16, "pp/17q/17q_wSDD.root", false);
 
 
 

@@ -19,7 +19,9 @@ void crossSection(){
   //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_fernandoIsoDef_wPurityFitFunction.root", "READ");
   //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_wNonLinCorr_cluster_emcalTrig_Allevent_wEventSelect_allClusCutsTimeCutAcceptanceCut_noDownScale_2piNevdEdEtaPhi_fernandoIsoDef_wPurityFitFunction_nonLinCorrTest.root", "READ");
   //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13de_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction.root", "READ");
-  TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13de_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal.root", "READ");
+  //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13de_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal.root", "READ");
+  //TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13def_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal_clusterCutFlow_multiplicity.root", "READ");
+  TFile* dataFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_cluster_emcalTrigOnly_1Mevents_eventCounts_wTrigPileUpSkimEGCut.root", "READ");
 
 
   //pp
@@ -54,33 +56,62 @@ void crossSection(){
 
 
   //Obtain and plotting histograms from MC
-  TFile* mcFile = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_MKevents_erwanbinning_noNorm_newIsoDef_acceptanceCuts2.root","READ"); 
-  //TFile* mcFile = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18g7a_MKevents_erwanbinning_noNorm_newIsoDef_acceptanceCuts2.root","READ"); 
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_MKevents_erwanbinning_noNorm_newIsoDef_acceptanceCuts2.root","READ"); 
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration.root","READ"); 
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn0.root","READ");
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn1.root","READ");
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn1_hCorr_corr.root","READ"); 
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn1_hCorr_corr_ncell1.root","READ"); 
+  TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_50Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ"); 
+
+
+  //TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18g7a_MKevents_erwanbinning_noNorm_newIsoDef_acceptanceCuts2.root","READ"); 
   
 
-  TH1D* hEff = (TH1D*)mcFile->Get("hEfficiency");
-  hEff->SetName("hEff");
-  hEff->SetTitle("Global Isolation Efficiency; E_{T} [GeV]; #epsilon");
-  hEff->GetYaxis()->SetRangeUser(0,1);
-  hEff->SetLineColor(kBlack);
-  hEff->SetMarkerColor(kBlack);
-  hEff->SetMarkerStyle(4);
+  TH1D* hEff_pPb = (TH1D*)mcFile_pPb->Get("hEfficiency");
+  hEff_pPb->SetName("hEff_pPb");
+  hEff_pPb->SetTitle("; E_{T} [GeV]; #epsilon");
+  hEff_pPb->GetYaxis()->SetRangeUser(0,1);
+  hEff_pPb->SetLineColor(kRed);
+  hEff_pPb->SetMarkerColor(kRed);
+  hEff_pPb->SetMarkerStyle(4);
+
+  TH1D* hFakeRate_pPb = (TH1D*)mcFile_pPb->Get("hFakeRate");
+  hFakeRate_pPb->SetName("FakeRate_pPb");
+  hFakeRate_pPb->SetTitle("; E_{T} [GeV];");
+  hFakeRate_pPb->GetYaxis()->SetRangeUser(0,1);
+  hFakeRate_pPb->SetLineColor(kBlue);
+  hFakeRate_pPb->SetMarkerColor(kBlue);
+  hFakeRate_pPb->SetMarkerStyle(4);
+
+  TH1D* hBinMigration_pPb = (TH1D*)mcFile_pPb->Get("hMigEfficiency");
+  hBinMigration_pPb->SetName("hbinMigration_pPb");
+  hBinMigration_pPb->SetTitle("Bin Migration Effection = #frach{dN^{reco}/dE_{T}^{reco}}{dN^{reco}/dE_{T}^{truth}}; E_{T} [GeV]; #epsilon");
+  hBinMigration_pPb->GetYaxis()->SetRangeUser(0,1);
+  hBinMigration_pPb->SetLineColor(kMagenta);
+  hBinMigration_pPb->SetMarkerColor(kMagenta);
+  hBinMigration_pPb->SetMarkerStyle(4);
+
+  TLegend* legEff = new TLegend(0.6,0.7,0.9,0.9);
+  legEff->AddEntry(hEff_pPb,"Efficiency = #epsilon_{reco} x #epsilon_{ssc} x #epsilon_{iso}");
+  legEff->AddEntry(hFakeRate_pPb,"Fake rate");
+  legEff->AddEntry(hBinMigration_pPb,"Bin Migration");
 
   //Luminosity Calulation
-  double Nevtot_pPb = hNumEvents_pPb->GetBinContent(3);
+  double Nevtot_pPb = hNumEvents_pPb->GetBinContent(5);
   double Nevtot_pp = hNumEvents_pp->GetBinContent(3);
   //double NevEG1 = hNumEvents->GetBinContent(5);
   //double NevEG2 = hNumEvents->GetBinContent(6);
   //cout << NevEG2 << endl;
-  cout << "pPb Events (tot, EG1, EG2): \t" << hNumEvents_pPb->GetBinContent(3) << "\t" << hNumEvents_pPb->GetBinContent(5) << "\t" << hNumEvents_pPb->GetBinContent(6) << endl;
+  cout << "pPb Events (tot, EG1, EG2): \t" << hNumEvents_pPb->GetBinContent(5) << "\t" << hNumEvents_pPb->GetBinContent(12) << "\t" << hNumEvents_pPb->GetBinContent(13) << endl;
   cout << "pp Events (tot, EG1, EG2): \t" << hNumEvents_pp->GetBinContent(3) << "\t" << hNumEvents_pp->GetBinContent(5) << "\t" << hNumEvents_pp->GetBinContent(6) << endl;
   double xSectionMB = 2.11;
 
   //const double lumi_pPb = 4.64;
   //const double lumi_err_pPb = 0.041;
   
-  const double lumi_pPb = 1.29;
-  const double lumi_error_pPb = .14;
+  const double lumi_pPb = 1.08;
+  const double lumi_error_pPb = 0.10;
   double relLumiError_pPb = lumi_error_pPb/lumi_pPb;
   const double lumi_pp = 5.03;
   const double lumi_error_pp = 0.35;
@@ -120,8 +151,8 @@ void crossSection(){
     double error = crossSection_pPb->GetBinError(i);
     double relError = error/content;
 
-    double eff = hEff->GetBinContent(i);
-    double eff_error = hEff->GetBinError(i);
+    double eff = hEff_pPb->GetBinContent(i);
+    double eff_error = hEff_pPb->GetBinError(i);
     double relEffError = eff_error/eff;
     
     double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_pPb,2));
@@ -144,6 +175,7 @@ void crossSection(){
   h_RpA->SetName("h_RpA");
   h_RpA->SetTitle(";E_{T} [GeV]; RpA (#sigma_{pPb}/<N_{coll}#sigma_{pp}>)");
   const double Ncoll = 7.0;
+  const double A = 208;
   
   for(int i = 1; i < h_RpA->GetNbinsX()+1;i++){
     
@@ -159,6 +191,7 @@ void crossSection(){
     double rpa_relError = TMath::Sqrt(TMath::Power(relError_pPb,2)+TMath::Power(relError_pp,2));
     double rpa_error = rpa*rpa_relError;
  
+    cout << i << "\t" << h_RpA->GetXaxis()->GetBinLowEdge(i) << "\t" << rpa << "\t" << rpa_error << endl;
     h_RpA->SetBinContent(i, rpa);
     h_RpA->SetBinError(i, rpa_error);
   }
@@ -168,9 +201,12 @@ void crossSection(){
   TH1F* crossSection_erwann = (TH1F*)hClusterSpectra_pPb->Clone();
   crossSection_erwann->SetName("crossSection_erwann");
   crossSection_erwann->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+  TH1F* crossSection_erwann_old = (TH1F*)hClusterSpectra_pPb->Clone();
+  crossSection_erwann_old->SetName("crossSection_erwann_old");
+  crossSection_erwann_old->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   double erwannMean[9] = {4727.74, 2015.57, 1151.86, 696.985, 444.604, 233.026, 104.87, 38.5216, 7.4227};
-  //double erwannMean[9] = {7754.10, 2951.72, 2018.28, 1135.31, 609.94, 338.88, 139.56, 55.48, 11.27};
+  double erwannMean_old[9] = {7754.10, 2951.72, 2018.28, 1135.31, 609.94, 338.88, 139.56, 55.48, 11.27};
   double erwannStat[9] = {604.369, 337.901, 71.0714, 51.475, 35.3468, 15.5412, 10.4705, 4.64552, 1.38719};
   double erwannSys[9] = {766.058, 308.501, 167.064, 96.1471, 58.8658, 29.4243, 12.7484, 4.7213, 1.11858};
 
@@ -179,12 +215,18 @@ void crossSection(){
 
     crossSection_erwann->SetBinContent(i, erwannMean[i-6]);
     crossSection_erwann->SetBinError(i, erwannStat[i-6]);
+    crossSection_erwann_old->SetBinContent(i, erwannMean_old[i-6]);
+    crossSection_erwann_old->SetBinError(i, erwannStat[i-6]);
     
   }
 
   crossSection_erwann->SetLineColor(kBlack);
   crossSection_erwann->SetMarkerStyle(20);
   crossSection_erwann->SetMarkerColor(kBlack);
+
+  crossSection_erwann_old->SetLineColor(kCyan);
+  crossSection_erwann_old->SetMarkerStyle(20);
+  crossSection_erwann_old->SetMarkerColor(kCyan);
 
   crossSection_pp->SetLineColor(kBlue);
   crossSection_pp->SetMarkerStyle(20);
@@ -196,10 +238,10 @@ void crossSection(){
   
   TLegend* leg = new TLegend(0.6,0.7,0.9,0.9);
   leg->SetHeader("p-Pb (13de) and pp (17q)");
-  leg->AddEntry(crossSection_pp,"pp");
+  //leg->AddEntry(crossSection_pp,"pp");
   leg->AddEntry(crossSection_pPb,"pPb");
   leg->AddEntry(crossSection_erwann,"Erwann's pPb");
-
+  leg->AddEntry(crossSection_erwann_old,"Erwann's old pPb");
 
 
   TCanvas* cXSection = new TCanvas();
@@ -207,8 +249,9 @@ void crossSection(){
   crossSection_pPb->GetXaxis()->SetRangeUser(12,60);
   crossSection_pPb->GetYaxis()->SetRangeUser(1,1e5);
   crossSection_pPb->Draw("e");
-  crossSection_pp->Draw("samee");
+  //crossSection_pp->Draw("samee");
   crossSection_erwann->Draw("samee");
+  crossSection_erwann_old->Draw("samee");
   leg->Draw("same");
 
   TCanvas* cYield = new TCanvas();
@@ -219,10 +262,12 @@ void crossSection(){
   legYield->Draw("same");
 
   TCanvas* cEff = new TCanvas();
-  hEff->GetXaxis()->SetRangeUser(12,60);
-  hEff->Draw("e");
-
-
+  hEff_pPb->GetXaxis()->SetRangeUser(12,60);
+  hEff_pPb->Draw("e");
+  hBinMigration_pPb->Draw("samee");
+  hFakeRate_pPb->Draw("samee");
+  legEff->Draw("same");
+    
   TH1F* crossSectionRatio = (TH1F*)crossSection_erwann->Clone();
   crossSectionRatio->SetName("crossSectionRatio");
   crossSectionRatio->SetTitle(";E_{T};#frac{CrossSection_{Erwann}}{CrossSection_{Dhruv}}");
@@ -230,24 +275,38 @@ void crossSection(){
   crossSectionRatio->GetXaxis()->SetRangeUser(12,60);
   crossSectionRatio->GetYaxis()->SetRangeUser(0,2);
 
+  TH1F* crossSectionRatio_old = (TH1F*)crossSection_erwann_old->Clone();
+  crossSectionRatio_old->SetName("crossSectionRatio_old");
+  crossSectionRatio_old->SetTitle(";E_{T};#frac{CrossSection_{Erwann}}{CrossSection_{Dhruv}}");
+  crossSectionRatio_old->Divide(crossSection_pPb);
+  crossSectionRatio_old->GetXaxis()->SetRangeUser(12,60);
+  crossSectionRatio_old->GetYaxis()->SetRangeUser(0,2);
+
+  
   TH1F* unity = (TH1F*)crossSection_erwann->Clone();
   unity->SetName("unity");
+  unity->SetTitle(";E_{T};ratio (#frac{#sigma_{Erwann}}{#sigma_{Dhruv}}");
   unity->Divide(crossSection_erwann);
   unity->SetLineColor(kBlue);
+  unity->GetXaxis()->SetRangeUser(12,60);
+  unity->GetYaxis()->SetRangeUser(0,2);
+
+  TLegend* legRatio = new TLegend(0.6,0.7,0.9,0.9);
+  legRatio->AddEntry(crossSectionRatio,"Erwann's pPb");
+  legRatio->AddEntry(crossSectionRatio_old,"Erwann's old pPb");
+
 
   TCanvas* cRatio = new TCanvas();
-  //crossSectionRatio->Draw("e");
-  h_RpA->GetXaxis()->SetRangeUser(12,60);
-  h_RpA->GetYaxis()->SetRangeUser(0,2);
-  h_RpA->Draw("e");
-  unity->Draw("histsame");
+  unity->Draw("hist");
+  crossSectionRatio->Draw("samee");
+  crossSectionRatio_old->Draw("samee");
+  legRatio->Draw("same");
+  //h_RpA->GetXaxis()->SetRangeUser(12,60);
+  //h_RpA->GetYaxis()->SetRangeUser(0,2);
+  //h_RpA->Draw("samee");
   
-  /*for(int i = 6; i < crossSection_erwann->GetNbinsX()+1;i++){
-    
-    crossSection_erwann->SetBinContent(i, erwannMean_old[i-6]);
-    crossSection_erwann->SetBinError(i, erwannStat[i-6]);
-    
-    }*/
+  
 
+  //TFile* outputfile = TFile
   
 }
