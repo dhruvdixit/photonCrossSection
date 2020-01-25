@@ -123,7 +123,7 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 }
 
 
-void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool hasAliDir = true, bool triggered = true){
+void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool forRTrig = false){
 
   gStyle->SetOptStat(0);
 
@@ -187,8 +187,6 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   unsigned char track_quality[kMax];//
   ULong64_t trigger_mask[2];
 
-  float eg_cross_section;//
-  int eg_ntrial;//
   
   _tree_event->SetBranchAddress("primary_vertex", primary_vertex);
   _tree_event->SetBranchAddress("is_pileup_from_spd_5_08", &is_pileup_from_spd_5_08);
@@ -248,21 +246,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
 
 
-  auto hITSclus = new TH1F("hITSclus", "", 7, -0.5, 6.5);
-  auto hITSclus_fake = new TH1F("hITSclus_fake", "", 7, -0.5, 6.5);
 
   auto hIso_ITS = new TH1F("hIso_ITS","", 25, -10, 40);
   auto hIso_TPC = new TH1F("hIso_TPC","", 25, -10, 40);  
-  auto hIso_Truth = new TH1F("hIso_Truth","", 25, -10, 40);
   
-  auto hTrackCut = new TH1F("hTrackCut", "", 15, -0.5, 14.5);
-  auto hNumTracks = new TH1F("hNumTracks", "", 500, -0.5, 499.5);
-  auto hEventCounts = new TH1F("hEventCounts","", 10, -0.5, 9.5);
-  auto hEventCounts_EG1 = new TH1F("hEventCounts_EG1","", 10, -0.5, 9.5);
-  auto hEventCounts_EG2 = new TH1F("hEventCounts_EG2","", 10, -0.5, 9.5);
   auto hZvertex = new TH1F("hZvertez", "", 60, -30, 30);
   auto hZvertexAfter = new TH1F("hZvertezAfter", "", 60, -30, 30);
-  auto hHitsITS = new TH1F("hHitsITS", "", 10, -0.5, 9.5);
   auto hEventCut = new TH1F("hEventCut", "", 10, -0.5, 9.5);
   auto hEventCut_MB = new TH1F("hEventCut_MB", "", 10, -0.5, 9.5);
   auto hEventCut_EG1 = new TH1F("hEventCut_EG1", "", 10, -0.5, 9.5);
@@ -277,13 +266,14 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
   hZvertex->Sumw2();
   hZvertexAfter->Sumw2();
-  hHitsITS->SetTitle(";Layers hit; counts");
 
   //Photon
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
 
   Double_t clusterbinsTrig[25] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00};
+
+  
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
   auto hEG1_E = new TH1F("hEG1_E", "", nbinscluster, clusterbins);
@@ -340,12 +330,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   trigMask_13d_trigs[3] = (one1 << 20);//EJ1
   trigMask_13d_trigs[4] = (one1 << 21);//EJ2
   
-  ULong64_t trigMask_13d_trigs_r195767[5] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
-  trigMask_13d_trigs_r195767[0] = (one1 << 2);
-  trigMask_13d_trigs_r195767[1] = (one1 << 18);//EG1
-  trigMask_13d_trigs_r195767[2] = (one1 << 19);//EG2
-  trigMask_13d_trigs_r195767[3] = (one1 << 21);//EJ1
-  trigMask_13d_trigs_r195767[4] = (one1 << 22);//EJ2
+  ULong64_t trigMask_13d_trigs2[5] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
+  trigMask_13d_trigs2[0] = (one1 << 1);
+  trigMask_13d_trigs2[1] = (one1 << 18);//EG1
+  trigMask_13d_trigs2[2] = (one1 << 19);//EG2
+  trigMask_13d_trigs2[3] = (one1 << 21);//EJ1
+  trigMask_13d_trigs2[4] = (one1 << 22);//EJ2
   
   
   /*//////////////////////////////////////////////////////////////////////////////////
@@ -383,14 +373,14 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   trigMask_13f_trigs2[4] = (one1 << 15);
   
   ULong64_t trigMask_13f_trigs3[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13f_trigs3[0] = (one1 << 2);
+  trigMask_13f_trigs3[0] = (one1 << 1);
   trigMask_13f_trigs3[1] = (one1 << 16);
   trigMask_13f_trigs3[2] = (one1 << 17);
   trigMask_13f_trigs3[3] = (one1 << 18);
   trigMask_13f_trigs3[4] = (one1 << 19);
 
   ULong64_t trigMask_13f_trigs4[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13f_trigs3[0] = (one1 << 2);
+  trigMask_13f_trigs3[0] = (one1 << 9);
   trigMask_13f_trigs3[1] = (one1 << 13);
   trigMask_13f_trigs3[2] = (one1 << 14);
   trigMask_13f_trigs3[3] = (one1 << 15);
@@ -413,6 +403,16 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
   ULong64_t trigMask[5] = {0};
 
+  //Trigger Selection:
+  //001 = 1 = MB
+  //110 = 6 = EG1||EG2
+  //111 = 7 = MB||EG1||EG2
+  //11000 = 24 = EJ1|EJ2
+  //11110 = 30 = EG1|EG2|EJ1|EJ2
+  ULong64_t trigSelection = 6;
+  if(forRTrig) trigSelection = 7;
+  cout << trigSelection << endl;
+  
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
   Long64_t restrictEvents = 10000000000000;
@@ -469,17 +469,18 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
     //Event Selection:    
     //13d
-    if(run_number >= 195724 && run_number <= 195872) {
+    if(run_number >= 195724 && run_number <= 195872)
       std::memcpy(trigMask, trigMask_13d_trigs, sizeof(trigMask));
-      //cout << "run is from 13d" << endl;
-    }
+    if(run_number == 195724 || run_number == 195760)
+      std::memcpy(trigMask, trigMask_13d_trigs2, sizeof(trigMask));
+
     //13e
     if(run_number >= 195935 && run_number <= 196310)
       std::memcpy(trigMask, trigMask_13e_trigs, sizeof(trigMask));
     if(run_number == 196208)
       std::memcpy(trigMask, trigMask_13e_trigs_r196208, sizeof(trigMask));
-    //13f
 
+    //13f
     if(run_number >= 196433 && run_number <=197388)
       std::memcpy(trigMask, trigMask_13f_trigs1, sizeof(trigMask));
     if(run_number == 196967 ||
@@ -496,7 +497,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     if(run_number == 196433)
       std::memcpy(trigMask, trigMask_13f_trigs4, sizeof(trigMask));
     if(run_number == 197189) continue;
-    
+    if(run_number == 197342 || run_number == 197341 || run_number == 197302) continue;//in order to seperate the new and old
+    //cout << ievent << endl;
 
     ULong64_t localTrigBit = 0;
     if(not ((trigMask[0] & trigger_mask[0]) == 0))  {
@@ -524,14 +526,18 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     //111 = 7 = MB||EG1||EG2
     //11000 = 24 = EJ1|EJ2
     //11110 = 30 = EG1|EG2|EJ1|EJ2
+    //default trigSelection set to 6;
+    //if(forRTrig) then trigSelection set to 7;
+
     if((localTrigBit & 1) != 0) {isMB = true; hEventCut_MB->Fill(0);numEvents_MB_before++;}
     if((localTrigBit & 2) != 0) {isEG1 = true;hEventCut_EG1->Fill(0);numEvents_EG1_before++;}
     if((localTrigBit & 4) != 0) {isEG2 = true;hEventCut_EG2->Fill(0);numEvents_EG2_before++;}
     if((localTrigBit & 8) != 0) {isEJ1 = true;hEventCut_EJ1->Fill(0);numEvents_EJ1_before++;}
     if((localTrigBit & 16) != 0) {isEJ2 = true;hEventCut_EJ2->Fill(0);numEvents_EJ2_before++;}
     
+
     
-    if((localTrigBit & 6) == 0) {
+    if((localTrigBit & trigSelection) == 0) {
       hEventCut->Fill(1);
       if(isMB) hEventCut_MB->Fill(1);
       if(isEG1) hEventCut_EG1->Fill(1);
@@ -542,7 +548,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
       continue;
     }//no emcal gamma or jet triggers
 
-    if((localTrigBit & 6) != 0) {
+    if((localTrigBit & trigSelection) != 0) {
       numEvents_passTrig++;
       if(isEG2 & !isEG1)
 	numEvents_onlyEG2++;
@@ -611,7 +617,6 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     
     
     int eventFill = 0;    
-    hEventCounts->Fill(eventFill);
 
 
     //continue;
@@ -703,8 +708,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	  clusterCutBits |= (1 << 8); hClusterCut->Fill(9);
 	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
 
-	
-	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0)) continue;
+	if(!forRTrig)
+	  if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0)) continue;
 	if(ievent%1000==0)
 	  {
 	    std::cout << "cluster accepted" << std::endl;
@@ -717,6 +722,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	  //if (eventChange) {numClustersPost++; eventChange = false;}
 	//double purity = purityWeights(clusterPt, "pPb");
 	double purity = Get_Purity_ErrFunction(clusterPt);
+	if(forRTrig) purity = 1.0;
 	//hReco_pt->Fill(clusterPt);
 	if((localTrigBit & 1) != 0) hMB_E->Fill(clusterPt, purity);
 	if((localTrigBit & 2) != 0) hEG1_E->Fill(clusterPt, purity);
@@ -724,7 +730,6 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	hCluster_pt->Fill(clusterPt,purity);
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
 	hIso_TPC->Fill(cluster_iso_tpc_04[n]);
-	hIso_Truth->Fill(cluster_iso_04_truth[n]);
 	
       }
     
@@ -750,7 +755,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   const double deltaEta = 1.334;
   const double deltaPhi = 1.884;
   double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
-
+  if(forRTrig) acceptanceNorm = 1;
   
 
   auto normalizer = new TH1D("normalizer", "normalizer", 20, -0.5, 19.5);
@@ -838,50 +843,6 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     }//*/
 
 
-  
-  /*for(int i = 1; i < hMB_E->GetNbinsX()+1; i++)
-    {
-      double dE = hMB_E->GetBinWidth(i);
-      
-      double contentMB = hMB_E->GetBinContent(i);
-      double tempMB = contentMB/((double)numEvents_passAll_MB*dE);
-      double errorMB = hMB_E->GetBinError(i);
-      double tempErrMB = errorMB/((double)numEvents_passAll_MB*dE);
-      if(numEvents_passAll_MB) 
-	{
-	  hMB_E->SetBinContent(i,tempMB);
-	  hMB_E->SetBinError(i, tempErrMB);
-	}
-
-      double contentEG1 = hEG1_E->GetBinContent(i);
-      double tempEG1 = contentEG1/((double)numEvents_passAll_EG1*dE);
-      double errorEG1 = hEG1_E->GetBinError(i);
-      double tempErrEG1 = errorEG1/((double)numEvents_passAll_EG1*dE);
-      if(numEvents_passAll_EG1) 
-	{
-	  hEG1_E->SetBinContent(i,tempEG1);
-	  hEG1_E->SetBinError(i, tempErrEG1);
-	}
-
-      double contentEG2 = hEG2_E->GetBinContent(i);
-      double tempEG2 = contentEG2/((double)numEvents_passAll_EG2*dE);
-      double errorEG2 = hEG2_E->GetBinError(i);
-      double tempErrEG2 = errorEG2/((double)numEvents_passAll_EG2*dE);
-      if(numEvents_passAll_EG2) 
-	{
-	  hEG2_E->SetBinContent(i,tempEG2);
-	  hEG2_E->SetBinError(i, tempErrEG2);
-	}
-   }
-
-  
-  TH1F* rTrig1 = (TH1F*)hEG1_E->Clone();
-  rTrig1->Divide(hMB_E);
-  TH1F* rTrig2 = (TH1F*)hEG2_E->Clone();
-  rTrig2->Divide(hMB_E);
-  rTrig1->SetTitle(";E (GeV);EG1/MB");
-  rTrig2->SetTitle(";E (GeV);EG2/MB");//*/
-
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
   hClusterCut->GetXaxis()->SetBinLabel(3,"exoticity");
@@ -956,12 +917,13 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   hEventCut_EJ2->GetXaxis()->SetBinLabel(7,"passed");
 
   
-  hEventCounts->GetXaxis()->SetBinLabel(1, "Passing Event Selection only");
-  hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
-
-  //Writing to file
+//Writing to file
   //filename += "_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal_clusterCutFlow_multiplicity_dist2bad1_ncell1_eventCuts_noT";
-  filename += "_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new";
+
+  if(forRTrig)
+    filename += "_MBEG1EG2_noPurityWeights_noClusCuts_noAcceptanceNorm_allEventCuts_forRTrig_new";
+  else
+    filename += "_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new";
   auto fout = new TFile(Form("isoPhotonOutput/fout_%i_%ibins_%s.root",TrackBit, nbinscluster, filename.Data()), "RECREATE");  
 
 
@@ -969,7 +931,6 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   //writing photon info
   hCluster_pt->Write("hCluster_pt");
   hReco_pt->Write("hReco_pt");
-  hEventCounts->Write("hEventCounts");
   hMB_E->Write("hMB_E");
   hEG1_E->Write("hEG1_E");
   hEG2_E->Write("hEG2_E");
@@ -998,7 +959,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
     
 void isoPhotonAnalysisData_pPb(){  
-  //Input to Run is as follow: Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool hasAliDir = true, bool triggered = true)
+  //Input to Run is as follow: Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool forRTrig = false)
   
 /*/////////////////////////////////////////////////////////////////
 p-Pb data sets:
@@ -1012,23 +973,33 @@ p-Pb data sets:
   //Run(16, "pPb/13d/13d_wNonLinCorr.root", true);
   //Run(16, "pPb/13d/13d_3run_forTrig_noEThresh.root", false, true, true);
   //Run(16, "pPb/13d/13d_7runs_noThresh.root", false, true, true);
-
+  //Run(16, "pPb/13d/13d_all10runs_noSkim.root", false);
+  
   //Run(16, "pPb/13e/13e.root", false);
+  //Run(16, "pPb/13e/13e_10runs_noSkim_part1.root", false);
+  //Run(16, "pPb/13e/13e_10runs_noSkim_part2.root", false);
+  
   //Run(16, "pPb/13f/13f.root", false);
   //Run(16, "pPb/13f/13f_3runs_noSkim.root", false);
   //Run(16, "pPb/13f/13f_new_skimClusterMinE12.root", false);
-  //Run(16, "pPb/13f/13f_10runs_noSkim_part1.root", false);
   //Run(16, "pPb/13f/13f_10runs_noSkim_part1_new.root", false);
-  //Run(16, "pPb/13f/13f_10runs_noSkim_part2.root", false);
-  //Run(16, "pPb/13f/13f_10runs_noSkim_part2_new.root", false)
-  Run(16, "pPb/13f/13f_10runs_noSkim_part3.root", false);
-  Run(16, "pPb/13f/13f_10runs_noSkim_part3_new.root", false);
-  Run(16, "pPb/13f/13f_10runs_noSkim_part3_newer.root", false);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part2_new.root", false);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part3_newer.root", false);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part4.root", false);
+  //Run(16, "pPb/13f/13f_3runs_noSkim_part5.root", false);
+  //Run(16, "pPb/13f/13f_3runs_noSkim_part5_new.root", false);
 
-  //pp data sets
-  //Run(16, "pp/17q/17q_CENT_wSDD_3run_forTrig_noEThresh.root", false, true, true);
-  //Run(16, "pp/17q/17q.root", false);
-
+  //For trigger rejection factor calculation
+  //Run(16, "pPb/13f/13f_3runs_noSkim.root", false, true);//currently used!
+  //Run(16, "pPb/13d/13d_all10runs_noSkim.root", false, true);
+  //Run(16, "pPb/13e/13e_10runs_noSkim_part1.root", false, true);
+  //Run(16, "pPb/13e/13e_10runs_noSkim_part2.root", false, true);
+  Run(16, "pPb/13f/13f_10runs_noSkim_part1_new.root", false, true);
+  Run(16, "pPb/13f/13f_10runs_noSkim_part2_new.root", false, true);
+  Run(16, "pPb/13f/13f_10runs_noSkim_part3_newer.root", false, true);
+  Run(16, "pPb/13f/13f_10runs_noSkim_part4.root", false, true);
+  Run(16, "pPb/13f/13f_3runs_noSkim_part5_new.root", false, true);
+  
 
 
   return;

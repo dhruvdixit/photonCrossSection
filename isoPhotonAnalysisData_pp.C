@@ -24,6 +24,8 @@
 #include <bitset>
 #include <bits/stdc++.h>
 #include <cstring>
+#include <chrono>
+#include <ctime> 
 
 bool ptDepShowerShapeCut(Float_t clus_pt, Float_t lambda2){
   //bool passShowerShape = true;
@@ -123,7 +125,7 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 }
 
 
-void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool forRtrig = false){
+void Run(ULong64_t TriggerBit, TString address, bool nonLinCorrOn = false, bool forRtrig = false){
 
   gStyle->SetOptStat(0);
 
@@ -267,6 +269,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   auto hEventCut_MB = new TH1F("hEventCut_MB", "", 10, -0.5, 9.5);
   auto hEventCut_DG2 = new TH1F("hEventCut_DG2", "", 10, -0.5, 9.5);
   auto hEventCut_EG2 = new TH1F("hEventCut_EG2", "", 10, -0.5, 9.5);
+  auto hEventCut_EG2cent = new TH1F("hEventCut_EG2cent", "", 10, -0.5, 9.5);
   auto hClusterCut = new TH1F("hClusterCut", "", 20, -0.5, 19.5);
   auto hClusterCutFlow = new TH1F("hClusterCutFlow", "", 20, -0.5, 19.5);
   auto hPileUpVertex = new TH1F("hPileUpVertex", "", 20, -0.5, 19.5);
@@ -278,9 +281,9 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   hHitsITS->SetTitle(";Layers hit; counts");
 
   //Photon
-  const int nbinscluster = 24;
-  //Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
-  Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00};//nbinscluster = 24, rejection factor binning
+  const int nbinscluster = 14;
+  Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
+  //Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00};//nbinscluster = 24, rejection factor binning
   
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
@@ -288,7 +291,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   auto hDG2_centE = new TH1F("hDG2_centE", "", nbinscluster, clusterbins);
   auto hEG2_caloE = new TH1F("hEG2_caloE", "", nbinscluster, clusterbins);
   auto hEG2_centE = new TH1F("hEG2_centE", "", nbinscluster, clusterbins);
-  auto hMB_caloE = new TH1F("hMB_caloE", "",  nbinscluster, clusterbins);
+  auto hMB_centE = new TH1F("hMB_centE", "",  nbinscluster, clusterbins);
 
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
@@ -296,13 +299,15 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   hEG2_caloE->Sumw2();
   hDG2_centE->Sumw2();  
   hEG2_centE->Sumw2();
-  hMB_caloE->Sumw2();
+  hMB_centE->Sumw2();
 
   hCluster_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hReco_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
-  hMB_caloE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
+  hMB_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
   hDG2_caloE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{DG2}dN/dE_{T}");
   hEG2_caloE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
+  hDG2_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{DG2}dN/dE_{T}");
+  hEG2_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
 
   int nevent = 0; 
   int numEvents_tracks = 0;
@@ -311,12 +316,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   int numEvents_tot = 0;
   int numEvents_passTrig = 0;
   int numEvents_passAll = 0;
-  int numEvents_MBcalo = 0;
+  int numEvents_MBcent = 0;
   int numEvents_DG2cent = 0;
   int numEvents_EG2cent = 0;
   int numEvents_DG2calo = 0;
   int numEvents_EG2calo = 0;
-  int numEvents_MBcalo_before = 0;
+  int numEvents_MBcent_before = 0;
   int numEvents_DG2cent_before = 0;
   int numEvents_EG2cent_before = 0;
   int numEvents_DG2calo_before = 0;
@@ -326,16 +331,15 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   int numEvents_noZ = 0;
   int numClusters_clusterpt = 0;
   int numClusters_EG2_caloE = 0;
-  //const int TrackBit = 16; //ITSONLY==16; ITS--TPC with full-jet cuts
+  int numClusters_EG2_centE = 0;
 
   const double maxEta = 0.8;
  
   const ULong64_t one1 = 1;
-  
+  const int numTrigs = 5; 
   /*//////////////////////////////////////////////////////////////////////////////////
     17q triggers
  //////////////////////////////////////////////////////////////////////////////////*/
-  const int numTrigs = 5; 
   ULong64_t trigMask_17q_trigs1[numTrigs] = {0};//0 = MB, 1 = DG2, 2 = EG2
   trigMask_17q_trigs1[0] = (one1 << 21);//MB calo
   trigMask_17q_trigs1[1] = (one1 << 30);//DG2 calo
@@ -346,22 +350,39 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   trigMask_17q_trigs2[1] = (one1 << 26);//DG2 calo
   trigMask_17q_trigs2[2] = (one1 << 23);//EG2 calo
 
-  ULong64_t trigMask_17q_trigs3[numTrigs];//0 = MB, 1 = DG2, 2 = EG2
-  trigMask_17q_trigs3[0] = (one1 << 6);
+  ULong64_t trigMask_17q_trigs3[numTrigs] = {0};//0 = MB, 1 = DG2, 2 = EG2
+  trigMask_17q_trigs3[0] = (one1 << 0) | (one1 << 3);//fast and cent cint7
   trigMask_17q_trigs3[1] = (one1 << (13));//cent DG2
   trigMask_17q_trigs3[2] = (one1 << (10));//cent EG2
   trigMask_17q_trigs3[3] = (one1 << (57-50));//calo DG2
   trigMask_17q_trigs3[4] = (one1 << (54-50));//calo EG2
   
+  /*//////////////////////////////////////////////////////////////////////////////////
+    17p triggers
+ //////////////////////////////////////////////////////////////////////////////////*/
+  ULong64_t trigMask_17p_trigs1[numTrigs] = {0};//0 = fast, 1 = cent
+  trigMask_17p_trigs1[0] = (one1 << 0) | (one1 << 2);//fast | cent
+  //trigMask_17p_trigs1[1] = (one1 << 2);//cent
+  //trigMask_17p_trigs1[2] = (one1 << 27);//centnotrd
 
+  ULong64_t trigMask_17p_trigs2[numTrigs] = {0};//0 = fast, 1 = cent
+  trigMask_17p_trigs2[0] = (one1 << 0) | (one1 << 3);//fast | cent
+  //trigMask_17p_trigs2[1] = (one1 << 3);//cent
+  //trigMask_17p_trigs2[2] = (one1 << 23);//EG2 calo
+
+  ULong64_t trigMask_17p_trigs3[numTrigs] = {0};//0 = fast, 1 = cent
+  //trigMask_17p_trigs3[0] = (one1 << 0);//fast
+  trigMask_17p_trigs3[1] = (one1 << 0);//cent
+  //trigMask_17p_trigs2[2] = (one1 << 23);//EG2 calo
+  
   ULong64_t trigMask[numTrigs] = {0};
 
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
-  Long64_t restrictEvents = 1000000000000;
+  Long64_t restrictEvents = 100000000;
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
-  for (Long64_t ievent=0;ievent< numEntries ;ievent++) {
+  for (Long64_t ievent = 4035922;ievent< numEntries ;ievent++) {
     _tree_event->GetEntry(ievent);
     nevent += 1;
     if(ievent%100000==0)
@@ -369,118 +390,121 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
 	std::cout << ievent << std::endl;
 	cout << run_number << endl;
       }
-
-    //if(run_number == 282365) ;
-    bool eventChange = true;
-    bool isMBcalo, isDG2calo, isEG2calo;
-    isMBcalo = isDG2calo = isEG2calo = false;
-
     
-
+    //if(run_number == 282367) cout << ievent << endl;
+    bool eventChange = true;
+    bool isMBcalo, isDG2calo, isEG2calo, isEG2cent;
+    isMBcalo = isDG2calo = isEG2calo = isEG2cent = false;
+    
+    
+    
     hPileUpVertex->Fill(npileup_vertex_spd);
     hEventCut->Fill(0);
     hZvertex->Fill(primary_vertex[2]);
     float multp_sum = 0;
     for (int k = 0; k < 64; k++) {
-        multp_sum += multiplicity_v0[k];
-      }
+      multp_sum += multiplicity_v0[k];
+    }
     hMultiplicityBefore->Fill(multp_sum);
-
+    
     //Event Selection:    
     
-
+    
+    //17p
+    if(run_number >= 282008 && run_number <= 282031)
+      continue;//std::memcpy(trigMask, trigMask_17p_trigs1, sizeof(trigMask));
+    if(run_number >= 282050 && run_number <= 282098)
+      std::memcpy(trigMask, trigMask_17p_trigs1, sizeof(trigMask));
+    
     //17q
     if(run_number >= 282391 && run_number <= 282441)
-      std::memcpy(trigMask, trigMask_17q_trigs1, sizeof(trigMask));
+      continue;//std::memcpy(trigMask, trigMask_17q_trigs1, sizeof(trigMask));
     if(run_number == 282415 || run_number == 282411 || run_number == 282402)
-      std::memcpy(trigMask, trigMask_17q_trigs2, sizeof(trigMask));
-    if(run_number == 282367 || run_number == 282366 || run_number == 282365) 
-      break;//std::memcpy(trigMask, trigMask_17q_trigs3, sizeof(trigMask));
+      continue;//std::memcpy(trigMask, trigMask_17q_trigs2, sizeof(trigMask));
+    if(run_number == 282367 || run_number == 282366 || run_number == 282365)//EMC good runs 
+      std::memcpy(trigMask, trigMask_17q_trigs3, sizeof(trigMask));
     
     
-    //cout << trigMask[1] << "\t" << trigMask_13e_trigs[1] << endl;
     
-
     ULong64_t localTrigBit = 0;
-    if(not ((trigMask[0] & trigger_mask[0]) == 0))  {
+    if(not ((trigMask[0] & trigger_mask[0]) == 0)){//MB selection
       localTrigBit |= (1 << 0);
-      
-      }//*/
-    if(not ((trigMask[1] & trigger_mask[0]) == 0))  {
-      if(run_number == 282367 || run_number == 282366 || run_number == 282365) 
-	localTrigBit |= (1 << 3);
-      else
-	localTrigBit |= (1 << 1);
-    }//*/
-    if(not ((trigMask[2] & trigger_mask[0]) == 0))  {
-      if(run_number == 282367 || run_number == 282366 || run_number == 282365) 
-	localTrigBit |= (1 << 4);
-      else
-	localTrigBit |= (1 << 2);
-      
     }
-    if(trigMask[3] != 0){
-      if(not ((trigMask[3] & trigger_mask[1]) == 0))  {
-	localTrigBit |= (1 << 1);
+    
+    if(run_number > 282098){
+      if(run_number == 282367 || run_number == 282366 || run_number == 282365){
+	if(not ((trigMask[2] & trigger_mask[0]) == 0)){//EG2 cent
+	  localTrigBit |= (1 << 3); 
+	}
+	if(not ((trigMask[4] & trigger_mask[1]) == 0)){//EG2 calo
+	  localTrigBit |= (1 << 2); 
+	}
+	//cout << "location 1" << endl;
       }
+      else
+	continue;
     }
-    if(trigMask[4] != 0){
-      if(not ((trigMask[4] & trigger_mask[1]) == 0))  {
-	localTrigBit |= (1 << 2);
-      }
-    }//*/
 
-    //cout << localTrigBit << endl;
-    //001 = 1 = MBcalo
+    //cout << trigger_mask[0] << "\t" << trigMask[2] << endl;
+    //cout << "\t" << trigger_mask[1] << "\t" << trigMask[4] << endl;
+    
+    //The trigger bit options. Most of 17q have min bias
+    //001 = 1 = MB
     //010 = 2 = DG2
     //100 = 4 = EG2
     //110 = 6 = DG2||EG2
     //111 = 7 = MB||DG2||EG2
-    if((localTrigBit & 1) != 0) {isMBcalo = true; hEventCut_MB->Fill(0);numEvents_MBcalo_before++;}
+    if((localTrigBit & 1) != 0) {isMBcalo = true; hEventCut_MB->Fill(0);numEvents_MBcent_before++;}
     if((localTrigBit & 2) != 0) {isDG2calo = true;hEventCut_DG2->Fill(0);numEvents_DG2calo_before++;}
     if((localTrigBit & 4) != 0) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
+    if((localTrigBit & 8) != 0) {isEG2cent = true;hEventCut_EG2cent->Fill(0);numEvents_EG2cent_before++;}
     
     
-    if((localTrigBit & 7) == 0) {
+    if((localTrigBit & TriggerBit) == 0) {
       hEventCut->Fill(1);
       if(isMBcalo) hEventCut_MB->Fill(1);
       if(isDG2calo) hEventCut_DG2->Fill(1);
       if(isEG2calo) hEventCut_EG2->Fill(1);
-      
+      if(isEG2cent) hEventCut_EG2cent->Fill(1);
+      //cout << "fail trig" << endl;
       continue;}//no emcal triggers*/
-    if((localTrigBit & 7) != 0) {
+    if((localTrigBit & TriggerBit) != 0) {
       //cout << "localTrigBit\t" << localTrigBit << endl;
+      //cout << "is EG calo or EG cent " << endl;
       numEvents_passTrig++;
     }
-
+    
     if(not( TMath::Abs(primary_vertex[2])<10.0)){
-	hEventCut->Fill(2);
-	if(isMBcalo) hEventCut_MB->Fill(2);
-	if(isDG2calo) hEventCut_DG2->Fill(2);
-	if(isEG2calo) hEventCut_EG2->Fill(2);
-
-	numEvents_Zmore10++;
-	continue;
-      } //vertex z position
-
+      hEventCut->Fill(2);
+      if(isMBcalo) hEventCut_MB->Fill(2);
+      if(isDG2calo) hEventCut_DG2->Fill(2);
+      if(isEG2calo) hEventCut_EG2->Fill(2);
+      if(isEG2cent) hEventCut_EG2cent->Fill(2);
+      
+      numEvents_Zmore10++;
+      continue;
+    } //vertex z position
+    
     if(primary_vertex[2] == 0.0000) {
       hEventCut->Fill(3);
       if(isMBcalo) hEventCut_MB->Fill(3);
       if(isDG2calo) hEventCut_DG2->Fill(3);
       if(isEG2calo) hEventCut_EG2->Fill(3);
-
+      if(isEG2cent) hEventCut_EG2cent->Fill(3);
+      
       numEvents_noZ++;
       continue;}//removes no vertex found
-
+    
     if(is_pileup_from_spd_5_08) {
       hEventCut->Fill(4);
       if(isMBcalo) hEventCut_MB->Fill(4);
       if(isDG2calo) hEventCut_DG2->Fill(4);
       if(isEG2calo) hEventCut_EG2->Fill(4);
-	continue;
+      if(isEG2cent) hEventCut_EG2cent->Fill(4);
+      continue;
     } //removes pileup*/
-
-    /*if(not(ntrack > 0)) {
+    
+    /*if(not(ncluster > 0)) {
       hEventCut->Fill(5);
       if(isMBcalo) hEventCut_MB->Fill(5);
       if(isDG2calo) hEventCut_DG2->Fill(5);
@@ -488,14 +512,15 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
       continue;
       } //no track*/
     //if(is_incomplete_daq){hEventCut->Fill(5); continue;}
-
+    
     
     hEventCut->Fill(6);//all cuts
-    if(isMBcalo) {hEventCut_MB->Fill(6); numEvents_MBcalo++;}
+    if(isMBcalo) {hEventCut_MB->Fill(6); numEvents_MBcent++;}
     if(isDG2calo) {hEventCut_DG2->Fill(6); numEvents_DG2calo++;}
     if(isEG2calo) {hEventCut_EG2->Fill(6); numEvents_EG2calo++;}
+    if(isEG2cent) {hEventCut_EG2cent->Fill(6); numEvents_EG2cent++;}
     
-
+    
     hZvertexAfter->Fill(primary_vertex[2]);
     hMultiplicityAfter->Fill(multp_sum);
     numEvents_Zless10++;
@@ -504,15 +529,17 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
     
     int eventFill = 0;    
     hEventCounts->Fill(eventFill);
+    //cout << "pass event selection" << endl;
 
     //continue;
     
     eventChange = true;
     bool eventChange2 = true;
     //Loop over clusters
+    //if(ncluster > 0)
+    //cout << "Event number: " << ievent << "Num clusters: " << ncluster << endl;
     for(ULong64_t n=0; n< ncluster; n++)
       {
-
 	double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
 	isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
 
@@ -533,9 +560,9 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
 	  clusterEta = cluster_eta[n];
 	  clusterPhi = cluster_phi[n];
 	}
+	//cout << clusterPt << endl;
 
-
-
+	
 	//Photon Selection
 	/*////////////////////////////////////////
 	  Bit  Cut
@@ -593,35 +620,38 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
 	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
 	
 
-	//ULong64_t cutFlow = 0;
-	//for(int iCut = 0; iCut < numCuts; iCut++){
-	//  cutFlow |= 1 << iCut;
-	//  if(cutFlow & )
-	//}
-
-	if(forRtrig) {clusterCutBits = clusterCutPassed;}
-	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
-	  continue;
+	if(!forRtrig)
+	  if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
+	    continue;
 	
 	if(ievent%1000==0)
 	  {
-	    //std::cout << "cluster accepted" << std::endl;
+	    std::cout << "cluster accepted" << std::endl;
 	    
 	  }
 
 	hClusterCut->Fill(10);
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
-	  //if (eventChange) {numClustersPost++; eventChange = false;}
+
 	//double purity = purityWeights(clusterPt, "pPb");
 	double purity = Get_Purity_ErrFunction(clusterPt);
+	if(forRtrig)
+	  purity = 1;
+	
 	hReco_pt->Fill(clusterPt);
-	if((localTrigBit & 1) != 0) hMB_caloE->Fill(clusterPt,purity);
+	if((localTrigBit & 1) != 0) {
+	  hMB_centE->Fill(clusterPt,purity);
+	  
+	}
 	if((localTrigBit & 2) != 0) hDG2_caloE->Fill(clusterPt, purity);
 	if((localTrigBit & 4) != 0) {
-	  //cout << "EG2_caloE filling\t" << localTrigBit << "\t" << n << endl;
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
+	}
+	if((localTrigBit & 8) != 0) {
+	  numClusters_EG2_centE++;
+	  hEG2_centE->Fill(clusterPt, purity);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
 	numClusters_clusterpt++;
@@ -636,10 +666,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   }//loop over events
   std::cout << " END LOOP  " << std::endl;
   cout << "total events: " << numEvents_tot << endl;
-  cout << "total/minbias/DG2/EG2 events:" << endl;
-  cout << "before:" << "\t" << numEvents_passTrig << "\t" << numEvents_MBcalo_before << "\t" << numEvents_DG2calo_before << "\t" << numEvents_EG2calo_before << "\t" << endl;
-  cout << "after:" << "\t"  << numEvents_passAll << "\t" << numEvents_MBcalo << "\t" << numEvents_DG2calo << "\t" << numEvents_EG2calo << "\t" << endl;  
-  cout << "cluster pt clusters: " << numClusters_clusterpt << "\tEG2_caloE clusters: " << numClusters_EG2_caloE << endl; 
+  cout << "total/minbias/DG2/EG2calo/EG2cent events:" << endl;
+  cout << "before:" << "\t" << numEvents_passTrig << "\t" << numEvents_MBcent_before << "\t" << numEvents_DG2calo_before << "\t" << numEvents_EG2calo_before << "\t" << numEvents_EG2cent_before << endl;
+  cout << "after:" << "\t"  << numEvents_passAll << "\t" << numEvents_MBcent << "\t" << numEvents_DG2calo << "\t" << numEvents_EG2calo << "\t" << numEvents_EG2cent << endl;  
+  cout << "cluster pt clusters: " << numClusters_clusterpt << "\tEG2_caloE clusters: " << numClusters_EG2_caloE << "\tEG2_centE clusters: " << numClusters_EG2_centE << endl;
+
+  
   //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
   //cout << filename(0,3) << "\tTotal Events: " << numEntries << "\tEvent selection: " << numEvents_passAll << "\tPre-Cluster selection: " << numClustersPre << "\tPostCluster selection: " << numClustersPost << endl;
   const double deltaEta = 1.334;
@@ -658,35 +690,43 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   normalizer->SetBinContent(3, numEvents_tot);
   normalizer->SetBinContent(4, numEvents_passTrig);
   normalizer->SetBinContent(5, numEvents_passAll);
-  normalizer->SetBinContent(6, numEvents_MBcalo_before);
+  normalizer->SetBinContent(6, numEvents_MBcent_before);
   normalizer->SetBinContent(7, numEvents_DG2calo_before);
   normalizer->SetBinContent(8, numEvents_EG2calo_before);
-  normalizer->SetBinContent(9, numEvents_MBcalo);
+  normalizer->SetBinContent(9, numEvents_MBcent);
   normalizer->SetBinContent(10, numEvents_DG2calo);
   normalizer->SetBinContent(11, numEvents_EG2calo);
   normalizer->SetBinContent(12, numEvents_Zmore10);
   normalizer->SetBinContent(13, numEvents_noZ);
+  normalizer->SetBinContent(14, numEvents_EG2cent_before);
+  normalizer->SetBinContent(15, numEvents_EG2cent);
+  normalizer->SetBinContent(16, numClusters_EG2_caloE);  
+  normalizer->SetBinContent(17, numClusters_EG2_centE);
+  
   
   normalizer->GetXaxis()->SetBinLabel(1,"deltaEta");
   normalizer->GetXaxis()->SetBinLabel(2,"deltaPhi");
   normalizer->GetXaxis()->SetBinLabel(3,"numEvents_tot");
   normalizer->GetXaxis()->SetBinLabel(4,"numEvents_passTrig");
   normalizer->GetXaxis()->SetBinLabel(5,"numEvents_passAll");
-  normalizer->GetXaxis()->SetBinLabel(6,"numEvents_MBcalo_before");
+  normalizer->GetXaxis()->SetBinLabel(6,"numEvents_MBcent_before");
   normalizer->GetXaxis()->SetBinLabel(7,"numEvents_DG2calo_before");
   normalizer->GetXaxis()->SetBinLabel(8,"numEvents_EG2calo_before");
-  normalizer->GetXaxis()->SetBinLabel(9,"numEvents_MBcalo");
+  normalizer->GetXaxis()->SetBinLabel(9,"numEvents_MBcent");
   normalizer->GetXaxis()->SetBinLabel(10,"numEvents_DG2calo");
   normalizer->GetXaxis()->SetBinLabel(11,"numEvents_EG2calo");
   normalizer->GetXaxis()->SetBinLabel(12,"numEvents_Zmore10");
   normalizer->GetXaxis()->SetBinLabel(13,"numEvents_noZ");
-
+  normalizer->GetXaxis()->SetBinLabel(14,"numEvents_EG2cent_before");
+  normalizer->GetXaxis()->SetBinLabel(15,"numEvents_EG2cent");
+  normalizer->GetXaxis()->SetBinLabel(16,"numCluster_EG2calo");
+  normalizer->GetXaxis()->SetBinLabel(17,"numCluster_EG2cent");
   
   //scaling for clusters
   for(int i = 1; i <  hCluster_pt->GetNbinsX()+1; i++)
     {
       double dpt = hCluster_pt->GetBinWidth(i);
-
+      
       double content = hCluster_pt->GetBinContent(i);
       double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
       hCluster_pt->SetBinContent(i, temp);
@@ -694,7 +734,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
       double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
       hCluster_pt->SetBinError(i, tempErr);
     }//*/
-
+  
   for(int i = 1; i <  hReco_pt->GetNbinsX()+1; i++)
     {
       double dpt = hReco_pt->GetBinWidth(i);
@@ -710,47 +750,58 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
       //double tempErr = error/dpt;
       hReco_pt->SetBinError(i, tempErr);
     }//*/
-
+  
   
   if(forRtrig){
     acceptanceNorm = 1;
     filename += "_RtrigAnalysis";
   }
-  for(int i = 1; i < hMB_caloE->GetNbinsX()+1; i++)
-    {
-      double dE = hMB_caloE->GetBinWidth(i);
-      
-      double contentMB = hMB_caloE->GetBinContent(i);
-      double tempMB = (contentMB*acceptanceNorm)/((double)numEvents_MBcalo*dE);
-      double errorMB = hMB_caloE->GetBinError(i);
-      double tempErrMB = (errorMB*acceptanceNorm)/((double)numEvents_MBcalo*dE);
-      if(numEvents_MBcalo) 
-	{
-	  hMB_caloE->SetBinContent(i,tempMB);
-	  hMB_caloE->SetBinError(i, tempErrMB);
-	}
-
-      double contentDG2 = hDG2_caloE->GetBinContent(i);
-      double tempDG2 = (contentDG2*acceptanceNorm)/((double)numEvents_DG2calo*dE);
-      double errorDG2 = hDG2_caloE->GetBinError(i);
-      double tempErrDG2 = (errorDG2*acceptanceNorm)/((double)numEvents_DG2calo*dE);
-      if(numEvents_DG2calo) 
-	{
-	  hDG2_caloE->SetBinContent(i,tempDG2);
-	  hDG2_caloE->SetBinError(i, tempErrDG2);
-	}
-
-      double contentEG2 = hEG2_caloE->GetBinContent(i);
-      double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
-      double errorEG2 = hEG2_caloE->GetBinError(i);
-      double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
-      if(numEvents_EG2calo) 
-	{
-	  hEG2_caloE->SetBinContent(i,tempEG2);
+  
+  for(int i = 1; i < hMB_centE->GetNbinsX()+1; i++){
+    double dE = hMB_centE->GetBinWidth(i);
+    
+    double contentMB = hMB_centE->GetBinContent(i);
+    double tempMB = (contentMB*acceptanceNorm)/((double)numEvents_MBcent*dE);
+    double errorMB = hMB_centE->GetBinError(i);
+    double tempErrMB = (errorMB*acceptanceNorm)/((double)numEvents_MBcent*dE);
+    if(numEvents_MBcent) 
+      {
+	hMB_centE->SetBinContent(i,tempMB);
+	hMB_centE->SetBinError(i, tempErrMB);
+      }
+    
+    double contentDG2 = hDG2_caloE->GetBinContent(i);
+    double tempDG2 = (contentDG2*acceptanceNorm);///((double)numEvents_DG2calo*dE);
+    double errorDG2 = hDG2_caloE->GetBinError(i);
+    double tempErrDG2 = (errorDG2*acceptanceNorm)/((double)numEvents_DG2calo*dE);
+    if(numEvents_DG2calo) 
+      {
+	hDG2_caloE->SetBinContent(i,tempDG2);
+	hDG2_caloE->SetBinError(i, tempErrDG2);
+      }
+    
+    double contentEG2 = hEG2_caloE->GetBinContent(i);
+    double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
+    double errorEG2 = hEG2_caloE->GetBinError(i);
+    double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
+    if(numEvents_EG2calo) 
+      {
+	hEG2_caloE->SetBinContent(i,tempEG2);
 	  hEG2_caloE->SetBinError(i, tempErrEG2);
-	}
-  }//*/
+      }
 
+    double contentEG2cent = hEG2_centE->GetBinContent(i);
+    double tempEG2cent = (contentEG2cent*acceptanceNorm)/((double)numEvents_EG2cent*dE);
+    double errorEG2cent = hEG2_centE->GetBinError(i);
+    double tempErrEG2cent = (errorEG2cent*acceptanceNorm)/((double)numEvents_EG2cent*dE);
+    if(numEvents_EG2cent) 
+      {
+	hEG2_centE->SetBinContent(i,tempEG2);
+	hEG2_centE->SetBinError(i, tempErrEG2);
+      }
+    
+  }//*/
+  
   
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
@@ -814,8 +865,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
 
   //Writing to file
   //filename += "_cluster_EMCandDMCTrigOnly_1Mevent_wTripPileupSkimEGCut_MBDG2EG2seperate_purityCorr_etaPhiAcceptancenew_EG2caloOnly";
-  filename += "_MBEGDGcalo_Normalized";
-  auto fout = new TFile(Form("isoPhotonOutput/fout_%i_%ibins_%s.root",TrackBit, nbinscluster, filename.Data()), "RECREATE");  
+  filename += "_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed";
+  auto fout = new TFile(Form("isoPhotonOutput/fout_%llu_%ibins_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
 
 
   
@@ -823,9 +874,10 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
   hCluster_pt->Write("hCluster_pt");
   hReco_pt->Write("hReco_pt");
   hEventCounts->Write("hEventCounts");
-  hMB_caloE->Write("hMB_caloE");
+  hMB_centE->Write("hMB_centE");
   hDG2_caloE->Write("hDG2_caloE");
   hEG2_caloE->Write("hEG2_caloE");
+  hEG2_centE->Write("hEG2_centE");
 
   hZvertex->Write("hZvertex");
   hZvertexAfter->Write("hZvertexAfter");
@@ -846,25 +898,39 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool fo
 }
 
     
-void isoPhotonAnalysisData_pp(){  
-  //Input to Run is as follow: Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool forRtrig = false)
+void isoPhotonAnalysisData_pp(){
+  auto start = std::chrono::system_clock::now();
   
-/*/////////////////////////////////////////////////////////////////
-p-Pb data sets:
-13c  : MinBias
-13d,e: p-Pb emcal trigger   
-13f  : Pb-p emcal trigger    
+  //Input to Run is as follow: Run(const int TriggerBit, TString address, bool nonLinCorrOn = false, bool forRtrig = false)
+  
 /////////////////////////////////////////////////////////////////*/
-
+    //The trigger bit options. Most of 17q does not have 
+    //0001 = 01 = MB
+    //0010 = 02 = DG2calo
+    //0100 = 04 = EG2calo
+    //0110 = 06 = DG2calo || EG2calo
+    //0111 = 07 = MB || DG2calo || EG2calo
+    //1000 = 08 = EG2cent
+    //1100 = 12 = EG2calo || EG2cent
+    //1101 = 13 = MB || EG2calo || EG2cent
   //pp data sets
   //Run(16, "pp/17q/17q_CENT_wSDD_3run_forTrig_noEThresh.root", false, true, true);
   //Run(16, "pp/17q/17q.root", false);
   //Run(16, "pp/17q/17q_wSDD.root", false);
   //Run(16, "pp/17q/17q_CENT_wSDD_noThresh_1EMCGoodRuns.root", false);
   //Run(16, "pp/17q/17q_CENT_wSDD_noThresh.root");
-  Run(16, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);
+  Run(13, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);//First EMC goodrun event:4035922
+  
+  //Run(13, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);//First EMC goodrun event:4035922
+  //Run(1, "pp/17p/17p_CENT_wSDD_10runs_noThresh.root", false, true);//First event with clusters: 2483971
 
-
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end-start;
+  std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+  std::cout << "started computation at " << std::ctime(&start_time)
+	    << "finished computation at " << std::ctime(&end_time)
+	    << "elapsed time: " << elapsed_seconds.count() << "s\n";
   return;
 }
 
