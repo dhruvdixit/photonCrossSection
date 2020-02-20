@@ -11,25 +11,10 @@ void Run(TString filename){
     1             13d
 
 //////////////////////////////////////////////////////////*/
-  
-  const int numDataSets = 2;
 
-  TFile* inputFile[numDataSets];
-
-  /*inputFile[0]= new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13c_2runs_al_cluster_emcalMBTrig_Allevent_wEventSelect_noIsoShowShap_noDownScale_noNorm.root","READ");
-    inputFile[1]= new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_7runs_noThresh_cluster_emcalMBTrig_Allevent_wEventSelect_noIsoShowShap_noDownScale_noNorm.root","READ");//*/
-
-  /*inputFile[0]= new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13c_2runs_al_cluster_emcalMBTrig_1Mevent_wEventSelect_noClusCuts_noDownScale_noNorm.root","READ");
-  inputFile[1]= new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_7runs_noThresh_cluster_emcalMBTrig_1Mevent_wEventSelect_noClusCuts_noDownScale_noNorm.root","READ");//*/
 
   TFile* file13c = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13c_MBEG1EG2_noPurityWeights_noClusCuts_allEventCuts_forRTrig.root","READ");
-  //TFile* file13def = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_MBEG1EG2_noPurityWeights_noClusCuts_allEventCuts_forRTrig.root","READ");//
-  //TFile* file13def = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_all10runs_noSkim_MBEG1EG2_noPurityWeights_noClusCuts_allEventCuts_forRTrig_new.root","READ");//13d only
-  //TFile* file13def = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13eonly_MBEG1EG2_noPurityWeights_noClusCuts_allEventCuts_forRTrig_new.root","READ");//13e only
-  //TFile* file13def = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_3runs_noSkim_MBEG1EG2_noPurityWeights_noClusCuts_allEventCuts_forRTrig_new.root","READ");//old 13f only
-  //TFile* file13def = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fonly_MBEG1EG2_noPurityWeights_noClusCuts_allEventCuts_forRTrig_new.root","READ");//new 13f only
-
-  //TString filepath = "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/";
+  
 
   cout << "///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n" << filename.Data() << endl;
   TFile* file13def = new TFile(Form("%s", filename.Data()),"READ");//quick testing

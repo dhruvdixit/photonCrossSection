@@ -468,9 +468,10 @@ void Run(TString pPbFile, TString ppFile,
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("xSectionHists/%s_crossSectionHistos_newppRF.root",outputName.Data()), "RECREATE");
+  TFile* fout = new TFile(Form("xSectionHists/%s_crossSectionHistos_CaloITS_367to365_540.root",outputName.Data()), "RECREATE");
   crossSection_pPb->Write("crossSection_pPb");
   crossSection_EG2->Write("crossSection_EG2");
+  crossSection_pp->Write("crossSection_pp");
   h_RpA->Write("h_RpA");
   crossSectionRatio_EG1->Write("crossSectionRatio_EG1");
   crossSectionRatio_EG2->Write("crossSectionRatio_EG2");
@@ -500,11 +501,21 @@ void crossSection(){
   //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13epart12_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6151, 298, 1569, 43, 959, 87);//*/
   
   //13f
-  Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly.root", 5750, 279, 1505, 41, 584, 14);//*/
+  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly.root", 5750, 279, 1505, 41, 584, 14);//*/
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part1_new_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6036, 293, 1572, 44, 959, 87);//*/
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part2_new_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 5582, 271, 1456, 41, 959, 87);//*/
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part3_newer_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 5356, 260, 1396, 39, 959, 87);//*/
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part4_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6122, 298, 1589, 45, 959, 87);//*/
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_3runs_noSkim_part5_new_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6190, 301, 1587, 45, 959, 87);//*/
-  
+
+
+
+
+  Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed2.root", 5750, 279, 1505, 41, 672, 6);//*/
+  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391.root", 5750, 279, 1505, 41, 678, 6);//*/
+  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_415to402.root", 5750, 279, 1505, 41, 677, 6);//*/
+  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_441to437.root", 5750, 279, 1505, 41, 702, 6 );//*/
+
+
+
 }//end crossSection
