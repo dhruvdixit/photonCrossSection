@@ -28,7 +28,47 @@
 #include <ctime> 
 
 
-void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64_t lastEvent = 10000000000000){
+Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
+
+  Float_t purity_val = 0;
+
+  //Non-platue assumption
+  // Float_t par[3] = {0.548247710,
+  //                   8.794543375,
+  //                   12.7423900};
+
+  //Old
+//   Float_t par[3] = {0.54225742923,
+//                     8.09242373515,
+//                     11.8085154181};
+
+  //Float_t par[3] = {0.494981,
+  //		    9.11279,
+  //		    11.0498};
+
+  Float_t par[3] = {0.49,
+		    9.83,
+		    10.6};
+
+  if (strcmp(deviation.data(),"Plus")==0){
+    par[0] = 0.60750016509;
+    par[1] = 7.05184155403;
+    par[2] = 13.6116163603;
+  }
+
+  if (strcmp(deviation.data(),"Minus")==0){
+    par[0] = 0.479958593235;
+    par[1] = 9.05392932723;
+    par[2] = 10.2061359452;
+  }
+
+
+  purity_val = par[0]*TMath::Erf((pT_GeV-par[1])/par[2]);
+  return purity_val;
+}
+
+
+void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 1000000000000000){
 
   gStyle->SetOptStat(0);
 
@@ -49,28 +89,28 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   
   const Int_t kMax = 5000;
   
-  //event variables
   Double_t primary_vertex[3];
   Bool_t is_pileup_from_spd_5_08;
   Bool_t is_pileup_from_spd_3_08;
-  int run_number;
+  Bool_t is_incomplete_daq;
+  Float_t ue_estimate_its_const;
   int npileup_vertex_spd;
-  ULong64_t trigger_mask[2];
+  int run_number;
   unsigned int ntrack;
   Float_t multiplicity_v0[64];
-  Float_t ue_estimate_its_const;
-  
 
-
-  //cluster variables
   UInt_t ncluster;
   Float_t cluster_e[kMax];
   Float_t cluster_pt[kMax];
   Float_t cluster_eta[kMax];
   Float_t cluster_phi[kMax];
+  Float_t cluster_e_nonLinCorr[kMax];
+  Float_t cluster_pt_nonLinCorr[kMax];
+  Float_t cluster_eta_nonLinCorr[kMax];
+  Float_t cluster_phi_nonLinCorr[kMax];
   Float_t cluster_tof[kMax];
-  Float_t cluster_e_max[kMax];
   Float_t cluster_e_cross[kMax];
+  Float_t cluster_e_max[kMax];
   Float_t cluster_iso_tpc_04[kMax];
   Float_t cluster_iso_its_04[kMax];
   Float_t cluster_iso_its_04_ue[kMax];
@@ -80,31 +120,41 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   Float_t cluster_s_nphoton[kMax][4];
   UChar_t cluster_nlocal_maxima[kMax];
   Float_t cluster_distance_to_bad_channel[kMax];
+  
   unsigned short cluster_mc_truth_index[kMax][32];
   Int_t cluster_ncell[kMax];
   UShort_t  cluster_cell_id_max[kMax];
   Float_t cluster_lambda_square[kMax][2];
   Float_t cell_e[17664];
     
-
+  char track_charge[kMax];//
+  unsigned short track_mc_truth_index[kMax];//
+  unsigned char track_quality[kMax];//
+  ULong64_t trigger_mask[2];
+  
   _tree_event->SetBranchAddress("primary_vertex", primary_vertex);
   _tree_event->SetBranchAddress("is_pileup_from_spd_5_08", &is_pileup_from_spd_5_08);
   _tree_event->SetBranchAddress("is_pileup_from_spd_3_08", &is_pileup_from_spd_3_08);
+  //_tree_event->SetBranchAddress("is_incomplete_daq", &is_incomplete_daq);
+  _tree_event->SetBranchAddress("ue_estimate_its_const", &ue_estimate_its_const);
   _tree_event->SetBranchAddress("run_number", &run_number);
   _tree_event->SetBranchAddress("npileup_vertex_spd", &npileup_vertex_spd);
   _tree_event->SetBranchAddress("trigger_mask", trigger_mask);
   _tree_event->SetBranchAddress("ntrack", &ntrack);
   _tree_event->SetBranchAddress("multiplicity_v0", multiplicity_v0);
-  _tree_event->SetBranchAddress("ue_estimate_its_const", &ue_estimate_its_const);
 
   _tree_event->SetBranchAddress("ncluster", &ncluster);
   _tree_event->SetBranchAddress("cluster_e", cluster_e);
   _tree_event->SetBranchAddress("cluster_pt", cluster_pt); // here
   _tree_event->SetBranchAddress("cluster_eta", cluster_eta);
   _tree_event->SetBranchAddress("cluster_phi", cluster_phi);
+  _tree_event->SetBranchAddress("cluster_e_nonLinCorr", cluster_e_nonLinCorr);
+  _tree_event->SetBranchAddress("cluster_pt_nonLinCorr", cluster_pt_nonLinCorr); // here
+  _tree_event->SetBranchAddress("cluster_eta_nonLinCorr", cluster_eta_nonLinCorr);
+  _tree_event->SetBranchAddress("cluster_phi_nonLinCorr", cluster_phi_nonLinCorr);
   _tree_event->SetBranchAddress("cluster_tof", cluster_tof);
-  _tree_event->SetBranchAddress("cluster_e_max", cluster_e_max);
   _tree_event->SetBranchAddress("cluster_e_cross", cluster_e_cross);
+  _tree_event->SetBranchAddress("cluster_e_max", cluster_e_max);
   _tree_event->SetBranchAddress("cluster_s_nphoton", cluster_s_nphoton); // here
   _tree_event->SetBranchAddress("cluster_mc_truth_index", cluster_mc_truth_index);
   _tree_event->SetBranchAddress("cluster_lambda_square", cluster_lambda_square);
@@ -119,9 +169,8 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   _tree_event->SetBranchAddress("cluster_ncell", cluster_ncell);
   _tree_event->SetBranchAddress("cluster_cell_id_max", cluster_cell_id_max);
   _tree_event->SetBranchAddress("cell_e", cell_e);
-
   
-  const int nbinseta = 180;
+  const int nbinseta = 10;
   Double_t etabins[nbinseta+1] = {};
   double etamin = -0.9;
   double etamax = 0.9;
@@ -130,11 +179,11 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     etabins[i] = etamin + i*etastep;
   }
 
-  const int nbinsphi = 94;
+  const int nbinsphi = 80;
   Double_t phibins[nbinsphi+1] = {};
-  double phimin = -1.5*TMath::Pi();
-  double phimax = 1.5*TMath::Pi();
- double phistep = (phimax-phimin)/nbinsphi;
+  double phimin = -1.0*TMath::Pi();
+  double phimax = 1.0*TMath::Pi();
+  double phistep = (phimax-phimin)/nbinsphi;
   for(int i=0; i<nbinsphi+1; i++){
     phibins[i] = phimin + i*phistep;
   }
@@ -142,6 +191,15 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 
 
 
+  auto hITSclus = new TH1F("hITSclus", "", 7, -0.5, 6.5);
+  auto hITSclus_fake = new TH1F("hITSclus_fake", "", 7, -0.5, 6.5);
+
+  auto hIso_ITS = new TH1F("hIso_ITS","", 25, -10, 40);
+  auto hIso_TPC = new TH1F("hIso_TPC","", 25, -10, 40);  
+  auto hIso_Truth = new TH1F("hIso_Truth","", 25, -10, 40);
+  
+  auto hTrackCut = new TH1F("hTrackCut", "", 15, -0.5, 14.5);
+  auto hNumTracks = new TH1F("hNumTracks", "", 500, -0.5, 499.5);
   auto hEventCounts = new TH1F("hEventCounts","", 10, -0.5, 9.5);
   auto hEventCounts_DG2 = new TH1F("hEventCounts_DG2","", 10, -0.5, 9.5);
   auto hEventCounts_EG2 = new TH1F("hEventCounts_EG2","", 10, -0.5, 9.5);
@@ -158,13 +216,11 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   auto hPileUpVertex = new TH1F("hPileUpVertex", "", 20, -0.5, 19.5);
   auto hMultiplicityBefore = new TH1F("hMultiplicityBefore", "", 200, 0, 200);
   auto hMultiplicityAfter = new TH1F("hMultiplicityAfter", "", 200, 0, 200);
-  auto normalizer = new TH1D("normalizer", "normalizer", 20, -0.5, 19.5);
-  
+ 
   hZvertex->Sumw2();
   hZvertexAfter->Sumw2();
   hHitsITS->SetTitle(";Layers hit; counts");
 
-  
   //cluster cuts histogram
   auto hCluster_tof = new TH1F("hCluster_tof", "", 200, -100, 100);
   auto hCluster_tof20GeV = new TH1F("hCluster_tof20GeV", "", 200, -100, 100);
@@ -185,13 +241,11 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hD2BC->SetTitle(";Distance to bad channel; counts");
   hEta->SetTitle(";#eta; counts");
   hPhi->SetTitle(";#phi; counts");
-  
+
   
   //Photon
-  const int nbinscluster = 26;
-  //Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
-  Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00, 50.00, 60.00};//nbinscluster = 26, rejection factor binning
-  //Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 14.00, 18.00, 25.00, 40.00, 60.00};//nbinscluster = 15
+  const int nbinscluster = 14;
+  Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
   
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
@@ -261,29 +315,16 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   trigMask_17q_trigs3[3] = (one1 << (57-50));//calo DG2
   trigMask_17q_trigs3[4] = (one1 << (54-50));//calo EG2
   
-  /*//////////////////////////////////////////////////////////////////////////////////
-    17p triggers
- //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_17p_trigs1[numTrigs] = {0};
-  trigMask_17p_trigs1[0] = (one1 << 0) | (one1 << 2);//fast | cent
-
-  ULong64_t trigMask_17p_trigs2[numTrigs] = {0};
-  trigMask_17p_trigs2[0] = (one1 << 0) | (one1 << 3);//fast | cent
-
-  ULong64_t trigMask_17p_trigs3[numTrigs] = {0};
-  trigMask_17p_trigs3[0] = (one1 << 0);//cent
-  
   ULong64_t trigMask[numTrigs] = {0};
 
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
-  Long64_t restrictEvents = lastEvent;//1000000000000;
-  //4,035,922 --> starting of EMC good runs
-  //1,749,493 to 2,939,337 --> runs 282415-282402
+  Long64_t restrictEvents = lastEvent;
+  //4035922 --> starting of EMC good runs
+  //1749493 to 2939337 --> runs 282415-282402
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
-  double RN = 0.0;
-  for (Long64_t ievent = firstEvent; ievent < numEntries ;ievent++) {
+  for (Long64_t ievent = firstEvent; ievent< numEntries ;ievent++) {
     _tree_event->GetEntry(ievent);
     nevent += 1;
     if(ievent%100000==0)
@@ -292,13 +333,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	cout << run_number << endl;
       }
     
-    /*if(RN != run_number){
-      cout << ievent << " starts run " << run_number << endl;
-      RN = run_number;
-							
-    }
-    //continue;//*/
-
+    bool eventChange = true;
     bool isMBcent, isDG2calo, isEG2calo, isEG2cent;
     isMBcent = isDG2calo = isEG2calo = isEG2cent = false;
     
@@ -307,29 +342,8 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     hPileUpVertex->Fill(npileup_vertex_spd);
     hEventCut->Fill(0);
     hZvertex->Fill(primary_vertex[2]);
-    float multp_sum = 0;
-    for (int k = 0; k < 64; k++) {
-      multp_sum += multiplicity_v0[k];
-    }
-    hMultiplicityBefore->Fill(multp_sum);
     
-    //Event Selection:    
-    
-    
-    //17p
-    if(run_number >= 282008 && run_number <= 282031)
-      std::memcpy(trigMask, trigMask_17p_trigs1, sizeof(trigMask));
-    if(run_number >= 282051 && run_number <= 282123)
-      std::memcpy(trigMask, trigMask_17p_trigs1, sizeof(trigMask));
-    if(run_number == 282030)
-      std::memcpy(trigMask, trigMask_17p_trigs3, sizeof(trigMask));
-    if(run_number == 282008 ||
-       run_number == 282016 ||
-       run_number == 282021 ||
-       run_number == 282050 ||
-       run_number == 282120)
-      continue;
-    
+    //Event Selection:        
     //17q
     if(run_number >= 282391 && run_number <= 282441)
       std::memcpy(trigMask, trigMask_17q_trigs1, sizeof(trigMask));
@@ -341,115 +355,92 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     
     
     ULong64_t localTrigBit = 0;
-    if(run_number <= 282367){
+   
+    
+    if(run_number == 282367 || run_number == 282366 || run_number == 282365){
       if(not ((trigMask[0] & trigger_mask[0]) == 0)){//MB selection
 	localTrigBit |= (1 << 0);
       }
-    }//end if TPC or 17p run
-    
-    if(run_number >= 282365){
-      if(run_number == 282367 || run_number == 282366 || run_number == 282365){
-	if(not ((trigMask[4] & trigger_mask[1]) == 0)){//EG2 calo
+      if(not ((trigMask[4] & trigger_mask[1]) == 0)){//EG2 calo
 	  localTrigBit |= (1 << 2); 
-	}
-      }//end if TPC run
-      else{
-	if(not ((trigMask[2] & trigger_mask[0]) == 0)){//EG2 calo
-	  localTrigBit |= (1 << 2); 
-	}
-      }//end else
-	
-    }//if 17p check
+      }
+    }
+    else{
+      if(not ((trigMask[2] & trigger_mask[0]) == 0)){//EG2 calo
+	localTrigBit |= (1 << 2); 
+      }
+    }
 
     
     //The trigger bit options. Most of 17q have min bias
     //001 = 1 = MB
     //010 = 2 = DG2
     //100 = 4 = EG2
-    //101 = 5 = MB || EG2
-    //110 = 6 = DG2|| EG2
-    //111 = 7 = MB || DG2 || EG2
+    //110 = 6 = DG2||EG2
+    //111 = 7 = MB||DG2||EG2
     if((localTrigBit & 1) != 0) {isMBcent = true; hEventCut_MB->Fill(0);numEvents_MBcent_before++;}
-    if(((localTrigBit & 4) != 0) && (!isMBcent)) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
-    //if(((localTrigBit & 2) != 0) && (!isMB) ) {isDG2calo = true;hEventCut_DG2->Fill(0);numEvents_DG2calo_before++;}
     //if(((localTrigBit & 4) != 0) && (!isMBcent)) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
-    //if((localTrigBit & 8) != 0) {isEG2cent = true;hEventCut_EG2cent->Fill(0);numEvents_EG2cent_before++;}
-    
+    if(((localTrigBit & 4) != 0) && (!isMBcent)) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
     
     
     if((localTrigBit & TriggerBit) == 0) {
       hEventCut->Fill(1);
-      if(isMBcent) hEventCut_MB->Fill(1);
-      if(isDG2calo) hEventCut_DG2->Fill(1);
       if(isEG2calo) hEventCut_EG2->Fill(1);
-      if(isEG2cent) hEventCut_EG2cent->Fill(1);
       continue;}//no emcal triggers*/
+
     if((localTrigBit & TriggerBit) != 0) {
       numEvents_passTrig++;
     }
     
     if(not( TMath::Abs(primary_vertex[2])<10.0)){
       hEventCut->Fill(2);
-      if(isMBcent) hEventCut_MB->Fill(2);
-      if(isEG2calo) hEventCut_EG2->Fill(2);
-      //if(isDG2calo) hEventCut_DG2->Fill(2);
-      //if(isEG2cent) hEventCut_EG2cent->Fill(2);
-      
+      if(isEG2calo) hEventCut_EG2->Fill(2);      
       numEvents_Zmore10++;
-      continue;
-    } //vertex z position
+      continue;} //vertex z position
     
     if(primary_vertex[2] == 0.0000) {
       hEventCut->Fill(3);
-      if(isMBcent) hEventCut_MB->Fill(3);
       if(isEG2calo) hEventCut_EG2->Fill(3);
-      //if(isDG2calo) hEventCut_DG2->Fill(3);
-      //if(isEG2cent) hEventCut_EG2cent->Fill(3);
-      
       numEvents_noZ++;
       continue;}//removes no vertex found
     
     if(is_pileup_from_spd_5_08) {
       hEventCut->Fill(4);
-      if(isMBcent) hEventCut_MB->Fill(4);
       if(isEG2calo) hEventCut_EG2->Fill(4);
-      //if(isDG2calo) hEventCut_DG2->Fill(4);
-      //if(isEG2cent) hEventCut_EG2cent->Fill(4);
-      continue;
-    } //removes pileup*/
-    
+      continue;} //removes pileup*/
     
     hEventCut->Fill(6);//all cuts
-    if(isMBcent) {hEventCut_MB->Fill(6); numEvents_MBcent++;}
     if(isEG2calo) {hEventCut_EG2->Fill(6); numEvents_EG2calo++;}
-    //if(isDG2calo) {hEventCut_DG2->Fill(6); numEvents_DG2calo++;}
-    //if(isEG2cent) {hEventCut_EG2cent->Fill(6); numEvents_EG2cent++;}
     
     
     hZvertexAfter->Fill(primary_vertex[2]);
-    hMultiplicityAfter->Fill(multp_sum);
     numEvents_Zless10++;
     numEvents_passAll++;
     
     
     int eventFill = 0;    
     hEventCounts->Fill(eventFill);
-    //cout << "pass event selection" << endl;
 
-
+    //continue;
     
+    eventChange = true;
+    bool eventChange2 = true;
     //Loop over clusters
     for(ULong64_t n=0; n< ncluster; n++)
       {
+	double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
+	isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
+
 	Float_t clusterPt = 0.0;
 	Float_t clusterE = 0.0;
 	Float_t clusterEta = 0.0;
 	Float_t clusterPhi = 0.0;
+	
 	clusterPt = cluster_pt[n];
 	clusterE = cluster_e[n];
 	clusterEta = cluster_eta[n];
 	clusterPhi = cluster_phi[n];
-
+		
 	//Photon Selection
 	/*////////////////////////////////////////
 	  Bit  Cut
@@ -458,6 +449,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	  2    nlocalmaxima<=2
 	  3    dist2badchn >= 1
 	  4    |tof| < 20 ns
+	  5    isoation: E < 1.5 GeV r = 0.4
 	  6    shower shape cut: 0.1 < lambda < 0.3
 	  7    |eta| < 0.667
 	  8    1.396 < phi < 3.28
@@ -473,7 +465,6 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	hEta->Fill(clusterEta);
 	hPhi->Fill(clusterPhi);
 
-	
 	int numCuts = 9;
 
 	ULong64_t clusterCutBits = 0;
@@ -482,7 +473,9 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	numClustersPre++;	
 	hClusterCut->Fill(0);
 	hClusterCutFlow->Fill(0);
-
+	hCluster_tof->Fill(cluster_tof[n]);
+	if(clusterPt > 20) hCluster_tof20GeV->Fill(cluster_tof[n]);
+	
 	//if( not(clusterPt>8)) {continue;} //select pt of photons
 	if( (cluster_ncell[n]>=2)){                    
 	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
@@ -500,11 +493,14 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	  clusterCutBits |= (1 << 4); hClusterCut->Fill(5);
 	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//time of flight
 
-	//Lose Shower shape selection:
+	//Isolation and shower shape selection:
+	if( (isolation < 1.5)){
+	  clusterCutBits |= (1 << 5); hClusterCut->Fill(6);
+	} clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 2
 	if((cluster_lambda_square[n][0] > 0.1) && (cluster_lambda_square[n][0] < 0.3)){
 	  clusterCutBits |= (1 << 6); hClusterCut->Fill(7);
 	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged
-	
+	//cout << clusterCutBits << "\t" << clusterCutPassed << endl;
 
 	//fiducial cut
 	if((TMath::Abs(clusterEta)) < 0.67){
@@ -518,24 +514,26 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	
 	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
 	  continue;
-
 	
+	if(ievent%1000==0)
+	  {
+	    std::cout << "cluster accepted" << std::endl;
+	    
+	  }
+
 	hClusterCut->Fill(10);
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
-	
-	if(ievent%1000==0){
-	  std::cout << "cluster accepted" << std::endl;
-	}
+
+	double purity = Get_Purity_ErrFunction(clusterPt);
 	
 	hReco_pt->Fill(clusterPt);
-	if(isMBcent) hMB_centE->Fill(clusterPt);
-	if(isEG2calo) hEG2_caloE->Fill(clusterPt);
-	//if((localTrigBit & 4) != 0) hDG2_caloE->Fill(clusterPt);
-	//if((localTrigBit & 8) != 0) hEG2_centE->Fill(clusterPt);
-
-	hCluster_pt->Fill(clusterPt);
-	numClusters_clusterpt;	
+	if((localTrigBit & 4) != 0) {
+	  numClusters_EG2_caloE++;
+	  hEG2_caloE->Fill(clusterPt, purity);
+	}
+	hCluster_pt->Fill(clusterPt,purity);
+	numClusters_clusterpt++;
       }
     
     
@@ -545,13 +543,18 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   cout << "total/minbias/DG2/EG2calo/EG2cent events:" << endl;
   cout << "before:" << "\t" << numEvents_passTrig << "\t" << numEvents_MBcent_before << "\t" << numEvents_DG2calo_before << "\t" << numEvents_EG2calo_before << "\t" << numEvents_EG2cent_before << endl;
   cout << "after:" << "\t"  << numEvents_passAll << "\t" << numEvents_MBcent << "\t" << numEvents_DG2calo << "\t" << numEvents_EG2calo << "\t" << numEvents_EG2cent << endl;  
+  cout << "cluster pt clusters: " << numClusters_clusterpt << "\tEG2_caloE clusters: " << numClusters_EG2_caloE << "\tEG2_centE clusters: " << numClusters_EG2_centE << endl;
 
   cout << "\tTotal Events: " << numEntries << "\tEvent selection: " << numEvents_passAll << "\tPre-Cluster selection: " << numClustersPre << "\tPostCluster selection: " << numClustersPost << endl;
-  //Adjusting event scaling for pp
-  //cout << numEvents_passAll << "\t" << numEvents_Zless10 << "\t" << numEvents_Zmore10 << "\t" << numEvents_noZ << "\t";
-  //numEvents_passAll = numEvents_Zless10+(numEvents_Zless10/(numEvents_Zless10 + numEvents_Zmore10))*numEvents_noZ;
-  //cout << numEvents_passAll << endl;
+  //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
+  const double deltaEta = 1.334;
+  const double deltaPhi = 1.884;
+  double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
   
+
+  auto normalizer = new TH1D("normalizer", "normalizer", 20, -0.5, 19.5);
+  normalizer->SetBinContent(1, deltaEta);
+  normalizer->SetBinContent(2, deltaPhi);
   normalizer->SetBinContent(3, numEvents_tot);
   normalizer->SetBinContent(4, numEvents_passTrig);
   normalizer->SetBinContent(5, numEvents_passAll);
@@ -593,11 +596,10 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
       double dpt = hCluster_pt->GetBinWidth(i);
       
       double content = hCluster_pt->GetBinContent(i);
-      double temp = (content)/((double)numEvents_passAll*dpt);
+      double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
       hCluster_pt->SetBinContent(i, temp);
-
       double error = hCluster_pt->GetBinError(i);
-      double tempErr = (error)/((double)numEvents_passAll*dpt);
+      double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
       hCluster_pt->SetBinError(i, tempErr);
     }//*/
   
@@ -605,59 +607,30 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     {
       double dpt = hReco_pt->GetBinWidth(i);
       double content = hReco_pt->GetBinContent(i);
-      double temp = (content)/((double)numEvents_passAll*dpt);
+      double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
       hReco_pt->SetBinContent(i, temp);
       
       double error = hReco_pt->GetBinError(i);
-      double tempErr = (error)/((double)numEvents_passAll*dpt);
+      double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
       hReco_pt->SetBinError(i, tempErr);
     }//*/
   
-  for(int i = 1; i < hMB_centE->GetNbinsX()+1; i++){
-    double dE = hMB_centE->GetBinWidth(i);
-    
-    double contentMB = hMB_centE->GetBinContent(i);
-    double tempMB = (contentMB)/((double)numEvents_MBcent*dE);
-    double errorMB = hMB_centE->GetBinError(i);
-    double tempErrMB = (errorMB)/((double)numEvents_MBcent*dE);
-    if(numEvents_MBcent) 
-      {
-	hMB_centE->SetBinContent(i,tempMB);
-	hMB_centE->SetBinError(i, tempErrMB);
-      }
-    
-    double contentDG2 = hDG2_caloE->GetBinContent(i);
-    double tempDG2 = (contentDG2);///((double)numEvents_DG2calo*dE);
-    double errorDG2 = hDG2_caloE->GetBinError(i);
-    double tempErrDG2 = (errorDG2)/((double)numEvents_DG2calo*dE);
-    if(numEvents_DG2calo) 
-      {
-	hDG2_caloE->SetBinContent(i,tempDG2);
-	hDG2_caloE->SetBinError(i, tempErrDG2);
-      }
+  for(int i = 1; i < hEG2_caloE->GetNbinsX()+1; i++){
+    double dE = hEG2_caloE->GetBinWidth(i);
     
     double contentEG2 = hEG2_caloE->GetBinContent(i);
-    double tempEG2 = (contentEG2)/((double)numEvents_EG2calo*dE);
+    double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
     double errorEG2 = hEG2_caloE->GetBinError(i);
-    double tempErrEG2 = (errorEG2)/((double)numEvents_EG2calo*dE);
+    double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
     if(numEvents_EG2calo) 
       {
 	hEG2_caloE->SetBinContent(i,tempEG2);
-	  hEG2_caloE->SetBinError(i, tempErrEG2);
-      }
-
-    double contentEG2cent = hEG2_centE->GetBinContent(i);
-    double tempEG2cent = (contentEG2cent)/((double)numEvents_EG2cent*dE);
-    double errorEG2cent = hEG2_centE->GetBinError(i);
-    double tempErrEG2cent = (errorEG2cent)/((double)numEvents_EG2cent*dE);
-    if(numEvents_EG2cent) 
-      {
-	hEG2_centE->SetBinContent(i,tempEG2cent);
-	hEG2_centE->SetBinError(i, tempErrEG2cent);
+	hEG2_caloE->SetBinError(i, tempErrEG2);
       }
     
   }//*/
-
+  
+  
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
   hClusterCut->GetXaxis()->SetBinLabel(3,"exoticity");
@@ -681,7 +654,8 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hClusterCutFlow->GetXaxis()->SetBinLabel(9,"eta acceptance");
   hClusterCutFlow->GetXaxis()->SetBinLabel(10,"phi aceptance");
   hClusterCutFlow->GetXaxis()->SetBinLabel(11,"accepted clusters");
-  
+
+
   hEventCut->GetXaxis()->SetBinLabel(1,"All events");
   hEventCut->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
   hEventCut->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
@@ -689,22 +663,6 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCut->GetXaxis()->SetBinLabel(5,"pile up");
   hEventCut->GetXaxis()->SetBinLabel(6,"ntrack < 0");
   hEventCut->GetXaxis()->SetBinLabel(7,"passed");
-
-  hEventCut_MB->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_MB->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
-  hEventCut_MB->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
-  hEventCut_MB->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
-  hEventCut_MB->GetXaxis()->SetBinLabel(5,"pile up");
-  hEventCut_MB->GetXaxis()->SetBinLabel(6,"ntrack < 0");
-  hEventCut_MB->GetXaxis()->SetBinLabel(7,"passed");
-
-  hEventCut_DG2->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut_DG2->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
-  hEventCut_DG2->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
-  hEventCut_DG2->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
-  hEventCut_DG2->GetXaxis()->SetBinLabel(5,"pile up");
-  hEventCut_DG2->GetXaxis()->SetBinLabel(6,"ntrack < 0");
-  hEventCut_DG2->GetXaxis()->SetBinLabel(7,"passed");
 
   hEventCut_EG2->GetXaxis()->SetBinLabel(1,"All events");
   hEventCut_EG2->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
@@ -718,9 +676,10 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_forRTrig_MBEG2exlusion_tof20_eCross5_newExoticity";
+  //filename += "_cluster_EMCandDMCTrigOnly_1Mevent_wTripPileupSkimEGCut_MBDG2EG2seperate_purityCorr_etaPhiAcceptancenew_EG2caloOnly";
+  filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity";
   cout << filename << endl;
-  auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
+  auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
 
   
@@ -729,18 +688,9 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hReco_pt->Write("hReco_pt");
   hEventCounts->Write("hEventCounts");
   hMB_centE->Write("hMB_centE");
+  hDG2_caloE->Write("hDG2_caloE");
   hEG2_caloE->Write("hEG2_caloE");
-  //hDG2_caloE->Write("hDG2_caloE");
-  //hEG2_centE->Write("hEG2_centE");
-
-  hCluster_tof->Write("hCluster_tof");
-  hCluster_tof20GeV->Write("hCluster_tof20GeV");
-  hExoticity->Write("hExoticity");
-  hNcell->Write("hNcell");
-  hNLM->Write("hNLM");
-  hD2BC->Write("hD2BC");
-  hEta->Write("hEta");
-  hPhi->Write("hPhi");
+  hEG2_centE->Write("hEG2_centE");
 
   hZvertex->Write("hZvertex");
   hZvertexAfter->Write("hZvertexAfter");
@@ -751,8 +701,8 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCut_EG2->Write("hEventCut_EG2");
   hClusterCut->Write("hClusterCut");
   hClusterCutFlow->Write("hClusterCutFlow");
-  hMultiplicityBefore->Write("hMultiplicityBefore");
-  hMultiplicityAfter->Write("hMultiplicityAfter");
+  hCluster_tof->Write("hCluster_tof");
+  hCluster_tof20GeV->Write("hCluster_tof20GeV");
   normalizer->Write("hNormalizer");
   fout->Close();  
 
@@ -761,60 +711,44 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 }
 
     
-void isoPhotonAnalysisData_ppRF(){
+void isoPhotonAnalysisData_ppCS(){
   auto start = std::chrono::system_clock::now();
   
-  //Input to Run is as follow: Run(const int TriggerBit, TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000000000)
+  //Input to Run is as follow: Run(const int TriggerBit, TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 1000000000000000)
   
 /////////////////////////////////////////////////////////////////*/
     //The trigger bit options. Most of 17q does not have 
     //0001 = 01 = MB
     //0010 = 02 = DG2calo
     //0100 = 04 = EG2calo
-    //0101 = 05 = MB || EG2calo
     //0110 = 06 = DG2calo || EG2calo
     //0111 = 07 = MB || DG2calo || EG2calo
     //1000 = 08 = EG2cent
     //1100 = 12 = EG2calo || EG2cent
     //1101 = 13 = MB || EG2calo || EG2cent
-  //pp data sets
 
-  //calo spectra
-  //Run(5, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root");
-  //Run(5, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root");
-  //Run(5, "pp/17q/17q_CENT_wSDD_noThresh_r282367_physel.root");
+  //pp data sets  
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root");
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root");
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282367_physel.root");
 
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part002.root");//21
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
-  //Run(5, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
-  
-  //Run(1, "pp/17p/17p_CENT_wSDD_10runs_noThresh_part1.root");
-  //Run(1, "pp/17p/17p_CENT_wSDD_5runs_noThresh_part2.root");
-  
-  
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282437.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282439.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282440.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282441.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282365.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root", false, true);
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true, 1749493, 4035922);
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part002.root");//21
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
 
   //4,035,922 --> starting of EMC good runs
   //1,749,493 to 2,939,337 --> runs 282415-282402
-  //Run(1, "pp/17q/17q_CENT_wSDD_noThresh_r282365.root", false, true);
-  //Run(1, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root", false, true);
-  //Run(1, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root", false, true);
-  //Run(1, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true, 4035922);
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false, 0, 1749493);
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false, 1749493, 2939338);
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false, 2939338, 4035922);
   
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end-start;
