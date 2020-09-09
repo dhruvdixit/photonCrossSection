@@ -511,10 +511,10 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	if( ((cluster_e_cross[n]/cluster_e_max[n])>0.05)){
 	  clusterCutBits |= (1 << 1); hClusterCut->Fill(2);
 	} clusterCutPassed |= (1 << 1); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(2);//removes "spiky" clusters
-	if( (cluster_nlocal_maxima[n]< 3)){
+	if( (cluster_nlocal_maxima[n] <= 2)){
 	  clusterCutBits |= (1 << 2); hClusterCut->Fill(3);
 	} clusterCutPassed |= (1 << 2); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(3);//require to have at most 2 local maxima.
-	if( (cluster_distance_to_bad_channel[n] > 1)){                          
+	if( (cluster_distance_to_bad_channel[n] >= 1)){                          
 	  clusterCutBits |= (1 << 3); hClusterCut->Fill(4);
 	} clusterCutPassed |= (1 << 3); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(4);//distnace to bad channels
 	if( (cluster_tof[n] > -20) && (cluster_tof[n] < 20)){
@@ -600,51 +600,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   normalizer->GetXaxis()->SetBinLabel(12,"numEvents_EG1");
   normalizer->GetXaxis()->SetBinLabel(13,"numEvents_EG2");
   normalizer->GetXaxis()->SetBinLabel(16,"numEvents_Zmore10");
-  normalizer->GetXaxis()->SetBinLabel(17,"numEvents_noZ");
-  
-  //scaling for clusters
-  for(int i = 1; i <  hCluster_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hCluster_pt->GetBinWidth(i);
-      double content = hCluster_pt->GetBinContent(i);
-      double temp = (content)/((double)numEvents_passAll*dpt);
-      //double temp = content/((double)numEvents_passAll*dpt);
-      //cout << dpt << "\t" << content << "\t" << temp << endl;
-      //double temp = content/dpt;
-      hCluster_pt->SetBinContent(i, temp);
-      
-      double error = hCluster_pt->GetBinError(i);
-      double tempErr = (error)/((double)numEvents_passAll*dpt);
-      //double tempErr = error/dpt;
-      hCluster_pt->SetBinError(i, tempErr);
-    }//
-  for(int i = 1; i <  hReco_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hReco_pt->GetBinWidth(i);
-      double contentMB = hMB_E->GetBinContent(i);
-      double contentEG1 = hEG1_E->GetBinContent(i);
-      double contentEG2 = hEG2_E->GetBinContent(i);
-      double tempMB = (contentMB)/((double)numEvents_MB*dpt);
-      double tempEG1 = (contentEG1)/((double)numEvents_EG1*dpt);
-      double tempEG2 = (contentEG2)/((double)numEvents_EG2*dpt);
-      double temp = tempEG1+tempEG2;
-      hReco_pt->SetBinContent(i, temp);
-      hMB_E->SetBinContent(i, tempMB);
-      hEG1_E->SetBinContent(i, tempEG1);
-      hEG2_E->SetBinContent(i, tempEG2);
-
-      double errorMB = hMB_E->GetBinError(i);
-      double errorEG1 = hEG1_E->GetBinError(i);
-      double errorEG2 = hEG2_E->GetBinError(i);
-      double tempErrMB = (errorMB)/((double)numEvents_MB*dpt);
-      double tempErrEG1 = (errorEG1)/((double)numEvents_EG1*dpt);
-      double tempErrEG2 = (errorEG2)/((double)numEvents_EG2*dpt);
-      double tempErr = TMath::Sqrt(TMath::Power(tempErrEG1,2)+TMath::Power(tempErrEG2,2));
-      hReco_pt->SetBinError(i, tempErr);
-      hMB_E->SetBinError(i, tempErrMB);
-      hEG1_E->SetBinError(i, tempErrEG1);
-      hEG2_E->SetBinError(i, tempErrEG2);
-    }//*/
+  normalizer->GetXaxis()->SetBinLabel(17,"numEvents_noZ");  
 
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
@@ -706,7 +662,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_forRTrig_MBEG1EG2exlusion_tof20_eCross5_newExoticity";
+  filename += "_forRTrig_MBEG1EG2exlusion_tof20_eCross5_newExoticity_noNorm";
   cout << filename.Data() << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
   
@@ -790,6 +746,20 @@ void isoPhotonAnalysisData_pPbRF(){
 
   
   //calo spectra
+  
+  //Run(6, "pPb/13d/13d_all10runs_noSkim.root");
+  //Run(6, "pPb/13e/13e_10runs_noSkim_part1.root");
+  //Run(6, "pPb/13e/13e_10runs_noSkim_part2.root");
+  //Run(6, "pPb/13f/13f_10runs_noSkim_part1.root");
+  //Run(6, "pPb/13f/13f_10runs_noSkim_part2.root");
+  //Run(6, "pPb/13f/13f_10runs_noSkim_part3.root");
+  //Run(6, "pPb/13f/13f_10runs_noSkim_part4.root");
+  //Run(6, "pPb/13f/13f_3runs_noSkim_part5.root");
+  //Run(6, "pPb/13f/13f_new_9runs_noSkim_part1.root");
+  //Run(6, "pPb/13f/13f_new_9runs_noSkim_part2.root");
+  //Run(6, "pPb/13f/13f_new_9runs_noSkim_part3.root");
+
+  
   //Run(7, "pPb/13d/13d_all10runs_noSkim.root");
   //Run(7, "pPb/13e/13e_10runs_noSkim_part1.root");
   //Run(7, "pPb/13e/13e_10runs_noSkim_part2.root");

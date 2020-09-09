@@ -101,9 +101,9 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 //                     8.09242373515,
 //                     11.8085154181};
 
-  Float_t par[3] = {0.539253098581,
-		    8.84942587038,
-		    12.360736025};
+  Float_t par[3] = {0.549446,
+		    8.44801,
+		    13.3319};
 
   if (strcmp(deviation.data(),"Plus")==0){
     par[0] = 0.60750016509;
@@ -286,9 +286,9 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   Double_t clusterbinsTrig[25] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00};
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
-  auto hEG1_E = new TH1F("hEG1_E", "", 24, clusterbinsTrig);
-  auto hEG2_E = new TH1F("hEG2_E", "", 24, clusterbinsTrig);
-  auto hMB_E = new TH1F("hMB_E", "", 24, clusterbinsTrig);
+  auto hEG1_E = new TH1F("hEG1_E", "", nbinscluster, clusterbins);
+  auto hEG2_E = new TH1F("hEG2_E", "", nbinscluster, clusterbins);
+  auto hMB_E = new TH1F("hMB_E", "", nbinscluster, clusterbins);
 
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
@@ -319,9 +319,11 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   int numEvents_EG2_before = 0;
   int numEvents_EJ1_before = 0;
   int numEvents_EJ2_before = 0;
+  int numEvents_onlyEG2 = 0;
   int numEvents_Zmore10 = 0;
   int numEvents_Zless10 = 0;
   int numEvents_noZ = 0;
+  int currentRunNumber = 0;
   //const int TrackBit = 16; //ITSONLY==16; ITS--TPC with full-jet cuts
 
   const double maxEta = 0.8;
@@ -413,18 +415,43 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
-  Long64_t restrictEvents = 1000000;
+  Long64_t restrictEvents = 10000000000000;
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
   for (Long64_t ievent=0;ievent< numEntries ;ievent++) {
     _tree_event->GetEntry(ievent);
     nevent += 1;
-    if(ievent%10000==0)
+    if(ievent%100000==0)
       {
-	//std::cout << ievent << std::endl;
-	//cout << run_number << endl;
+	cout << ievent << "\t" << run_number << endl;
       }
-    
+
+    //Checking the effect of skimming between run numbers. Should normally be commented out
+    /*if(currentRunNumber != run_number){
+      cout << "run number: " << currentRunNumber << endl;
+      cout << "total events: " << ievent << endl;
+      cout << "total/minbias/EG1/EG2/EJ1/EJ2 events:" << endl;
+      cout << "before:" << "\t" <<
+	numEvents_passTrig << "\t" << numEvents_MB_before << "\t" <<
+	numEvents_EG1_before << "\t" << numEvents_EG2_before << "\t" <<
+	numEvents_EJ1_before << "\t" << numEvents_EJ2_before << "\t" <<
+	endl;
+      cout << "after:" << "\t"  <<
+	numEvents_passAll << "\t" << numEvents_MB << "\t" <<
+	numEvents_EG1 << "\t" << numEvents_EG2 << "\t" <<
+	numEvents_EJ1 << "\t" << numEvents_EJ2 << "\t" <<
+	endl;  
+  
+      currentRunNumber = run_number;
+      numEvents_passTrig = 0;
+      numEvents_MB_before = 0;
+      numEvents_EG1_before = 0;
+      numEvents_EG2_before = 0;
+      numEvents_passAll = 0;
+      numEvents_MB = 0;
+      numEvents_EG1 = 0;
+      numEvents_EG2 = 0;
+      }//*/
     bool eventChange = true;
     bool isMB, isEG1, isEG2, isEJ1, isEJ2;
     isMB = isEG1 = isEG2 = isEJ1 = isEJ2 = false;
@@ -534,6 +561,8 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
     if((localTrigBit & 7) != 0) {
       numEvents_passTrig++;
+      if(isEG2 & !isEG1)
+	numEvents_onlyEG2++;
     }
     if(not( TMath::Abs(primary_vertex[2])<10.0)){
 	hEventCut->Fill(2);
@@ -577,12 +606,12 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
       } //no track*/
     //if(is_incomplete_daq){hEventCut->Fill(5); continue;}
 
-    bool skim12GeV = false;
+    /*bool skim12GeV = false;
     for(ULong64_t n=0; n< ncluster; n++){
       if(cluster_pt[n] > 12.0)
 	skim12GeV = true;
     }
-    if(!skim12GeV) {hEventCut->Fill(5); continue;} //fail skimming
+    if(!skim12GeV) {hEventCut->Fill(5); continue;} //fail skimming*/
 
     
     hEventCut->Fill(6);//all cuts
@@ -592,9 +621,6 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
     if(isEJ1) {hEventCut_EJ1->Fill(6); numEvents_EJ1++;}
     if(isEJ2) {hEventCut_EJ2->Fill(6); numEvents_EJ2++;}
     
-
-
-
     hZvertexAfter->Fill(primary_vertex[2]);
     hMultiplicityAfter->Fill(multp_sum);
     numEvents_Zless10++;
@@ -658,7 +684,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	hClusterCut->Fill(0);
 	hClusterCutFlow->Fill(0);
 
-	//if( not(clusterPt>8)) {continue;} //select pt of photons
+	//if(isEG1 & !isEG2) {if (clusterPt<14) continue;} //select pt of photons
 	if( (cluster_ncell[n]>=2)){                    
 	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
 	} clusterCutPassed |= (1 << 0); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(1); //removes clusters with 1 or 2 cells
@@ -714,10 +740,10 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 	  //if (eventChange) {numClustersPost++; eventChange = false;}
 	//double purity = purityWeights(clusterPt, "pPb");
 	double purity = Get_Purity_ErrFunction(clusterPt);
-	hReco_pt->Fill(clusterPt);
-	if((localTrigBit & 1) != 0) hMB_E->Fill(clusterPt);
-	if((localTrigBit & 2) != 0) hEG1_E->Fill(clusterPt);
-	if((localTrigBit & 4) != 0) hEG2_E->Fill(clusterPt);
+	//hReco_pt->Fill(clusterPt);
+	if((localTrigBit & 1) != 0) hMB_E->Fill(clusterPt, purity);
+	if((localTrigBit & 2) != 0) hEG1_E->Fill(clusterPt, purity);
+	if((localTrigBit & 4) != 0) hEG2_E->Fill(clusterPt, purity);
 	hCluster_pt->Fill(clusterPt,purity);
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
 	hIso_TPC->Fill(cluster_iso_tpc_04[n]);
@@ -809,18 +835,31 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
   for(int i = 1; i <  hReco_pt->GetNbinsX()+1; i++)
     {
       double dpt = hReco_pt->GetBinWidth(i);
-      double content = hReco_pt->GetBinContent(i);
-      double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      //double temp = content/((double)numEvents_passAll*dpt);
-      //cout << dpt << "\t" << content << "\t" << temp << endl;
-      //double temp = content/dpt;
+      double contentMB = hMB_E->GetBinContent(i);
+      double contentEG1 = hEG1_E->GetBinContent(i);
+      double contentEG2 = hEG2_E->GetBinContent(i);
+      double tempMB = (contentMB*acceptanceNorm)/((double)numEvents_MB*dpt);
+      double tempEG1 = (contentEG1*acceptanceNorm)/((double)numEvents_EG1*dpt);
+      double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2*dpt);
+      double temp = tempEG1+tempEG2;
       hReco_pt->SetBinContent(i, temp);
-      
-      double error = hReco_pt->GetBinError(i);
-      double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      //double tempErr = error/dpt;
+      hMB_E->SetBinContent(i, tempMB);
+      hEG1_E->SetBinContent(i, tempEG1);
+      hEG2_E->SetBinContent(i, tempEG2);
+
+      double errorMB = hMB_E->GetBinError(i);
+      double errorEG1 = hEG1_E->GetBinError(i);
+      double errorEG2 = hEG2_E->GetBinError(i);
+      double tempErrMB = (errorEG1*acceptanceNorm)/((double)numEvents_MB*dpt);
+      double tempErrEG1 = (errorEG1*acceptanceNorm)/((double)numEvents_EG1*dpt);
+      double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2*dpt);
+      double tempErr = TMath::Sqrt(TMath::Power(tempErrEG1,2)+TMath::Power(tempErrEG2,2));
       hReco_pt->SetBinError(i, tempErr);
+      hMB_E->SetBinError(i, tempErrMB);
+      hEG1_E->SetBinError(i, tempErrEG1);
+      hEG2_E->SetBinError(i, tempErrEG2);
     }//*/
+
 
   
   /*for(int i = 1; i < hMB_E->GetNbinsX()+1; i++)
@@ -945,7 +984,7 @@ void Run(const int TrackBit, TString address, bool nonLinCorrOn = false, bool ha
 
   //Writing to file
   //filename += "_cluster_emcalTrigOnly_Allevent_wEventSelect_allClusCuts_2piNevdEdEtaPhi_newIsoDef_wPurityFitFunction_TrigSelComplete_FullEMCal_clusterCutFlow_multiplicity_dist2bad1_ncell1_eventCuts_noT";
-  filename += "_cluster_emcalTrigOnly_1Mevents_eventCounts_wTrigPileUpSkimEGCut";
+  filename += "_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new";
   auto fout = new TFile(Form("isoPhotonOutput/fout_%i_%ibins_%s.root",TrackBit, nbinscluster, filename.Data()), "RECREATE");  
 
 
@@ -998,7 +1037,8 @@ p-Pb data sets:
   //Run(16, "pPb/13d/13d_7runs_noThresh.root", false, true, true);
 
   //Run(16, "pPb/13e/13e.root", false);
-  Run(16, "pPb/13f/13f.root", false);
+  //Run(16, "pPb/13f/13f.root", false);
+  Run(16, "pPb/13f/13f_3runs_noSkim.root", false);
   //Run(16, "pPb/13f/13f_new_skimClusterMinE12.root", false);
   //Run(16, "", false, false)
 

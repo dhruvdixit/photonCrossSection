@@ -2,16 +2,8 @@
 #include "TTree.h"
 #include "TBranch.h"
 #include "TGraphAsymmErrors.h"
-//#include "TTreeReader.h"
-//#include "TTreeReaderValue.h"
 #include "TMath.h"
 #include "TVector2.h"
-//#include "/root/atlasstyle-00-03-05/AtlasStyle.h"
-//#include "/root/atlasstyle-00-03-05/AtlasStyle.C"
-//#include "/root/atlasstyle-00-03-05/AtlasUtils.h"
-//#include "/root/atlasstyle-00-03-05/AtlasUtils.C"
-//#include "/root/atlasstyle-00-03-05/AtlasLabels.h"
-//#include "/root/atlasstyle-00-03-05/AtlasLabels.C"
 #include "TDatabasePDG.h"
 #include "TEfficiency.h"
 
@@ -94,6 +86,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   Bool_t is_pileup_from_spd_3_08;
   Bool_t is_incomplete_daq;
   Float_t ue_estimate_its_const;
+  Float_t ue_estimate_its_const_se;
   int npileup_vertex_spd;
   int run_number;
   unsigned int ntrack;
@@ -137,6 +130,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   _tree_event->SetBranchAddress("is_pileup_from_spd_3_08", &is_pileup_from_spd_3_08);
   //_tree_event->SetBranchAddress("is_incomplete_daq", &is_incomplete_daq);
   _tree_event->SetBranchAddress("ue_estimate_its_const", &ue_estimate_its_const);
+  _tree_event->SetBranchAddress("ue_estimate_its_const_se", &ue_estimate_its_const_se);
   _tree_event->SetBranchAddress("run_number", &run_number);
   _tree_event->SetBranchAddress("npileup_vertex_spd", &npileup_vertex_spd);
   _tree_event->SetBranchAddress("trigger_mask", trigger_mask);
@@ -195,8 +189,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hITSclus_fake = new TH1F("hITSclus_fake", "", 7, -0.5, 6.5);
 
   auto hIso_ITS = new TH1F("hIso_ITS","", 25, -10, 40);
-  auto hIso_TPC = new TH1F("hIso_TPC","", 25, -10, 40);  
-  auto hIso_Truth = new TH1F("hIso_Truth","", 25, -10, 40);
+  auto hIso_ITSue = new TH1F("hIso_ITSue","", 25, -10, 40);  
   
   auto hTrackCut = new TH1F("hTrackCut", "", 15, -0.5, 14.5);
   auto hNumTracks = new TH1F("hNumTracks", "", 500, -0.5, 499.5);
@@ -216,32 +209,12 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hPileUpVertex = new TH1F("hPileUpVertex", "", 20, -0.5, 19.5);
   auto hMultiplicityBefore = new TH1F("hMultiplicityBefore", "", 200, 0, 200);
   auto hMultiplicityAfter = new TH1F("hMultiplicityAfter", "", 200, 0, 200);
- 
+  auto hUE = new TH1F("hUE", "", 500 , -250, 250);
+  auto hUEse = new TH1F("hUEse", "", 500 , -250, 250);
+
   hZvertex->Sumw2();
   hZvertexAfter->Sumw2();
   hHitsITS->SetTitle(";Layers hit; counts");
-
-  //cluster cuts histogram
-  auto hCluster_tof = new TH1F("hCluster_tof", "", 200, -100, 100);
-  auto hCluster_tof20GeV = new TH1F("hCluster_tof20GeV", "", 200, -100, 100);
-  auto hExoticity = new TH1F("hExtoticity", "", 100, 0, 1);
-  auto hCellEvClusterE = new TH1F("hCellEvClusterE", "", 100, -50, 50);
-  auto hNcell = new TH1F("hNcell", "", 20, 0, 20);
-  auto hNLM = new TH1F("hNLM", "", 10, 0, 10);
-  auto hD2BC = new TH1F("hD2BC", "", 10, 0, 10);
-  auto hEta = new TH1F("hEta", "", nbinseta, etabins);
-  auto hPhi = new TH1F("hPhi", "", nbinsphi, phibins);
-
-  hCluster_tof->SetTitle(";cluster_tof [ns]; counts");
-  hCluster_tof20GeV->SetTitle("photons > 20 GeV;cluster_tof [ns]; counts");
-  hExoticity->SetTitle(";E_{cross}/E_{max};counts");
-  hCellEvClusterE->SetTitle(";E_{max} - E_{cluster};counts");
-  hNcell->SetTitle(";N_{cell};counts");
-  hNLM->SetTitle(";NLM;counts");
-  hD2BC->SetTitle(";Distance to bad channel; counts");
-  hEta->SetTitle(";#eta; counts");
-  hPhi->SetTitle(";#phi; counts");
-
   
   //Photon
   const int nbinscluster = 14;
@@ -254,7 +227,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hEG2_caloE = new TH1F("hEG2_caloE", "", nbinscluster, clusterbins);
   auto hEG2_centE = new TH1F("hEG2_centE", "", nbinscluster, clusterbins);
   auto hMB_centE = new TH1F("hMB_centE", "",  nbinscluster, clusterbins);
-
+  
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
   hDG2_caloE->Sumw2();  
@@ -262,7 +235,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hDG2_centE->Sumw2();  
   hEG2_centE->Sumw2();
   hMB_centE->Sumw2();
-
+    
   hCluster_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hReco_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hMB_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
@@ -271,6 +244,54 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hDG2_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{DG2}dN/dE_{T}");
   hEG2_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
 
+  //cut flow check histograms
+  auto h_YesISO = new TH1F("h_YesISO", "", nbinscluster, clusterbins);
+  auto h_NoISO = new TH1F("h_NoISO", "", nbinscluster, clusterbins);
+  auto h_YesSSC = new TH1F("h_YesSSC", "", nbinscluster, clusterbins);
+  auto h_NoSSC = new TH1F("h_NoSSC", "", nbinscluster, clusterbins);
+  auto h_YesTOF = new TH1F("h_YesTOF", "", nbinscluster, clusterbins);
+  auto h_NoTOF = new TH1F("h_NoTOF", "", nbinscluster, clusterbins);
+  
+  h_YesISO->Sumw2();
+  h_NoISO->Sumw2();
+  h_YesSSC->Sumw2();
+  h_NoSSC->Sumw2();
+  h_YesTOF->Sumw2();
+  h_NoTOF->Sumw2();
+
+  h_YesISO->SetTitle(";p_{T}^{Reco,pt} [GeV/c];  dN/dp_{T}");
+  h_NoISO->SetTitle(";p_{T}^{Reco,pt} [GeV/c];  dN/dp_{T}");
+  h_YesSSC->SetTitle(";p_{T}^{Reco,pt} [GeV/c];  dN/dp_{T}");
+  h_NoSSC->SetTitle(";p_{T}^{Reco,pt} [GeV/c];  dN/dp_{T}");
+  h_YesTOF->SetTitle(";p_{T}^{Reco,pt} [GeV/c];  dN/dp_{T}");
+  h_NoTOF->SetTitle(";p_{T}^{Reco,pt} [GeV/c];  dN/dp_{T}");
+
+  //cluster cuts histogram
+  auto hCluster_tof = new TH1F("hCluster_tof", "", 200, -100, 100);
+  auto hCluster_tofB = new TH1F("hCluster_tofB", "", 200, -100, 100);
+  auto hCluster_tofA = new TH1F("hCluster_tofA", "", 200, -100, 100);
+  auto hCluster_tof20GeV = new TH1F("hCluster_tof20GeV", "", 200, -100, 100);
+  auto hExoticity = new TH1F("hExtoticity", "", 100, 0, 1);
+  auto hCellEvClusterE = new TH1F("hCellEvClusterE", "", 100, -50, 50);
+  auto hNcell = new TH1F("hNcell", "", 20, 0, 20);
+  auto hNLM = new TH1F("hNLM", "", 10, 0, 10);
+  auto hD2BC = new TH1F("hD2BC", "", 10, 0, 10);
+  auto hEta = new TH1F("hEta", "", nbinseta, etabins);
+  auto hPhi = new TH1F("hPhi", "", nbinsphi, phibins);
+
+  hCluster_tof->SetTitle(";cluster_tof [ns]; counts");
+  hCluster_tofB->SetTitle(";cluster_tof [ns]; counts");
+  hCluster_tofA->SetTitle(";cluster_tof [ns]; counts");
+  hCluster_tof20GeV->SetTitle("photons > 20 GeV;cluster_tof [ns]; counts");
+  hExoticity->SetTitle(";E_{cross}/E_{max};counts");
+  hCellEvClusterE->SetTitle(";E_{max} - E_{cluster};counts");
+  hNcell->SetTitle(";N_{cell};counts");
+  hNLM->SetTitle(";NLM;counts");
+  hD2BC->SetTitle(";Distance to bad channel; counts");
+  hEta->SetTitle(";#eta; counts");
+  hPhi->SetTitle(";#phi; counts");
+
+  
   int nevent = 0; 
   int numEvents_tracks = 0;
   int numClustersPost = 0;
@@ -333,7 +354,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	cout << run_number << endl;
       }
     
-    bool eventChange = true;
     bool isMBcent, isDG2calo, isEG2calo, isEG2cent;
     isMBcent = isDG2calo = isEG2calo = isEG2cent = false;
     
@@ -383,7 +403,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     if(((localTrigBit & 4) != 0) && (!isMBcent)) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
     
     
-    if((localTrigBit & TriggerBit) == 0) {
+    //if((localTrigBit & TriggerBit) == 0) {
+    if(localTrigBit != TriggerBit) {
       hEventCut->Fill(1);
       if(isEG2calo) hEventCut_EG2->Fill(1);
       continue;}//no emcal triggers*/
@@ -411,23 +432,25 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     
     hEventCut->Fill(6);//all cuts
     if(isEG2calo) {hEventCut_EG2->Fill(6); numEvents_EG2calo++;}
-    
+    if(!isEG2calo) continue;
     
     hZvertexAfter->Fill(primary_vertex[2]);
     numEvents_Zless10++;
     numEvents_passAll++;
     
-    
+    //continue;
     int eventFill = 0;    
     hEventCounts->Fill(eventFill);
+    hUE->Fill(ue_estimate_its_const);
+    hUEse->Fill(ue_estimate_its_const_se);
 
-    //continue;
-    
-    eventChange = true;
-    bool eventChange2 = true;
     //Loop over clusters
     for(ULong64_t n=0; n< ncluster; n++)
       {
+	hIso_ITS->Fill(cluster_iso_its_04[n]);
+	hIso_ITSue->Fill(cluster_iso_its_04_ue[n]);
+	
+	
 	double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
 	isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
 
@@ -458,13 +481,16 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(clusterPt > 20)
 	  hCluster_tof20GeV->Fill(cluster_tof[n]);
 	hExoticity->Fill(cluster_e_cross[n]/cluster_e_max[n]);
-	hCellEvClusterE->Fill(cluster_e_cross[n]-clusterE);
+	hCellEvClusterE->Fill(cluster_e_max[n]-clusterE);
 	hNcell->Fill(cluster_ncell[n]);
 	hNLM->Fill(cluster_nlocal_maxima[n]);
 	hD2BC->Fill(cluster_distance_to_bad_channel[n]);
 	hEta->Fill(clusterEta);
 	hPhi->Fill(clusterPhi);
-
+	
+	if((isolation < 1.5)) h_YesISO->Fill(clusterPt);
+	h_NoISO->Fill(clusterPt);
+	
 	int numCuts = 9;
 
 	ULong64_t clusterCutBits = 0;
@@ -473,8 +499,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	numClustersPre++;	
 	hClusterCut->Fill(0);
 	hClusterCutFlow->Fill(0);
-	hCluster_tof->Fill(cluster_tof[n]);
-	if(clusterPt > 20) hCluster_tof20GeV->Fill(cluster_tof[n]);
 	
 	//if( not(clusterPt>8)) {continue;} //select pt of photons
 	if( (cluster_ncell[n]>=2)){                    
@@ -486,21 +510,21 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if( (cluster_nlocal_maxima[n] <= 2)){
 	  clusterCutBits |= (1 << 2); hClusterCut->Fill(3);
 	} clusterCutPassed |= (1 << 2); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(3);//require to have at most 2 local maxima.
-	if( (cluster_distance_to_bad_channel[n] > 1)){                          
+	if( (cluster_distance_to_bad_channel[n] >= 1)){                          
 	  clusterCutBits |= (1 << 3); hClusterCut->Fill(4);
 	} clusterCutPassed |= (1 << 3); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(4);//distnace to bad channels
 	if( (cluster_tof[n] > -20) && (cluster_tof[n] < 20)){
 	  clusterCutBits |= (1 << 4); hClusterCut->Fill(5);
-	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//time of flight
+	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//time of flight*/
 
 	//Isolation and shower shape selection:
 	if( (isolation < 1.5)){
 	  clusterCutBits |= (1 << 5); hClusterCut->Fill(6);
-	} clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 2
+	  } clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 1.5*/
 	if((cluster_lambda_square[n][0] > 0.1) && (cluster_lambda_square[n][0] < 0.3)){
 	  clusterCutBits |= (1 << 6); hClusterCut->Fill(7);
-	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged
-	//cout << clusterCutBits << "\t" << clusterCutPassed << endl;
+	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged*/
+	
 
 	//fiducial cut
 	if((TMath::Abs(clusterEta)) < 0.67){
@@ -514,7 +538,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	
 	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
 	  continue;
-	
+
 	if(ievent%1000==0)
 	  {
 	    std::cout << "cluster accepted" << std::endl;
@@ -546,6 +570,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   cout << "cluster pt clusters: " << numClusters_clusterpt << "\tEG2_caloE clusters: " << numClusters_EG2_caloE << "\tEG2_centE clusters: " << numClusters_EG2_centE << endl;
 
   cout << "\tTotal Events: " << numEntries << "\tEvent selection: " << numEvents_passAll << "\tPre-Cluster selection: " << numClustersPre << "\tPostCluster selection: " << numClustersPost << endl;
+  
   //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
   const double deltaEta = 1.334;
   const double deltaPhi = 1.884;
@@ -588,48 +613,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   normalizer->GetXaxis()->SetBinLabel(14,"numEvents_EG2cent_before");
   normalizer->GetXaxis()->SetBinLabel(15,"numEvents_EG2cent");
   normalizer->GetXaxis()->SetBinLabel(16,"numCluster_EG2calo");
-  normalizer->GetXaxis()->SetBinLabel(17,"numCluster_EG2cent");
-  
-  //scaling for clusters
-  for(int i = 1; i <  hCluster_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hCluster_pt->GetBinWidth(i);
-      
-      double content = hCluster_pt->GetBinContent(i);
-      double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      hCluster_pt->SetBinContent(i, temp);
-      double error = hCluster_pt->GetBinError(i);
-      double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      hCluster_pt->SetBinError(i, tempErr);
-    }//*/
-  
-  for(int i = 1; i <  hReco_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hReco_pt->GetBinWidth(i);
-      double content = hReco_pt->GetBinContent(i);
-      double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      hReco_pt->SetBinContent(i, temp);
-      
-      double error = hReco_pt->GetBinError(i);
-      double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      hReco_pt->SetBinError(i, tempErr);
-    }//*/
-  
-  for(int i = 1; i < hEG2_caloE->GetNbinsX()+1; i++){
-    double dE = hEG2_caloE->GetBinWidth(i);
-    
-    double contentEG2 = hEG2_caloE->GetBinContent(i);
-    double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
-    double errorEG2 = hEG2_caloE->GetBinError(i);
-    double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
-    if(numEvents_EG2calo) 
-      {
-	hEG2_caloE->SetBinContent(i,tempEG2);
-	hEG2_caloE->SetBinError(i, tempErrEG2);
-      }
-    
-  }//*/
-  
+  normalizer->GetXaxis()->SetBinLabel(17,"numCluster_EG2cent");  
   
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
@@ -677,7 +661,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
   //Writing to file
   //filename += "_cluster_EMCandDMCTrigOnly_1Mevent_wTripPileupSkimEGCut_MBDG2EG2seperate_purityCorr_etaPhiAcceptancenew_EG2caloOnly";
-  filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity";
+  //filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudy_NormalisoGeV_yesNoISOSSC_SSCEff_noNorm2";
+  filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV_noNorm2";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -688,10 +673,11 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hReco_pt->Write("hReco_pt");
   hEventCounts->Write("hEventCounts");
   hMB_centE->Write("hMB_centE");
-  hDG2_caloE->Write("hDG2_caloE");
+  //hDG2_caloE->Write("hDG2_caloE");
   hEG2_caloE->Write("hEG2_caloE");
-  hEG2_centE->Write("hEG2_centE");
-
+  //hEG2_centE->Write("hEG2_centE");
+  normalizer->Write("hNormalizer");
+  
   hZvertex->Write("hZvertex");
   hZvertexAfter->Write("hZvertexAfter");
   hPileUpVertex->Write("hPileUpVertex");
@@ -701,9 +687,28 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCut_EG2->Write("hEventCut_EG2");
   hClusterCut->Write("hClusterCut");
   hClusterCutFlow->Write("hClusterCutFlow");
+  hIso_ITS->Write("hIso_ITS");
+  hIso_ITSue->Write("hIso_ITSue");
+  hUE->Write("hUE");
+  hUEse->Write("hUEse");
+    
   hCluster_tof->Write("hCluster_tof");
+  hCluster_tofB->Write("hCluster_tofB");
+  hCluster_tofA->Write("hCluster_tofA");
   hCluster_tof20GeV->Write("hCluster_tof20GeV");
-  normalizer->Write("hNormalizer");
+  hExoticity->Write("hExoticity");
+  hCellEvClusterE->Write("hCellEvClusterE");
+  hNcell->Write("hNcell");
+  hNLM->Write("hNLM");
+  hD2BC->Write("hD2BC");
+  hEta->Write("hEta");
+  hPhi->Write("hPhi");
+  h_YesISO->Write("h_YesISO");
+  h_NoISO->Write("h_NoISO");
+  h_YesSSC->Write("h_YesSSC");
+  h_NoSSC->Write("h_NoSSC");
+  h_YesTOF->Write("h_YesTOF");
+  h_NoTOF->Write("h_NoTOF");
   fout->Close();  
 
   return;
@@ -732,17 +737,17 @@ void isoPhotonAnalysisData_ppCS(){
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root");
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282367_physel.root");
 
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part002.root");//21
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part002.root");//21
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
+  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
 
   //4,035,922 --> starting of EMC good runs
   //1,749,493 to 2,939,337 --> runs 282415-282402

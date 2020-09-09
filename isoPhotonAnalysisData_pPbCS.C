@@ -109,6 +109,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   Float_t cluster_phi_nonLinCorr[kMax];
   Float_t cluster_tof[kMax];
   Float_t cluster_e_cross[kMax];
+  Float_t cluster_e_max[kMax];
   Float_t cluster_iso_tpc_04[kMax];
   Float_t cluster_iso_its_04[kMax];
   Float_t cluster_iso_its_04_ue[kMax];
@@ -153,6 +154,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   _tree_event->SetBranchAddress("cluster_phi_nonLinCorr", cluster_phi_nonLinCorr);
   _tree_event->SetBranchAddress("cluster_tof", cluster_tof);
   _tree_event->SetBranchAddress("cluster_e_cross", cluster_e_cross);
+  _tree_event->SetBranchAddress("cluster_e_max", cluster_e_max);
   _tree_event->SetBranchAddress("cluster_s_nphoton", cluster_s_nphoton); // here
   _tree_event->SetBranchAddress("cluster_mc_truth_index", cluster_mc_truth_index);
   _tree_event->SetBranchAddress("cluster_lambda_square", cluster_lambda_square);
@@ -191,6 +193,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
 
   auto hIso_ITS = new TH1F("hIso_ITS","", 25, -10, 40);
+  auto hIso_ITSue = new TH1F("hIso_ITSue","", 25, -10, 40);
   auto hIso_TPC = new TH1F("hIso_TPC","", 25, -10, 40);  
   
   auto hZvertex = new TH1F("hZvertez", "", 60, -30, 30);
@@ -206,7 +209,9 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hPileUpVertex = new TH1F("hPileUpVertex", "", 20, -0.5, 19.5);
   auto hMultiplicityBefore = new TH1F("hMultiplicityBefore", "", 200, 0, 200);
   auto hMultiplicityAfter = new TH1F("hMultiplicityAfter", "", 200, 0, 200);
-
+  auto hUE = new TH1F("hUE", "", 500 , -250, 250);
+  auto hUEse = new TH1F("hUEse", "", 500 , -250, 250);
+  
   hZvertex->Sumw2();
   hZvertexAfter->Sumw2();
 
@@ -220,6 +225,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hD2BC = new TH1F("hD2BC", "", 10, 0, 10);
   auto hEta = new TH1F("hEta", "", nbinseta, etabins);
   auto hPhi = new TH1F("hPhi", "", nbinsphi, phibins);
+  auto hIsolation = new TH1F("hIsolation", "", 1000, -500, 500);
 
   hCluster_tof->SetTitle(";cluster_tof [ns]; counts");
   hCluster_tof20GeV->SetTitle("photons > 20 GeV;cluster_tof [ns]; counts");
@@ -228,6 +234,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hNcell->SetTitle(";N_{cell};counts");
   hNLM->SetTitle(";NLM;counts");
   hD2BC->SetTitle(";Distance to bad channel; counts");
+  hIsolation->SetTitle(";isolation [GeV/c]; counts");
   hEta->SetTitle(";#eta; counts");
   hPhi->SetTitle(";#phi; counts");
 
@@ -279,70 +286,55 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   /*//////////////////////////////////////////////////////////////////////////////////
     13d triggers
   //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13d_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13d_trigs[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13d_trigs[0] = (one1 << 2);
   trigMask_13d_trigs[1] = (one1 << 18);
   trigMask_13d_trigs[2] = (one1 << 19);
-  trigMask_13d_trigs[3] = (one1 << 20);//EJ1
-  trigMask_13d_trigs[4] = (one1 << 21);//EJ2
   
-  ULong64_t trigMask_13d_trigs2[5] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
+  ULong64_t trigMask_13d_trigs2[3] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
   trigMask_13d_trigs2[0] = (one1 << 1);
   trigMask_13d_trigs2[1] = (one1 << 18);//EG1
   trigMask_13d_trigs2[2] = (one1 << 19);//EG2
-  trigMask_13d_trigs2[3] = (one1 << 21);//EJ1
-  trigMask_13d_trigs2[4] = (one1 << 22);//EJ2
   
   
   /*//////////////////////////////////////////////////////////////////////////////////
     13e triggers
   //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13e_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13e_trigs[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13e_trigs[0] = (one1 << 2);
   trigMask_13e_trigs[1] = (one1 << 17);
   trigMask_13e_trigs[2] = (one1 << 18);
-  trigMask_13e_trigs[3] = (one1 << 19);
-  trigMask_13e_trigs[4] = (one1 << 20);
 
-  ULong64_t trigMask_13e_trigs_r196208[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13e_trigs_r196208[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13e_trigs_r196208[0] = (one1 << 2);
   trigMask_13e_trigs_r196208[1] = (one1 << 12);
   trigMask_13e_trigs_r196208[2] = (one1 << 13);
-  trigMask_13e_trigs_r196208[3] = (one1 << 14);
-  trigMask_13e_trigs_r196208[4] = (one1 << 15);
+
 
   /*//////////////////////////////////////////////////////////////////////////////////
     13f triggers
  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13f_trigs1[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs1[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs1[0] = (one1 << 2);
   trigMask_13f_trigs1[1] = (one1 << 17);
   trigMask_13f_trigs1[2] = (one1 << 18);
-  trigMask_13f_trigs1[3] = (one1 << 19);
-  trigMask_13f_trigs1[4] = (one1 << 20);
-
-  ULong64_t trigMask_13f_trigs2[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+ 
+  ULong64_t trigMask_13f_trigs2[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs2[0] = (one1 << 2);
   trigMask_13f_trigs2[1] = (one1 << 12);
   trigMask_13f_trigs2[2] = (one1 << 13);
-  trigMask_13f_trigs2[3] = (one1 << 14);
-  trigMask_13f_trigs2[4] = (one1 << 15);
   
-  ULong64_t trigMask_13f_trigs3[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs3[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs3[0] = (one1 << 1);
   trigMask_13f_trigs3[1] = (one1 << 16);
   trigMask_13f_trigs3[2] = (one1 << 17);
-  trigMask_13f_trigs3[3] = (one1 << 18);
-  trigMask_13f_trigs3[4] = (one1 << 19);
 
-  ULong64_t trigMask_13f_trigs4[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs4[3] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs3[0] = (one1 << 9);
   trigMask_13f_trigs3[1] = (one1 << 13);
   trigMask_13f_trigs3[2] = (one1 << 14);
-  trigMask_13f_trigs3[3] = (one1 << 15);
-  trigMask_13f_trigs3[4] = (one1 << 16);
 
-  ULong64_t trigMask[5] = {0};
+  ULong64_t trigMask[3] = {0};
 
 
   Long64_t totEvents = _tree_event->GetEntries();
@@ -359,8 +351,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
       }
 
     bool eventChange = true;
-    bool isMB, isEG1, isEG2, isEJ1, isEJ2;
-    isMB = isEG1 = isEG2 = isEJ1 = isEJ2 = false;
+    bool isMB, isEG1, isEG2;
+    isMB = isEG1 = isEG2 = false;
 
     
 
@@ -403,41 +395,22 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     if(run_number == 196433)
       std::memcpy(trigMask, trigMask_13f_trigs4, sizeof(trigMask));
     if(run_number == 197189) continue;
-    if(run_number == 197342 || run_number == 197341 || run_number == 197302) continue;//in order to seperate the new and old
+    //if(run_number == 197342 || run_number == 197341 || run_number == 197302) continue;//in order to seperate the new and old
     //cout << ievent << endl;
 
     ULong64_t localTrigBit = 0;
-    if(not ((trigMask[0] & trigger_mask[0]) == 0))  {
+    if(not ((trigMask[0] & trigger_mask[0]) == 0))
       localTrigBit |= (1 << 0);
-      
-    }//*/
-    if(not ((trigMask[1] & trigger_mask[0]) == 0))  {
+    if(not ((trigMask[1] & trigger_mask[0]) == 0))
       localTrigBit |= (1 << 1);
-    }//*/
-    if(not ((trigMask[2] & trigger_mask[0]) == 0))  {
+    if(not ((trigMask[2] & trigger_mask[0]) == 0))
       localTrigBit |= (1 << 2);
-      
-    }//*/
-    if(not ((trigMask[3] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 3);
-      
-    }//*/
-    if(not ((trigMask[4] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 4);
-      
-    }//*/
     //cout << localTrigBit << endl;
 
 
     if((localTrigBit & 1) != 0) {isMB = true; hEventCut_MB->Fill(0); numEvents_MB_before++;}
     if(((localTrigBit & 4) != 0) && (!isMB) ) {isEG2 = true;hEventCut_EG2->Fill(0); numEvents_EG2_before++;}
     if(((localTrigBit & 2) != 0) && (!isMB) && (!isEG2) ) {isEG1 = true;hEventCut_EG1->Fill(0); numEvents_EG1_before++;}
-    //if((localTrigBit & 4) != 0) {isEG2 = true;hEventCut_EG2->Fill(0);numEvents_EG2_before++;}
-    //if((localTrigBit & 2) != 0) {isEG1 = true;hEventCut_EG1->Fill(0);numEvents_EG1_before++;}
-
-
-    
-
     
     if((localTrigBit & TriggerBit) == 0) {
       hEventCut->Fill(1);
@@ -478,7 +451,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
     
     hEventCut->Fill(6);//all cuts
-    if(!isEG1 || !isEG2) continue;
+    if(!isEG1 && !isEG2) continue;
+    if(isEG1 && isEG2) continue;
     if(isEG1) {hEventCut_EG1->Fill(6); numEvents_EG1++;}
     if(isEG2) {hEventCut_EG2->Fill(6); numEvents_EG2++;}
 
@@ -490,7 +464,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     
     
     int eventFill = 0;    
-
+    hUE->Fill(ue_estimate_its_const);
+    //hUEse->Fill(ue_estimate_its_const_se);
 
     //continue;
     
@@ -500,9 +475,12 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     for(ULong64_t n=0; n< ncluster; n++)
       {
 
+	hIso_ITS->Fill(cluster_iso_its_04[n]);
+	hIso_ITSue->Fill(cluster_iso_its_04_ue[n]);
 	double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
 	isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
-
+	hIsolation->Fill(isolation);
+	
 	Float_t clusterPt = 0.0;
 	Float_t clusterE = 0.0;
 	Float_t clusterEta = 0.0;
@@ -550,7 +528,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hClusterCutFlow->Fill(0);
 
 	//if(isEG1 & !isEG2) {if (clusterPt<14) continue;} //select pt of photons
-	if( (cluster_ncell[n]>=2)){                    
+	/*if( (cluster_ncell[n]>=2)){                    
 	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
 	} clusterCutPassed |= (1 << 0); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(1); //removes clusters with 1 or 2 cells
 	if( ((cluster_e_cross[n]/clusterE)>0.05)){
@@ -567,7 +545,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//distnace to bad channels
 
 	//Isolation and shower shape selection:
-	if( (isolation < 1.5)){
+	if( (isolation < 1.0)){
 	  clusterCutBits |= (1 << 5); hClusterCut->Fill(6);
 	} clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 1.5
 	if(( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0])){
@@ -583,13 +561,25 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
 
 	
-	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0)) continue;
-	if(ievent%1000==0)
-	  {
-	    std::cout << "cluster accepted" << std::endl;
-	    
-	  }
+	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0)) continue;//*/
+	if(not (cluster_ncell[n]>=2)) continue;
+	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
+	if(not (cluster_nlocal_maxima[n]<= 2)) continue;
+	if(not (cluster_distance_to_bad_channel[n]>=1))continue;
+	if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
+	
+	//acceptance cuts
+	if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
+	
+	//shower shape and isolation
+	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+	if(not (isolation < 1.5)) continue;
 
+	if(ievent%1000==0){
+	  std::cout << "cluster accepted" << std::endl;
+	}
+	
 	hClusterCut->Fill(10);
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
@@ -653,48 +643,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   normalizer->GetXaxis()->SetBinLabel(12,"numEvents_Zmore10");
   normalizer->GetXaxis()->SetBinLabel(13,"numEvents_noZ");
 
-  
-  //scaling for clusters
-  for(int i = 1; i <  hCluster_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hCluster_pt->GetBinWidth(i);
-      double content = hCluster_pt->GetBinContent(i);
-      double temp = (content*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      hCluster_pt->SetBinContent(i, temp);
-      
-      double error = hCluster_pt->GetBinError(i);
-      double tempErr = (error*acceptanceNorm)/((double)numEvents_passAll*dpt);
-      hCluster_pt->SetBinError(i, tempErr);
-    }//*/
-
-  for(int i = 1; i <  hReco_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hReco_pt->GetBinWidth(i);
-
-      double contentEG1 = hEG1_E->GetBinContent(i);
-      double tempEG1 = (contentEG1*acceptanceNorm)/((double)numEvents_EG1*dpt);
-      double errorEG1 = hEG1_E->GetBinError(i);
-      double tempErrEG1 = (errorEG1*acceptanceNorm)/((double)numEvents_EG1*dpt);
-      hEG1_E->SetBinContent(i, tempEG1);
-      hEG1_E->SetBinError(i, tempErrEG1);
-      
-      double contentEG2 = hEG2_E->GetBinContent(i);
-      double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2*dpt);      
-      double errorEG2 = hEG2_E->GetBinError(i);      
-      double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2*dpt);
-      hEG2_E->SetBinContent(i, tempEG2);
-      hEG2_E->SetBinError(i, tempErrEG2);
-      
-      double temp = tempEG1+tempEG2;
-      double tempErr = TMath::Sqrt(TMath::Power(tempErrEG1,2)+TMath::Power(tempErrEG2,2));
-      hReco_pt->SetBinContent(i, temp);
-      hReco_pt->SetBinError(i, tempErr);
-
-      
-      
-    }//*/
-
-
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
   hClusterCut->GetXaxis()->SetBinLabel(3,"exoticity");
@@ -746,18 +694,33 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
   
 //Writing to file
-  filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity";
+  filename += "_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
 
   
   //writing photon info
-  hCluster_pt->Write("hCluster_pt");
-  hReco_pt->Write("hReco_pt");
   hMB_E->Write("hMB_E");
   hEG1_E->Write("hEG1_E");
   hEG2_E->Write("hEG2_E");
+  normalizer->Write("hNormalizer");
+  
+
+  hCluster_pt->Write("hCluster_pt");
+  hReco_pt->Write("hReco_pt");
+  
+  hCluster_tof->Write("hCluster_tof");
+  hCluster_tof20GeV->Write("hCluster_tof20GeV");
+  hExoticity->Write("hExoticity");
+  hCellEvClusterE->Write("hCellEvClusterE");
+  hNcell->Write("hNcell");
+  hNLM->Write("hNLM");
+  hD2BC->Write("hD2BC");
+  hEta->Write("hEta");
+  hPhi->Write("hPhi");
+  hIsolation->Write("hIsolation");
+  
 
   hZvertex->Write("hZvertex");
   hZvertexAfter->Write("hZvertexAfter");
@@ -772,7 +735,10 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hClusterCutFlow->Write("hClusterCutFlow");
   hMultiplicityBefore->Write("hMultiplicityBefore");
   hMultiplicityAfter->Write("hMultiplicityAfter");
-  normalizer->Write("hNormalizer");
+  hIso_ITS->Write("hIso_ITS");
+  hIso_ITSue->Write("hIso_ITSue");
+  hUE->Write("hUE");
+  hUEse->Write("hUEse");
   fout->Close();  
 
   return;

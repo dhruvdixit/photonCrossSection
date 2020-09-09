@@ -281,10 +281,10 @@ void Run(ULong64_t TriggerBit, TString address, bool nonLinCorrOn = false, bool 
   hHitsITS->SetTitle(";Layers hit; counts");
 
   //Photon
-  const int nbinscluster = 15;
-  //Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
+  const int nbinscluster = 14;
+  Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
   //Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00, 50.00, 60.00};//nbinscluster = 26, rejection factor binning
-  Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 14.00, 18.00, 25.00, 40.00, 60.00};//nbinscluster = 15
+  //Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 14.00, 18.00, 25.00, 40.00, 60.00};//nbinscluster = 15
   
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
@@ -370,22 +370,18 @@ void Run(ULong64_t TriggerBit, TString address, bool nonLinCorrOn = false, bool 
   trigMask_17p_trigs2[0] = (one1 << 0) | (one1 << 3);//fast | cent
   //trigMask_17p_trigs2[1] = (one1 << 3);//cent
   //trigMask_17p_trigs2[2] = (one1 << 23);//EG2 calo
-
-  ULong64_t trigMask_17p_trigs3[numTrigs] = {0};//0 = fast, 1 = cent
-  //trigMask_17p_trigs3[0] = (one1 << 0);//fast
-  trigMask_17p_trigs3[1] = (one1 << 0);//cent
-  //trigMask_17p_trigs2[2] = (one1 << 23);//EG2 calo
   
   ULong64_t trigMask[numTrigs] = {0};
 
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
-  Long64_t restrictEvents = 4035922;//4035922 --> starting of EMC good runs
+  Long64_t restrictEvents = 4035922;
+  //4035922 --> starting of EMC good runs
   //1749493 to 2939337 --> runs 282415-282402
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
   double RN = 0.0;
-  for (Long64_t ievent = 2939338; ievent< numEntries ;ievent++) {
+  for (Long64_t ievent = 1749493; ievent< numEntries ;ievent++) {
     _tree_event->GetEntry(ievent);
     nevent += 1;
     if(ievent%100000==0)
@@ -424,6 +420,8 @@ void Run(ULong64_t TriggerBit, TString address, bool nonLinCorrOn = false, bool 
       std::memcpy(trigMask, trigMask_17p_trigs1, sizeof(trigMask));
     if(run_number >= 282050 && run_number <= 282098)
       std::memcpy(trigMask, trigMask_17p_trigs1, sizeof(trigMask));
+    if(run_number == 282030)
+      continue;
     
     //17q
     if(run_number >= 282391 && run_number <= 282441)
@@ -878,7 +876,7 @@ void Run(ULong64_t TriggerBit, TString address, bool nonLinCorrOn = false, bool 
 
   //Writing to file
   //filename += "_cluster_EMCandDMCTrigOnly_1Mevent_wTripPileupSkimEGCut_MBDG2EG2seperate_purityCorr_etaPhiAcceptancenew_EG2caloOnly";
-  filename += "_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391";
+  filename += "_EG2_Normalized_bugFixed2_part12";
   auto fout = new TFile(Form("isoPhotonOutput/fout_%llu_%ibins_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
 
 
@@ -937,10 +935,10 @@ void isoPhotonAnalysisData_pp(){
   //Run(13, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);//First EMC goodrun event:4035922
   //Run(12, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false);//First EMC goodrun event:4035922
   //Run(04, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);//First EMC goodrun event:4035922
-  //Run(1, "pp/17p/17p_CENT_wSDD_10runs_noThresh.root", false, true);//First event with clusters: 2483971
+  //Run(1, "pp/17p/17p_CENT_wSDD_10runs_noThresh_part1.root", false, true);//First event with clusters: 2483971
 
-  Run(04, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);//breaking it down in 4 groups
-  //Run(04, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false);//breaking it down in 4 groups
+  //Run(04, "pp/17q/17q_CENT_wSDD_noThresh.root", false, true);//breaking it down in 4 groups
+  Run(04, "pp/17q/17q_CENT_wSDD_noThresh.root");//breaking it down in 4 groups
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end-start;
   std::time_t start_time = std::chrono::system_clock::to_time_t(start);

@@ -23,7 +23,7 @@ void Run(TString pPbFile, TString ppFile,
 
   hClusterSpectra_EG1->Sumw2();
   hClusterSpectra_EG1->SetName("hClusterSpectra_EG1");
-  hClusterSpectra_EG1->SetTitle(";E_{T} [GeV]; #frac{1}{N_{ev}}#frac{d^{2}N}{dE_{T}d#eta}");
+  hClusterSpectra_EG1->SetTitle(";E_{T} (GeV); #frac{1}{N_{ev}}#frac{d^{2}N}{dE_{T}d#eta}");
   hClusterSpectra_EG1->SetLineColor(kRed);
   hClusterSpectra_EG1->SetMarkerColor(kRed);
   hClusterSpectra_EG1->SetMarkerStyle(21);
@@ -31,7 +31,7 @@ void Run(TString pPbFile, TString ppFile,
 
   hClusterSpectra_pp->Sumw2();
   hClusterSpectra_pp->SetName("hClusterSpectra_pp");
-  hClusterSpectra_pp->SetTitle(";E_{T} [GeV]; #frac{1}{N_{ev}}#frac{d^{2}N}{dE_{T}d#eta}");
+  hClusterSpectra_pp->SetTitle(";E_{T} (GeV); #frac{1}{N_{ev}}#frac{d^{2}N}{dE_{T}d#eta}");
   hClusterSpectra_pp->SetLineColor(kBlue);
   hClusterSpectra_pp->SetMarkerColor(kBlue);
   hClusterSpectra_pp->SetMarkerStyle(20);
@@ -39,14 +39,14 @@ void Run(TString pPbFile, TString ppFile,
 
   hClusterSpectra_EG2->Sumw2();
   hClusterSpectra_EG2->SetName("hClusterSpectra_EG2");
-  hClusterSpectra_EG2->SetTitle(";E_{T} [GeV]; #frac{1}{N_{ev}}#frac{d^{2}N}{dE_{T}d#eta}");
+  hClusterSpectra_EG2->SetTitle(";E_{T} (GeV); #frac{1}{N_{ev}}#frac{d^{2}N}{dE_{T}d#eta}");
   hClusterSpectra_EG2->SetLineColor(kGreen);
   hClusterSpectra_EG2->SetMarkerColor(kGreen);
   hClusterSpectra_EG2->SetMarkerStyle(21);
   hClusterSpectra_EG2->SetMarkerSize(2);
 
   
-  TLegend* legYield = new TLegend(0.6,0.7,0.9,0.9);
+  TLegend* legYield = new TLegend(0.6,0.7,0.85,0.85);
   legYield->SetHeader("Photon Yield");
   legYield->AddEntry(hClusterSpectra_EG1,"pPb EG1");
   legYield->AddEntry(hClusterSpectra_pp,"pp EG2");
@@ -60,13 +60,14 @@ void Run(TString pPbFile, TString ppFile,
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn1.root","READ");
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn1_hCorr_corr.root","READ"); 
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_dist2BadChn1_hCorr_corr_ncell1.root","READ"); 
-  TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_50Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_50Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");//main use
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffTogether_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
-  
+  //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_allCutsEff2_yesNoISOSSC_SSCPlots_UEstudyIsoStd.root","READ");
+  TFile* mcFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root", "READ");
 
-  TH1D* hEff_pPb = (TH1D*)mcFile_pPb->Get("hEfficiency");
+  TH1D* hEff_pPb = (TH1D*)mcFile_pPb->Get("hTotalEfficiency");
   hEff_pPb->SetName("hEff_pPb");
-  hEff_pPb->SetTitle("; E_{T} [GeV]; #epsilon");
+  hEff_pPb->SetTitle("; E_{T} (GeV); #epsilon");
   hEff_pPb->GetYaxis()->SetRangeUser(0,1);
   hEff_pPb->SetLineColor(kRed+1);
   hEff_pPb->SetMarkerColor(kRed+1);
@@ -74,9 +75,9 @@ void Run(TString pPbFile, TString ppFile,
   hEff_pPb->SetMarkerSize(2);
   hEff_pPb->SetLineWidth(2);
 
-  TH1D* hFakeRate_pPb = (TH1D*)mcFile_pPb->Get("hFakeRate");
+  /*TH1D* hFakeRate_pPb = (TH1D*)mcFile_pPb->Get("hFakeRate");
   hFakeRate_pPb->SetName("FakeRate_pPb");
-  hFakeRate_pPb->SetTitle("; E_{T} [GeV];");
+  hFakeRate_pPb->SetTitle("; E_{T} (GeV);");
   hFakeRate_pPb->GetYaxis()->SetRangeUser(0,1);
   hFakeRate_pPb->SetLineColor(kBlue);
   hFakeRate_pPb->SetMarkerColor(kBlue);
@@ -86,7 +87,7 @@ void Run(TString pPbFile, TString ppFile,
   
   TH1D* hBinMigration_pPb = (TH1D*)mcFile_pPb->Get("hMigEfficiency");
   hBinMigration_pPb->SetName("hbinMigration_pPb");
-  hBinMigration_pPb->SetTitle("Bin Migration Effection = #frach{dN^{reco}/dE_{T}^{reco}}{dN^{reco}/dE_{T}^{truth}}; E_{T} [GeV]; #epsilon");
+  hBinMigration_pPb->SetTitle("Bin Migration Effection = #frach{dN^{reco}/dE_{T}^{reco}}{dN^{reco}/dE_{T}^{truth}}; E_{T} (GeV); #epsilon");
   hBinMigration_pPb->GetYaxis()->SetRangeUser(0,1);
   hBinMigration_pPb->SetLineColor(kMagenta);
   hBinMigration_pPb->SetMarkerColor(kMagenta);
@@ -101,18 +102,19 @@ void Run(TString pPbFile, TString ppFile,
   TH1D* hBinMigration_pPb = (TH1D*)mc_truth_pPb->Clone();
   hBinMigration_pPb->SetName("hBinMigration_pPb");
   hBinMigration_pPb->Divide(mc_reco_pPb);
-  hBinMigration_pPb->SetTitle(";E_{T} [GeV]; #frac{truth}{reco}");
+  hBinMigration_pPb->SetTitle(";E_{T} (GeV); #frac{truth}{reco}");
   hBinMigration_pPb->SetLineColor(kMagenta);
   hBinMigration_pPb->SetMarkerColor(kMagenta);
   hBinMigration_pPb->SetMarkerStyle(24);
   hBinMigration_pPb->SetMarkerSize(3);//*/
 
   
-  TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_Allevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
+  //TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_Allevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
+  TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_100Kevents_erwanbinning_noNorm_allCutsEff2_yesNoISOSSC_SSCPlots_UEstudyIsoStd.root","READ");
   
   TH1D* hEff_pp = (TH1D*)mcFile_pp->Get("hEfficiency");
   hEff_pp->SetName("hEff_pp");
-  hEff_pp->SetTitle("; E_{T} [GeV]; #epsilon");
+  hEff_pp->SetTitle("; E_{T} (GeV); #epsilon");
   hEff_pp->GetYaxis()->SetRangeUser(0,1);
   hEff_pp->SetLineColor(kRed-1);
   hEff_pp->SetMarkerColor(kRed-1);
@@ -122,7 +124,7 @@ void Run(TString pPbFile, TString ppFile,
 
   TH1D* hFakeRate_pp = (TH1D*)mcFile_pp->Get("hFakeRate");
   hFakeRate_pp->SetName("FakeRate_pp");
-  hFakeRate_pp->SetTitle("; E_{T} [GeV];");
+  hFakeRate_pp->SetTitle("; E_{T} (GeV);");
   hFakeRate_pp->GetYaxis()->SetRangeUser(0,1);
   hFakeRate_pp->SetLineColor(kBlue);
   hFakeRate_pp->SetMarkerColor(kBlue);
@@ -132,7 +134,7 @@ void Run(TString pPbFile, TString ppFile,
   
   TH1D* hBinMigration_pp = (TH1D*)mcFile_pp->Get("hMigEfficiency");
   hBinMigration_pp->SetName("hbinMigration_pp");
-  hBinMigration_pp->SetTitle("Bin Migration Effection = #frach{dN^{reco}/dE_{T}^{reco}}{dN^{reco}/dE_{T}^{truth}}; E_{T} [GeV]; #epsilon");
+  hBinMigration_pp->SetTitle("Bin Migration Effection = #frach{dN^{reco}/dE_{T}^{reco}}{dN^{reco}/dE_{T}^{truth}}; E_{T} (GeV); #epsilon");
   hBinMigration_pp->GetYaxis()->SetRangeUser(0,1);
   hBinMigration_pp->SetLineColor(kMagenta);
   hBinMigration_pp->SetMarkerColor(kMagenta);
@@ -199,7 +201,7 @@ void Run(TString pPbFile, TString ppFile,
   
   TH1F* crossSection_pPb = (TH1F*)hClusterSpectra_EG1->Clone();
   crossSection_pPb->SetName("crossSection_pPb");
-  crossSection_pPb->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+  crossSection_pPb->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   for(int i = 1; i < crossSection_pPb->GetNbinsX()+1;i++){
     
@@ -235,7 +237,7 @@ void Run(TString pPbFile, TString ppFile,
   
   TH1F* crossSection_EG2 = (TH1F*)hClusterSpectra_EG2->Clone();
   crossSection_EG2->SetName("crossSection_EG2");
-  crossSection_EG2->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+  crossSection_EG2->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   for(int i = 1; i < crossSection_EG2->GetNbinsX()+1;i++){
     
@@ -271,11 +273,11 @@ void Run(TString pPbFile, TString ppFile,
   
   TH1F* crossSection_pp = (TH1F*)hClusterSpectra_pp->Clone();
   crossSection_pp->SetName("crossSection_pp");
-  crossSection_pp->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+  crossSection_pp->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   TH1F* crossSection_ppScaled = (TH1F*)hClusterSpectra_pp->Clone();
   crossSection_ppScaled->SetName("crossSection_ppScaled");
-  crossSection_ppScaled->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+  crossSection_ppScaled->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   const double Ncoll = 7.0;
   const double A = 208;
@@ -308,7 +310,24 @@ void Run(TString pPbFile, TString ppFile,
     
   }//*/
 
+  /*////////////////////////////////////////////////////////////////////
+    Erwann's p-Pb
+  ////////////////////////////////////////////////////////////////////*/
+  TH1F* crossSection_erwann = (TH1F*)hClusterSpectra_EG1->Clone();
+  crossSection_erwann->SetName("crossSection_erwann");
+  crossSection_erwann->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+  
+  double erwannMean[9] = {4727.74, 2015.57, 1151.86, 696.985, 444.604, 233.026, 104.87, 38.5216, 7.4227};
+  double erwannStat[9] = {604.369, 337.901, 71.0714, 51.475, 35.3468, 15.5412, 10.4705, 4.64552, 1.38719};
+  double erwannSys[9] = {766.058, 308.501, 167.064, 96.1471, 58.8658, 29.4243, 12.7484, 4.7213, 1.11858};
 
+  for(int i = 6; i < crossSection_erwann->GetNbinsX()+1;i++){
+    
+
+    crossSection_erwann->SetBinContent(i, erwannMean[i-6]);
+    crossSection_erwann->SetBinError(i, erwannStat[i-6]);
+    
+  }
   /*////////////////////////////////////////////////////////////////////
     RpA
   ////////////////////////////////////////////////////////////////////*/
@@ -316,11 +335,13 @@ void Run(TString pPbFile, TString ppFile,
  
   TH1F* h_RpA = (TH1F*)hClusterSpectra_EG1->Clone();
   h_RpA->SetName("h_RpA");
-  h_RpA->SetTitle(";E_{T} [GeV]; RpA (#sigma_{pPb}/A_{Pb}#sigma_{pp})");
+  h_RpA->SetTitle(";E_{T} (GeV); RpA (#sigma_{pPb}/A_{Pb}#sigma_{pp})");
   for(int i = 1; i < h_RpA->GetNbinsX()+1;i++){
     
     double content_pPb = crossSection_pPb->GetBinContent(i);
     double error_pPb = crossSection_pPb->GetBinError(i);
+    //double content_pPb = crossSection_erwann->GetBinContent(i);
+    //double error_pPb = crossSection_erwann->GetBinError(i);
     double relError_pPb = error_pPb/content_pPb;
 
     double content_pp = crossSection_pp->GetBinContent(i);
@@ -349,23 +370,6 @@ void Run(TString pPbFile, TString ppFile,
     h_RpA->SetBinError(i, rpa_error);
   }
 
-  
-
-  TH1F* crossSection_erwann = (TH1F*)hClusterSpectra_EG1->Clone();
-  crossSection_erwann->SetName("crossSection_erwann");
-  crossSection_erwann->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
-  
-  double erwannMean[9] = {4727.74, 2015.57, 1151.86, 696.985, 444.604, 233.026, 104.87, 38.5216, 7.4227};
-  double erwannStat[9] = {604.369, 337.901, 71.0714, 51.475, 35.3468, 15.5412, 10.4705, 4.64552, 1.38719};
-  double erwannSys[9] = {766.058, 308.501, 167.064, 96.1471, 58.8658, 29.4243, 12.7484, 4.7213, 1.11858};
-
-  for(int i = 6; i < crossSection_erwann->GetNbinsX()+1;i++){
-    
-
-    crossSection_erwann->SetBinContent(i, erwannMean[i-6]);
-    crossSection_erwann->SetBinError(i, erwannStat[i-6]);
-    
-  }
 
   crossSection_erwann->SetLineColor(kBlack);
   crossSection_erwann->SetMarkerStyle(21);
@@ -397,13 +401,14 @@ void Run(TString pPbFile, TString ppFile,
   line->SetLineColor(kBlack);
 
   
-  TLegend* leg = new TLegend(0.6,0.65,0.9,0.85);
-  leg->SetHeader("p-Pb (13f 3 runs), pp (17q 12 runs)");
+  TLegend* leg = new TLegend(0.12,0.12,0.47,0.4);
+  leg->AddEntry((TObject*)0, "ALICE Isolated Photon Cross Section", "");
+  leg->AddEntry((TObject*)0, "pp and p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
   leg->AddEntry(crossSection_pp,"pp");
   leg->AddEntry(crossSection_ppScaled,"pp*A(208)");
-  leg->AddEntry(crossSection_pPb,"pPb_EG1");
-  leg->AddEntry(crossSection_EG2,"pPb_EG2");
-  leg->AddEntry(crossSection_erwann,"Erwann's pPb");
+  leg->AddEntry(crossSection_pPb,"p-Pb_{EG1}");
+  leg->AddEntry(crossSection_EG2,"p-Pb_{EG2}");
+  leg->AddEntry(crossSection_erwann,"Erwann's p-Pb");
 
 
   TCanvas* cYield = new TCanvas();
@@ -418,7 +423,7 @@ void Run(TString pPbFile, TString ppFile,
   TCanvas* cXSection = new TCanvas();
   cXSection->SetLogy();
   crossSection_pPb->GetXaxis()->SetRangeUser(12,60);
-  crossSection_pPb->GetYaxis()->SetRangeUser(1e-5,1e5);
+  crossSection_pPb->GetYaxis()->SetRangeUser(1e-4,1e4);
   crossSection_pPb->Draw("e1");
   crossSection_pp->Draw("samee1");
   crossSection_ppScaled->Draw("samee1");
@@ -432,10 +437,11 @@ void Run(TString pPbFile, TString ppFile,
   h_RpA->SetMarkerSize(2);
   h_RpA->Draw("e1");
   line->Draw("same");
+  h_RpA->Fit("pol0", "0", "", 12, 60);
   
   TH1F* crossSectionRatio_EG1 = (TH1F*)crossSection_erwann->Clone();
   crossSectionRatio_EG1->SetName("crossSectionRatio_EG1");
-  crossSectionRatio_EG1->SetTitle(";E_{T};#frac{CrossSection_{Erwann}}{CrossSection_{Dhruv}}");
+  crossSectionRatio_EG1->SetTitle(";E_{T} (GeV);#frac{CrossSection_{Erwann}}{CrossSection_{Dhruv}}");
   crossSectionRatio_EG1->Divide(crossSection_pPb);
   crossSectionRatio_EG1->GetXaxis()->SetRangeUser(12,60);
   crossSectionRatio_EG1->GetYaxis()->SetRangeUser(0,2);
@@ -464,17 +470,22 @@ void Run(TString pPbFile, TString ppFile,
   line->Draw("same");//*/
 
   //Writing to file
-  int startingPoint = pPbFile.Index("bins_")+5;
+  /*int startingPoint = pPbFile.Index("bins_")+5;
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("xSectionHists/%s_crossSectionHistos_CaloITS_367to365_540.root",outputName.Data()), "RECREATE");
+  TFile* fout = new TFile(Form("xSectionHists/%s_crossSectionHistos_fullList_after_wEffErwannRf.root",outputName.Data()), "RECREATE");
   crossSection_pPb->Write("crossSection_pPb");
   crossSection_EG2->Write("crossSection_EG2");
   crossSection_pp->Write("crossSection_pp");
   h_RpA->Write("h_RpA");
   crossSectionRatio_EG1->Write("crossSectionRatio_EG1");
   crossSectionRatio_EG2->Write("crossSectionRatio_EG2");
+  hEff_pPb->Write("hEff_pPb");
+  hEff_pp->Write("hEff_pPb");
+  hClusterSpectra_EG1->Write("hClusterSpectra_EG1");
+  hClusterSpectra_EG2->Write("hClusterSpectra_EG2");
+  hClusterSpectra_pp->Write("hClusterSpectra_pp");
   fout->Close();
   cout << "done writing to file" << endl;//*/
 
@@ -489,6 +500,20 @@ void crossSection(){
     Double_t pPb_RF_EG2, Double_t pPb_RF_statErr_EG2, 
     Double_t pp_RF_EG2, Double_t pp_RF_statErr_EG2)//*/ 
 
+  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV2.root", 6724, 330, 1675, 110, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+  
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/13def/IsoStd/fout_6_14bins_firstEvent0_13def_allruns_noSkim_CALOonly_tof20_newPurity_eCross5_newExoticity_iso.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV2.root", 6728, 320, 1677, 105, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+  
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_6_14bins_firstEvent0_pPb_all10runs_noSkimEG1EG2only_tof20.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_allpp_CALOonly_tof20_newPurity_eCross5_newExoticity.root", 5826, 395, 1777, 67, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+  
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_6_14bins_firstEvent0_pPb_all10runs_noSkimEG1EG2only_tof20.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_allpp_CALOonly_tof20_newPurity_eCross5_newExoticity.root", 6254, 630, 1777, 67, 1277, 5);//CURRENTLY USE FOR ALL TOF20 testing*/
+
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_6_14bins_firstEvent0_pPb_all10runs_noSkimEG1EG2only_tof20.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly_tof10.root", 6254, 630, 1716, 81, 991, 75);//CURRENTLY USE FOR ALL TOF20 testing*/
+  
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly.root", 6501, 763, 1644, 90, 990, 78);//*/
+  
+
+  
 
   /*Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root",
@@ -510,11 +535,45 @@ void crossSection(){
 
 
 
+  //pp compare
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed2.root", 6181, 299, 1572, 46, 957, 14);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391.root", 6181, 299, 1572, 46, 900, 15);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_415to402.root", 6181, 299, 1572, 46, 894, 15);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_441to437.root", 6181, 299, 1572, 46, 1010, 20);//*/
 
-  Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed2.root", 5750, 279, 1505, 41, 672, 6);//*/
-  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391.root", 5750, 279, 1505, 41, 678, 6);//*/
-  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_415to402.root", 5750, 279, 1505, 41, 677, 6);//*/
-  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_441to437.root", 5750, 279, 1505, 41, 702, 6 );//*/
+
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391.root", 6181, 299, 1572, 46, 760, 5);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_415to402.root", 6181, 299, 1572, 46, 760, 6);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_441to437.root", 6181, 299, 1572, 46, 783, 5);//*/
+
+  
+  //pPb
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed2.root", 6181, 299, 1572, 46, 672, 6);//*/
+
+
+
+  //part 3 runs
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_r282441_CALOonly.root", 6181, 299, 1572, 46, 754, 14);//*/
+
+  //pp part 1 & 2
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_EG2_Normalized_bugFixed2_part12.root", 6181, 299, 1572, 46, 709, 16);//*/
+  
+  
+  //pp EMC good runs
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_r282366_physel_CALOonly.root", 6181, 299, 1572, 46, 956, 94);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly.root", 6181, 299, 1572, 46, 1219, 74);//*/
+  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly_MBEG2exlusion_tof20.root", 6181, 299, 1572, 46, 1219, 74);//*/
+
+
+
+
+
+
+
+
+
+
+
 
 
 
