@@ -2,16 +2,8 @@
 #include "TTree.h"
 #include "TBranch.h"
 #include "TGraphAsymmErrors.h"
-//#include "TTreeReader.h"
-//#include "TTreeReaderValue.h"
 #include "TMath.h"
 #include "TVector2.h"
-//#include "/root/atlasstyle-00-03-05/AtlasStyle.h"
-//#include "/root/atlasstyle-00-03-05/AtlasStyle.C"
-//#include "/root/atlasstyle-00-03-05/AtlasUtils.h"
-//#include "/root/atlasstyle-00-03-05/AtlasUtils.C"
-//#include "/root/atlasstyle-00-03-05/AtlasLabels.h"
-//#include "/root/atlasstyle-00-03-05/AtlasLabels.C"
 #include "TDatabasePDG.h"
 #include "TEfficiency.h"
 
@@ -24,68 +16,104 @@
 #include <bitset>
 #include <bits/stdc++.h>
 #include <cstring>
+#include <chrono>
+#include <ctime> 
 
-bool ptDepShowerShapeCut(Float_t clus_pt, Float_t lambda2)
+double SetPthatWeights(TString MCname, double Xsection, double ntrial)
 {
-  //bool passShowerShape = true;
 
-  if(lambda2 < 0.1)
-    return false;
+  //General purpose MC need no weights
+  if(MCname(0,4) == "13b2" || MCname(0,4) == "17l4" || MCname(0,4) == "17l3" || MCname(0,4) == "16k5")
+    return 1;
+   
+  //17g6a3 weights
+  if(MCname == "17g6a3_pthat1")
+    return 4.47e-11;
+  if(MCname == "17g6a3_pthat2")
+    return 9.83e-11;
+  if(MCname == "17g6a3_pthat3")
+    return 1.04e-10;
+  if(MCname == "17g6a3_pthat4")
+    return 1.01e-10;
+  if(MCname == "17g6a3_pthat5")
+    return 6.93e-11;
+  if(MCname == "17g6a3_pthat6")
+    return 5.13e-11;
+  if(MCname == "17g6a3_pthat7")
+    return 3.03e-11;
+  if(MCname == "17g6a3_pthat8")
+    return 1.89e-11;
   
-  if((clus_pt > 10 && clus_pt < 12) && lambda2 > 0.40)
-    return false;
+  //17g6a1 weights
+  if(MCname == "17g6a1_pthat1")
+    return 1.60e-11;
+  if(MCname == "17g6a1_pthat2")
+    return 2.72e-12;
+  if(MCname == "17g6a1_pthat3")
+    return 3.69e-13;
+  if(MCname == "17g6a1_pthat4")
+    return 6.14e-14;
+  if(MCname == "17g6a1_pthat5")
+    return 1.27e-14;
+  
 
-  if((clus_pt > 12 && clus_pt < 14) && lambda2 > 0.35)
-    return false;
-
-  if((clus_pt > 14 && clus_pt < 16) && lambda2 > 0.32)
-    return false;
-
-  if((clus_pt > 16 && clus_pt < 60) && lambda2 > 0.30)
-    return false;
-
-
-  return true;
+  //18b10ab, 18g7a
+  if(MCname(0,2) == "18" || MCname(0,2) == "16")
+    return Xsection/ntrial;
+ 
+  return 0.0;
+  
 }
 
-void Run(const int TrackBit, TString address, bool isMC, bool hasAliDir, bool triggered){
+void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 1000000000000000){
 
   gStyle->SetOptStat(0);
 
   //SetAtlasStyle();
   TString filename = address(address.Last('/')+1,address.Last('.')-address.Last('/')-1);
+  TString ntupleName = address(address.Last('/')+1,address.First('_')-address.Last('/')+6);
+  
   TFile* f;
-  f = TFile::Open(Form("/project/projectdirs/alice/NTuples/%s",address.Data()),"READ");
+  f = TFile::Open(Form("/project/projectdirs/alice/NTuples/MC/%s",address.Data()),"READ");
 
-  cout << Form("/project/projectdirs/alice/NTuples/%s",address.Data()) << endl;
+  cout << Form("/project/projectdirs/alice/NTuples/MC/%s",address.Data()) << endl;
+
   if(!f){
       printf("Error: cannot open ntuple.root");
       return;
   }
-  TTree* tree;
-  if(hasAliDir)
-    tree = (TTree*)f->Get("AliAnalysisTaskNTGJ/_tree_event");
-  else
-    tree = (TTree*)f->Get("_tree_event");
-  if(!tree){ printf("Error: cannot find tree"); }
+  
+  TTree* _tree_event;
+  _tree_event = (TTree*)f->Get("AliAnalysisTaskNTGJ/_tree_event");
+  if(!_tree_event) _tree_event = (TTree*)f->Get("_tree_event");
+  if(!_tree_event){ printf("Error: cannot find tree"); return;}
+  
   const Int_t kMax = 5000;
   
   Double_t primary_vertex[3];
   Bool_t is_pileup_from_spd_5_08;
   Bool_t is_pileup_from_spd_3_08;
   Bool_t is_incomplete_daq;
+  Float_t ue_estimate_its_const;
+  Float_t ue_estimate_its_const_se;
   int npileup_vertex_spd;
   int run_number;
   unsigned int ntrack;
+  Float_t multiplicity_v0[64];
+  Float_t eg_cross_section;
+  Int_t   eg_ntrial;
 
   UInt_t ncluster;
   Float_t cluster_e[kMax];
-  Float_t cluster_e_cross[kMax];
   Float_t cluster_pt[kMax];
   Float_t cluster_eta[kMax];
   Float_t cluster_phi[kMax];
+  Float_t cluster_tof[kMax];
+  Float_t cluster_e_cross[kMax];
+  Float_t cluster_e_max[kMax];
   Float_t cluster_iso_tpc_04[kMax];
   Float_t cluster_iso_its_04[kMax];
+  Float_t cluster_iso_its_04_ue[kMax];
   Float_t cluster_iso_04_truth[kMax];
   Float_t cluster_frixione_tpc_04_02[kMax];
   Float_t cluster_frixione_its_04_02[kMax];
@@ -98,44 +126,66 @@ void Run(const int TrackBit, TString address, bool isMC, bool hasAliDir, bool tr
   UShort_t  cluster_cell_id_max[kMax];
   Float_t cluster_lambda_square[kMax][2];
   Float_t cell_e[17664];
+
+  //MC
+  unsigned int nmc_truth;
+  Float_t mc_truth_pt[kMax];
+  Float_t mc_truth_eta[kMax];
+  Float_t mc_truth_phi[kMax];
+  short mc_truth_pdg_code[kMax];
+  short mc_truth_first_parent_pdg_code[kMax];
+  char mc_truth_charge[kMax];
+  UChar_t mc_truth_status[kMax];
+  
+  Float_t mc_truth_first_parent_e[kMax];
+  Float_t mc_truth_first_parent_pt[kMax];
+  Float_t mc_truth_first_parent_eta[kMax];
+  Float_t mc_truth_first_parent_phi[kMax];
+  
+  _tree_event->SetBranchAddress("primary_vertex", primary_vertex);
+  _tree_event->SetBranchAddress("is_pileup_from_spd_5_08", &is_pileup_from_spd_5_08);
+  _tree_event->SetBranchAddress("is_pileup_from_spd_3_08", &is_pileup_from_spd_3_08);
+  _tree_event->SetBranchAddress("ue_estimate_its_const", &ue_estimate_its_const);
+  _tree_event->SetBranchAddress("ue_estimate_its_const_se", &ue_estimate_its_const_se);
+  _tree_event->SetBranchAddress("run_number", &run_number);
+  _tree_event->SetBranchAddress("npileup_vertex_spd", &npileup_vertex_spd);
+  _tree_event->SetBranchAddress("ntrack", &ntrack);
+  _tree_event->SetBranchAddress("multiplicity_v0", multiplicity_v0);
+  _tree_event->SetBranchAddress("eg_cross_section",&eg_cross_section);
+  _tree_event->SetBranchAddress("eg_ntrial",&eg_ntrial);
     
-  char track_charge[kMax];//
-  unsigned short track_mc_truth_index[kMax];//
-  unsigned char track_quality[kMax];//
-  ULong64_t trigger_mask[2];
+  _tree_event->SetBranchAddress("ncluster", &ncluster);
+  _tree_event->SetBranchAddress("cluster_e", cluster_e);
+  _tree_event->SetBranchAddress("cluster_pt", cluster_pt); // here
+  _tree_event->SetBranchAddress("cluster_eta", cluster_eta);
+  _tree_event->SetBranchAddress("cluster_phi", cluster_phi);
+  _tree_event->SetBranchAddress("cluster_tof", cluster_tof);
+  _tree_event->SetBranchAddress("cluster_e_cross", cluster_e_cross);
+  _tree_event->SetBranchAddress("cluster_e_max", cluster_e_max);
+  _tree_event->SetBranchAddress("cluster_s_nphoton", cluster_s_nphoton); // here
+  _tree_event->SetBranchAddress("cluster_mc_truth_index", cluster_mc_truth_index);
+  _tree_event->SetBranchAddress("cluster_lambda_square", cluster_lambda_square);
+  _tree_event->SetBranchAddress("cluster_iso_tpc_04",cluster_iso_tpc_04);
+  _tree_event->SetBranchAddress("cluster_iso_its_04",cluster_iso_its_04);
+  _tree_event->SetBranchAddress("cluster_iso_its_04_ue",cluster_iso_its_04_ue);
+  _tree_event->SetBranchAddress("cluster_iso_04_truth", cluster_iso_04_truth);
+  _tree_event->SetBranchAddress("cluster_frixione_tpc_04_02",cluster_frixione_tpc_04_02);
+  _tree_event->SetBranchAddress("cluster_frixione_its_04_02",cluster_frixione_its_04_02);
+  _tree_event->SetBranchAddress("cluster_nlocal_maxima", cluster_nlocal_maxima);        
+  _tree_event->SetBranchAddress("cluster_distance_to_bad_channel", cluster_distance_to_bad_channel);
+  _tree_event->SetBranchAddress("cluster_ncell", cluster_ncell);
+  _tree_event->SetBranchAddress("cluster_cell_id_max", cluster_cell_id_max);
+  _tree_event->SetBranchAddress("cell_e", cell_e);
 
-  float eg_cross_section;//
-  int eg_ntrial;//
-  
-  tree->SetBranchAddress("primary_vertex", primary_vertex);
-  tree->SetBranchAddress("is_pileup_from_spd_5_08", &is_pileup_from_spd_5_08);
-  tree->SetBranchAddress("is_pileup_from_spd_3_08", &is_pileup_from_spd_3_08);
-  //tree->SetBranchAddress("is_incomplete_daq", &is_incomplete_daq);
-  tree->SetBranchAddress("run_number", &run_number);
-  tree->SetBranchAddress("npileup_vertex_spd", &npileup_vertex_spd);
-  tree->SetBranchAddress("trigger_mask", trigger_mask);
-  tree->SetBranchAddress("ntrack", &ntrack);
-
-  tree->SetBranchAddress("ncluster", &ncluster);
-  tree->SetBranchAddress("cluster_e", cluster_e);
-  tree->SetBranchAddress("cluster_e_cross", cluster_e_cross);
-  tree->SetBranchAddress("cluster_pt", cluster_pt); // here
-  tree->SetBranchAddress("cluster_eta", cluster_eta);
-  tree->SetBranchAddress("cluster_phi", cluster_phi);
-  tree->SetBranchAddress("cluster_s_nphoton", cluster_s_nphoton); // here
-  tree->SetBranchAddress("cluster_mc_truth_index", cluster_mc_truth_index);
-  tree->SetBranchAddress("cluster_lambda_square", cluster_lambda_square);
-  tree->SetBranchAddress("cluster_iso_tpc_04",cluster_iso_tpc_04);
-  tree->SetBranchAddress("cluster_iso_its_04",cluster_iso_its_04);
-  tree->SetBranchAddress("cluster_iso_04_truth", cluster_iso_04_truth);
-  tree->SetBranchAddress("cluster_frixione_tpc_04_02",cluster_frixione_tpc_04_02);
-  tree->SetBranchAddress("cluster_frixione_its_04_02",cluster_frixione_its_04_02);
-  tree->SetBranchAddress("cluster_nlocal_maxima", cluster_nlocal_maxima);        
-  tree->SetBranchAddress("cluster_distance_to_bad_channel", cluster_distance_to_bad_channel);
-  tree->SetBranchAddress("cluster_ncell", cluster_ncell);
-  tree->SetBranchAddress("cluster_cell_id_max", cluster_cell_id_max);
-  tree->SetBranchAddress("cell_e", cell_e);
-  
+  //MC
+  _tree_event->SetBranchAddress("nmc_truth", &nmc_truth);
+  _tree_event->SetBranchAddress("mc_truth_pdg_code", mc_truth_pdg_code);
+  _tree_event->SetBranchAddress("mc_truth_pt", mc_truth_pt);
+  _tree_event->SetBranchAddress("mc_truth_phi", mc_truth_phi);
+  _tree_event->SetBranchAddress("mc_truth_eta", mc_truth_eta);
+  _tree_event->SetBranchAddress("mc_truth_status", mc_truth_status);        
+  _tree_event->SetBranchAddress("mc_truth_first_parent_pdg_code",mc_truth_first_parent_pdg_code);
+    
   const int nbinseta = 10;
   Double_t etabins[nbinseta+1] = {};
   double etamin = -0.9;
@@ -153,330 +203,196 @@ void Run(const int TrackBit, TString address, bool isMC, bool hasAliDir, bool tr
   for(int i=0; i<nbinsphi+1; i++){
     phibins[i] = phimin + i*phistep;
   }
-  
 
-
-
-  auto hITSclus = new TH1F("hITSclus", "", 7, -0.5, 6.5);
-  auto hITSclus_fake = new TH1F("hITSclus_fake", "", 7, -0.5, 6.5);
-
-  auto hIso_ITS = new TH1F("hIso_ITS","", 25, -10, 40);
-  auto hIso_TPC = new TH1F("hIso_TPC","", 25, -10, 40);  
-  auto hIso_Truth = new TH1F("hIso_Truth","", 25, -10, 40);
-  
-  auto hTrackCut = new TH1F("hTrackCut", "", 15, -0.5, 14.5);
-  auto hNumTracks = new TH1F("hNumTracks", "", 500, -0.5, 499.5);
-  auto hEventCounts = new TH1F("hEventCounts","", 10, -0.5, 9.5);
-  auto hZvertex = new TH1F("hZvertez", "", 60, -30, 30);
-  auto hZvertexAfter = new TH1F("hZvertezAfter", "", 60, -30, 30);
-  auto hHitsITS = new TH1F("hHitsITS", "", 10, -0.5, 9.5);
-  auto hEventCut = new TH1F("hEventCut", "", 10, -0.5, 9.5);
-  auto hPileUpVertex = new TH1F("hPileUpVertex", "", 20, -0.5, 19.5);
-  
-  hZvertex->Sumw2();
-  hZvertexAfter->Sumw2();
-  hHitsITS->SetTitle(";Layers hit; counts");
-
-  //Photon
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
 
-  Double_t clusterbinsTrig[25] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00};
-  auto h_Reco  = new TH1F("h_Reco","", nbinscluster, clusterbins);
-  auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
-  auto hEG1_E = new TH1F("hEG1_E", "", 24, clusterbinsTrig);
-  auto hEG2_E = new TH1F("hEG2_E", "", 24, clusterbinsTrig);
-  auto hMB_E = new TH1F("hMB_E", "", 24, clusterbinsTrig);
+  //Results histograms
+  TH1F* hRecoPure = new TH1F("hRecoPure", ";p_{T}^{rec} [GeV/c];dN^{rec}_{#gamma_{iso}}/dp_{T}^{rec}", nbinscluster, clusterbins);
+  TH1F* hReco = new TH1F("hReco", ";p_{T}^{rec} [GeV/c];dN^{rec}_{#gamma_{iso}}/dp_{T}^{rec}", nbinscluster, clusterbins);
+  TH1F* hTruth = new TH1F("hTruth", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma_{iso}}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hRecoTruth = new TH1F("hRecoTruth", ";p_{T}^{rectru} [GeV/c];dN^{rectru}_{#gamma_{iso}}/dp_{T}^{rectru}", nbinscluster, clusterbins);
+  TH1F* hTotalEfficiency = new TH1F("hTotalEfficiency", ";p_{T}^{rec} [GeV/c];\epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
+  TH1F* hEfficiency = new TH1F("hEfficiency", ";p_{T}^{tru} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
+  TH1F* hBinMigration = new TH1F("hBinMigration", ";p_{T}^{rec} [GeV/c]; reco/truth", nbinscluster, clusterbins);
+  TH1F* hSpectra = new TH1F("hSpectra", ";p_{T}^{rec} [GeV/c]; 1/N_{evt} dN/dE_{T}", nbinscluster, clusterbins);
+  
+  TH2F* hCorrelation = new TH2F("hCorrelation", ";p_{T}^{rectru}; p_{T}^{rec}", nbinscluster, clusterbins, nbinscluster, clusterbins);
 
-  h_Reco->Sumw2();
-  hCluster_pt->Sumw2();
-  hEG1_E->Sumw2();  
-  hEG2_E->Sumw2();
-  hMB_E->Sumw2();
+  //Variable distribution histograms
+  TH1F* hZvertex = new TH1F("hZvertex", ";z_{v} [cm]; counts", 60, -30, -30);
 
-  hCluster_pt->SetTitle("; E_{T} (GeV/c) ; dN/dE_{T}");
-  hMB_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
-  hEG1_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
-  hEG2_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
-
-  int nevent = 0; 
-  int numEvents_tracks = 0;
-  int numEvents_clusters = 0;
-  int numEvents_clusters2 = 0;
+  //Counting varibales
   int numEvents = 0;
-  int numEvents_MB = 0;
-  int numEvents_EG1 = 0;
-  int numEvents_EG2 = 0;
-  //const int TrackBit = 16; //ITSONLY==16; ITS--TPC with full-jet cuts
-
-  const double maxEta = 0.8;
- 
-  const ULong64_t one1 = 1;
-  ULong64_t trigMask_13d_trigs[3];//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13d_trigs[0] = (one1 << 2);
-  trigMask_13d_trigs[1] = (one1 << 18);
-  trigMask_13d_trigs[2] = (one1 << 19);
-
-  ULong64_t trigMask_13c_trigs_r195529[3];//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13c_trigs_r195529[0] = (one1 << 6);
-  trigMask_13c_trigs_r195529[1] = (one1 << 18);
-  trigMask_13c_trigs_r195529[2] = (one1 << 19);
-
-  ULong64_t trigMask_13c_trigs_r195531[3];//0 = MB, 1 = EG1, 2 = EG2
-  trigMask_13c_trigs_r195531[0] = (one1 << 6);
-  trigMask_13c_trigs_r195531[1] = (one1 << 17);
-  trigMask_13c_trigs_r195531[2] = (one1 << 18);
-
-  ULong64_t trigMask[3] = {0};
-
-  Long64_t totEvents = tree->GetEntries();
-  Long64_t restrictEvents = 100000000;
+  int numEvents_tot = 0;
+  
+  Long64_t totEvents = _tree_event->GetEntries();
+  numEvents_tot = totEvents;
+  Long64_t restrictEvents = lastEvent;
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
-  for (Long64_t ievent=0;ievent< numEntries ;ievent++) {
-    tree->GetEntry(ievent);
-    nevent += 1;
-    if(nevent%100000==0)
+  for (Long64_t ievent = firstEvent; ievent< numEntries ;ievent++) {
+    _tree_event->GetEntry(ievent);
+      if(ievent%100000==0)
       {
-	std::cout << nevent << std::endl;
+	std::cout << ievent << std::endl;
 	cout << run_number << endl;
       }
-    
-    bool eventChange = true;
-    bool isMB, isEG1, isEG2;
-    isMB = isEG1 = isEG2 = false;
 
-    hPileUpVertex->Fill(npileup_vertex_spd);
-    hEventCut->Fill(0);
+    //Event selection
+    if(not(TMath::Abs(primary_vertex[2])<10.0)) continue; //vertex z position
+    if(primary_vertex[2] == 0.000000) continue;
     hZvertex->Fill(primary_vertex[2]);
-    //Event Selection:
-    if(not( TMath::Abs(primary_vertex[2])<10.0)) {hEventCut->Fill(1); continue;} //vertex z position
-    //if(primary_vertex[2] == 0.000000) {hEventCut->Fill(2); continue;}
-    if(is_pileup_from_spd_3_08) {hEventCut->Fill(3); continue;} //removes pileup
-    if(not(ntrack > 0)) {hEventCut->Fill(4); continue;} //no track
-    //if(is_incomplete_daq){hEventCut->Fill(5); continue;}
-    //cout << run_number << "\t";
-    hZvertexAfter->Fill(primary_vertex[2]);
-    if(run_number > 195700)
-      std::memcpy(trigMask, trigMask_13d_trigs, sizeof(trigMask));
-    else{
-      if(run_number == 195529)
-	std::memcpy(trigMask, trigMask_13c_trigs_r195529, sizeof(trigMask));
-      else if(run_number == 195531)
-	std::memcpy(trigMask, trigMask_13c_trigs_r195531, sizeof(trigMask));
-    }
-    //cout << trigMask[0] << "\t";
-    //cout << trigger_mask[0] << "\t";
-
-
-    ULong64_t localTrigBit = 0;
-    if(not ((trigMask[0] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 0);
-      numEvents_MB++;
-    }
-    if(not ((trigMask[1] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 1);
-      numEvents_EG1++;
-	}
-    if(not ((trigMask[2] & trigger_mask[0]) == 0))  {
-      localTrigBit |= (1 << 2);
-      numEvents_EG2++;
-    }
-    //cout << localTrigBit << endl;
-    //001 = 1 = MB
-    //110 = 6 = EG1||EG2
-    //111 = 7 = MB||EG1||EG2
-    if((localTrigBit & 6) == 0) {hEventCut->Fill(5); continue;}//no emcal triggers
-    hEventCut->Fill(6);//all cuts
     numEvents++;
     
-    
-    int eventFill = 0;    
-    hEventCounts->Fill(eventFill);
-    
-    eventChange = true;
-    bool eventChange2 = true;
-    //Loop over clusters
-    for(ULong64_t n=0; n< ncluster; n++)
+    //Obtainging pthat bin weights
+    double weight = SetPthatWeights(ntupleName, (double)eg_cross_section, (double)eg_ntrial);
+    if(ievent%10000 == 0)
       {
-	if (eventChange2) {numEvents_clusters2++; eventChange2 = false;}
-	
-	//Photon Selection
-	ULong64_t clusterCutBits = 0;
-	ULong64_t clusterCutPassed = 0;
-	//if( not(cluster_pt[n]>8)) {continue;} //select pt of photons
-	if( (cluster_ncell[n]>2))                                            clusterCutBits |= (1 << 0); clusterCutPassed |= (1 << 0);//removes clusters with 1 or 2 cells
-	if( (cluster_e_cross[n]/cluster_e[n]>0.03))                          clusterCutBits |= (1 << 1); clusterCutPassed |= (1 << 1);//removes "spiky" clusters
-	if( (cluster_nlocal_maxima[n]<= 2))                                  clusterCutBits |= (1 << 2); clusterCutPassed |= (1 << 0);//require to have at most 2 local maxima.
-	if( (cluster_distance_to_bad_channel[n]>=2.0))                       clusterCutBits |= (1 << 3); clusterCutPassed |= (1 << 0);//distnace to bad channels
-       
-	//Isolation and shower shape selection:
-	if( (cluster_iso_its_04[n] < 2))                                     clusterCutBits |= (1 << 4); clusterCutPassed |= (1 << 0);//isolation r = 0.4 and energy < 2
-	if( (ptDepShowerShapeCut(cluster_pt[n], cluster_lambda_square[n][0])))  clusterCutBits |= (1 << 5); clusterCutPassed |= (1 << 0);//single-photon selection, not merged
-	
-	if(clusterCutBits != clusterCutPassed) continue;
-	if (eventChange) {numEvents_clusters++; eventChange = false;}
-	
-	h_Reco->Fill(cluster_pt[n]);	
-	hCluster_pt->Fill(cluster_pt[n]);
-	if((localTrigBit & 1) != 0) hMB_E->Fill(cluster_pt[n]);
-	if((localTrigBit & 2) != 0) hEG1_E->Fill(cluster_pt[n]);
-	if((localTrigBit & 4) != 0) hEG2_E->Fill(cluster_pt[n]);
-	hIso_ITS->Fill(cluster_iso_its_04[n]);
-	hIso_TPC->Fill(cluster_iso_tpc_04[n]);
-	hIso_Truth->Fill(cluster_iso_04_truth[n]);
-	
+	cout << weight << endl;
+	cout << ntupleName.Data() << endl;
+	cout << ievent << endl;
       }
-    
+
+    for (ULong64_t n = 0; n < ncluster; n++) {
+      //Photon Selection
+      double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
+      isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
+      bool isoPassed = false;
+      
+      //cluster cuts
+      if(not (cluster_ncell[n]>=2)) continue;
+      if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
+      if(not (cluster_nlocal_maxima[n]<= 2)) continue;
+      if(not (cluster_distance_to_bad_channel[n]>=1))continue;
+      //if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
+
+      //acceptance cuts
+      if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+      if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
+
+      //shower shape and isolation
+      if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+      if(not (isolation < 1.5)) continue;
+
+      hRecoPure->Fill(cluster_pt[n]);
+      // Access the corresonding mc_truth particle; skip if index is 65535, which is invalid, or the truth particle pT is less than 10, or the mc_truth_pdg_code is not 22 (it's not a photon)
+      Bool_t isTruePhoton = false;
+      Float_t truth_pt = -999.0;
+      Float_t truth_eta = -999.0;
+      Float_t truth_phi = -999.0;
+      
+      for(int counter = 0 ; counter<32; counter++){
+	unsigned short index = cluster_mc_truth_index[n][counter];                   
+	if(isTruePhoton) break;
+	if(index==65535) continue;
+	if(mc_truth_pdg_code[index]!=22) continue;
+	if(mc_truth_first_parent_pdg_code[index]!=22) continue;
+	if( not (mc_truth_status[index] >0)) continue;        
+	isTruePhoton = true;
+	truth_pt     = mc_truth_pt[index];
+	truth_phi    = mc_truth_phi[index];
+	truth_eta    = mc_truth_eta[index];
+      }//end loop over indices
+      
+      if(isTruePhoton){
+	hReco->Fill(cluster_pt[n], weight);
+	hRecoTruth->Fill(truth_pt, weight);
+	hCorrelation->Fill(truth_pt, cluster_pt[n], weight);
+      }//end isTruePhoton 
+    }//end loop on clusters
+
+    //loop over truth particles for clusters
+    for (ULong64_t nmc = 0; nmc < nmc_truth; nmc++) {
+
+      //acceptance cuts
+      if(not (TMath::Abs(mc_truth_eta[nmc] < 0.67))) continue;
+      if(not (1.396 < mc_truth_phi[nmc] && mc_truth_phi[nmc] < 3.28)) continue;
+
+      //real photon cuts
+      if(mc_truth_pdg_code[nmc]!=22) continue;
+      if(mc_truth_first_parent_pdg_code[nmc]!=22) continue;
+      if(not (mc_truth_status[nmc] >0)) continue; 
+      {
+	hTruth->Fill(mc_truth_pt[nmc],weight);		
+      }
+    }//end loop over mc truth particle
     
   }//loop over events
-  std::cout << " END LOOP  " << std::endl;
-  cout << "minbias/EG1/EG2 events:" << numEvents_MB << "\t" << numEvents_EG1 << "\t" << numEvents_EG2 << "\t" << endl;  
   
-  //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
-  cout << numEvents_tracks << endl;
-  cout << filename(0,3) << "\tTotal Events: " << numEntries << "\tEvent selection: " << numEvents << "\tPre-Cluster selection: " << numEvents_clusters2 << "\tPostCluster selection: " << numEvents_clusters << endl;
-  const double deltaEta = 1.04;
-  const double deltaPhi = 1.39;
-  double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
-
-  auto normalizer = new TH1D("normalizer", "normalizer", 10, -0.5, 9.5);
-  normalizer->SetBinContent(1, deltaEta);
-  normalizer->SetBinContent(2, deltaPhi);
-  normalizer->SetBinContent(3, numEvents);
-  normalizer->SetBinContent(4, numEvents_MB);
-  normalizer->SetBinContent(5, numEvents_EG1);
-  normalizer->SetBinContent(6, numEvents_EG2);
-  
-  //scaling for clusters
-  for(int i = 1; i <  hCluster_pt->GetNbinsX()+1; i++)
-    {
-      double dpt = hCluster_pt->GetBinWidth(i);
-      double content = hCluster_pt->GetBinContent(i);
-      double temp = (content*acceptanceNorm)/((double)numEvents*dpt);
-      //double temp = content/((double)numEvents*dpt);
-      //cout << dpt << "\t" << content << "\t" << temp << endl;
-      //double temp = content/dpt;
-      hCluster_pt->SetBinContent(i, temp);
-      
-      double error = hCluster_pt->GetBinError(i);
-      double tempErr = (error*acceptanceNorm)/((double)numEvents*dpt);
-      //double tempErr = error/dpt;
-      hCluster_pt->SetBinError(i, tempErr);
-    }//*/
-
-  /*for(int i = 1; i < hMB_E->GetNbinsX()+1; i++)
-    {
-      double dE = hMB_E->GetBinWidth(i);
-      
-      double contentMB = hMB_E->GetBinContent(i);
-      double tempMB = contentMB/((double)numEvents_MB*dE);
-      double errorMB = hMB_E->GetBinError(i);
-      double tempErrMB = errorMB/((double)numEvents_MB*dE);
-      if(numEvents_MB) 
-	{
-	  hMB_E->SetBinContent(i,tempMB);
-	  hMB_E->SetBinError(i, tempErrMB);
-	}
-
-      double contentEG1 = hEG1_E->GetBinContent(i);
-      double tempEG1 = contentEG1/((double)numEvents_EG1*dE);
-      double errorEG1 = hEG1_E->GetBinError(i);
-      double tempErrEG1 = errorEG1/((double)numEvents_EG1*dE);
-      if(numEvents_EG1) 
-	{
-	  hEG1_E->SetBinContent(i,tempEG1);
-	  hEG1_E->SetBinError(i, tempErrEG1);
-	}
-
-      double contentEG2 = hEG2_E->GetBinContent(i);
-      double tempEG2 = contentEG2/((double)numEvents_EG2*dE);
-      double errorEG2 = hEG2_E->GetBinError(i);
-      double tempErrEG2 = errorEG2/((double)numEvents_EG2*dE);
-      if(numEvents_EG2) 
-	{
-	  hEG2_E->SetBinContent(i,tempEG2);
-	  hEG2_E->SetBinError(i, tempErrEG2);
-	}
-   }
-
-  
-  TH1F* rTrig1 = (TH1F*)hEG1_E->Clone();
-  rTrig1->Divide(hMB_E);
-  TH1F* rTrig2 = (TH1F*)hEG2_E->Clone();
-  rTrig2->Divide(hMB_E);
-  rTrig1->SetTitle(";E (GeV);EG1/MB");
-  rTrig2->SetTitle(";E (GeV);EG2/MB");//*/
-
-
-  hEventCut->GetXaxis()->SetBinLabel(1,"All events");
-  hEventCut->GetXaxis()->SetBinLabel(2,"primary vertex > 10");
-  hEventCut->GetXaxis()->SetBinLabel(3,"primary vertex = 0");
-  hEventCut->GetXaxis()->SetBinLabel(4,"pile up");
-  hEventCut->GetXaxis()->SetBinLabel(5,"ntrack < 0");
-  hEventCut->GetXaxis()->SetBinLabel(6,"no EMCA/MB trigger");
-  hEventCut->GetXaxis()->SetBinLabel(7,"passed");
-  
-  hEventCounts->GetXaxis()->SetBinLabel(1, "Passing Event Selection only");
-  hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
-
-  normalizer->GetXaxis()->SetBinLabel(1,"deltaEta");
-  normalizer->GetXaxis()->SetBinLabel(2,"deltaPhi");
-  normalizer->GetXaxis()->SetBinLabel(3,"numEvents");
-  normalizer->GetXaxis()->SetBinLabel(4,"numEvents_MB");
-  normalizer->GetXaxis()->SetBinLabel(5,"numEvents_EG1");
-  normalizer->GetXaxis()->SetBinLabel(6,"numEvents_EG2");
-
   //Writing to file
-  filename += "_cluster_emcalTrig_Allevent_wEventSelect_allClusCuts_noDownScale_2piNevdEdEtaPhi";
-  auto fout = new TFile(Form("isoPhotonOutput/fout_%i_%ibins_%s.root",TrackBit, nbinscluster, filename.Data()), "RECREATE");  
+  filename += "_noNorm";
+  cout << filename << endl;
+  auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/fout_%ibins_firstEvent%lld_%s.root", nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
-
+  hReco->Write("hReco");
+  hRecoPure->Write("hRecoPure");
+  hRecoTruth->Write("hRecoTruth");
+  hTruth->Write("hTruth");
+  hCorrelation->Write("hCorrelation");
   
   //writing photon info
-  hCluster_pt->Write("cluster_pt");
-  hEventCounts->Write("hEventCounts");
-  hMB_E->Write("hMB_E");
-  hEG1_E->Write("hEG1_E");
-  hEG2_E->Write("hEG2_E");
-  //rTrig1->Write("rTrig1");  
-  //rTrig2->Write("rTrig2");  
+  
 
-  hZvertex->Write("hZvertex");
-  hZvertexAfter->Write("hZvertexAfter");
-  hPileUpVertex->Write("hPileUpVertex");
-  hEventCut->Write("hEventCut");
-  normalizer->Write("hNormalizer");
-  fout->Close();  
+  return;
   
 }
 
     
-void isoPhotonAnalysisData(){  
-  //Input to Run is as follow: Run(const int TrackBit, TString address, bool isMC, bool hasAliDir, bool triggered)
+void isoPhotonAnalysisMC(){
+  auto start = std::chrono::system_clock::now();
   
-/*/////////////////////////////////////////////////////////////////
-p-Pb data sets:
-13c  : MinBias
-13d,e: p-Pb emcal trigger   
-13f  : Pb-p emcal trigger    
-/////////////////////////////////////////////////////////////////*/
-  //Run(16, "pPb/13c/13c_2runs_al.root", false, true, true);
+  //Input to Run is as follow: Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 1000000000000000)
+
+  //pPb
+  /*Run("17g6a1/17g6a1_pthat1_wNeutrals.root", 0, 1000000);
+  Run("17g6a1/17g6a1_pthat2_wNeutrals.root", 0, 1000000);
+  Run("17g6a1/17g6a1_pthat3_wNeutrals.root", 0, 1000000);
+  Run("17g6a1/17g6a1_pthat4_wNeutrals.root", 0, 1000000);
+  Run("17g6a1/17g6a1_pthat5_wNeutrals.root", 0, 1000000);//*/
+
+  Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 1000000);
+  Run("18b10a/18b10a_calo_pthat2_wNeutrals.root", 0, 1000000);
+  Run("18b10a/18b10a_calo_pthat3_wNeutrals.root", 0, 1000000);
+  Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 1000000);
+  Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 1000000);
+  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 1000000);
+
   
-  Run(16, "pPb/13d/13d.root", false, true, true);
-  //Run(16, "pPb/13d/13d_3run_forTrig_noEThresh.root", false, true, true);
-  //Run(16, "pPb/13d/13d_7runs_noThresh.root", false, true, true);
-
-
-
-  //pp data sets
-  //Run(16, "pp/17q/17q_CENT_wSDD_3run_forTrig_noEThresh.root", false, true, true);
-
-
-
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end-start;
+  std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+  std::cout << "started computation at " << std::ctime(&start_time)
+	    << "finished computation at " << std::ctime(&end_time)
+	    << "elapsed time: " << elapsed_seconds.count() << "s\n";
   return;
 }
 
 
 
 
+/*///////////////////////////////////////////////////////////////
+Notes:
+
+EMCal acceptance:
+-0.667 < eta < 0.667
+1.396 < phi < 3.28
+
+DCal acceptance:
+-0.667 < eta < -0.2275 and 0.2275 < eta < 0.667
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ *///////////////////////////////////////////////////////////////
