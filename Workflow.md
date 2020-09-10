@@ -11,7 +11,7 @@ This document describes the workflow for the isolation photon analysis and detai
 - **calcNormClusterSpectra_MC.C**: This macro reads in the output form **isoPhotonAnalysisMC.C** and divided *hReco* by *hTruth* in order to obtain the total isolated photon efficiency. This efficiency will be used to correct the detector-level reconstructed photon $$p_{T}$$ from data to true $$p_{T}$$.
 
 - **crossSection.C**: This macro reads in the following:
-  		      - Output of **calcNormClusterSpectra_pPb.C** which contains event and accpetance nomalized, purity weighted, cluster spectra
-		      - Output of **calcNormClusterSpectra_MC.C** which contains the total isolated photon efficiency
-		      - The trigger rejection factors (currently using Erwann's numbers).
+    - Output of **calcNormClusterSpectra_pPb.C** which contains event and accpetance nomalized, purity weighted, cluster spectra
+    - Output of **calcNormClusterSpectra_MC.C** which contains the total isolated photon efficiency
+    - The trigger rejection factors (currently using Erwann's numbers).
 Using the minimum bias cross section obtained from ALICE Van Der Meer scans, the event counts from *normalizer*, and the trigger rejection factors, we calculate the integrated luminosity for the EG1 and EG2 trigger. The event and accpetance nomalized, purity weighted, cluster spectra (*hEG1_E* and *hEG2_E*) are then multiplied by the number of events for the respective trigger and divided by the integrated luminosity and total isolated photon efficiency in order to obtain the isolated photon cross section in accordance with the cross section equation described above.  
