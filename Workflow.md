@@ -1,0 +1,17 @@
+# Isolated photon cross section workflow
+
+This document describes the workflow for the isolation photon analysis and details which macros and histograms are used and how. The isolated photon cross section has 4 components: the event and acceptance nomalized photon yield, isolated photon efficiency, photon purity and integrated luminosity. Together, these give $$\frac{d^\sigma}{d\$$p_{T}$$ d\eta} = \frac{N_{ev} \times P}{L_{int} \times \epsilon^{iso}_{\gamma}} \times \frac{d^2 N}{N_{ev} d\$$p_{T}$$ d\eta}$$. The macros used in this analysis are as follows:
+
+- **isoPhotonAnalysisData_pPbCS.C**: This macro reads in the p-Pb data ntuples and creates three key histograms: *hEG1_E*, *hEG2_E*, and *normalizer*. *hEG1_E* and *hEG2_E* are cluster spectra histograms filled with photon $$E_{T}$$ weighted by purity, but they are not normalized by the number of events or the acceptance. *normalizer* stores the event count for the EG1 and EG2 triggered events. In this macro, the event cuts of primary vertex, pile up, and trigger are applied along with cluster cuts of number of cells, exoticity, cluster time of flight, number of local maxima, distance to bad channel, isolation, shower shape, and EMCal acceptance.
+
+- **calcNormClusterSpectra_pPb.C**: This macro is takes in the output from **isoPhotonAnalysisData_pPbCS.C** and uses the event counts stored in *normalizer* to perform an acceptance and number of events normalization to  *hEG1_E* and *hEG2_E*. The output file of **calcNormClusterSpectra_pPb.C** contains event and accpetance nomalized, purity weighted, cluster spectra.
+
+- **isoPhotonAnalysisMC.C**: This macro read in the Monte Carlo ntuples and creates the *hReco* and *hTruth* histogram. These histograms are filled with photon $$p_{T}$$ weighted by the $$p_{T}$$-hard weighting of the ntuple. The cluster cuts are identical to those in **isoPhotonAnalysisData_pPbCS.C**, but the event cuts are only those regarding the primary vertex since there is no trigger simulation or pile up simulation in the Monte Carlo. *hReco* is filled with a detector-level true photon's reconstructed photon $$p_{T}$$, while *hTruth* is filled with a generated-level photon's true $$p_{T}$$.
+
+- **calcNormClusterSpectra_MC.C**: This macro reads in the output form **isoPhotonAnalysisMC.C** and divided *hReco* by *hTruth* in order to obtain the total isolated photon efficiency. This efficiency will be used to correct the detector-level reconstructed photon $$p_{T}$$ from data to true $$p_{T}$$.
+
+- **crossSection.C**: This macro reads in the following:
+  		      - Output of **calcNormClusterSpectra_pPb.C** which contains event and accpetance nomalized, purity weighted, cluster spectra
+		      - Output of **calcNormClusterSpectra_MC.C** which contains the total isolated photon efficiency
+		      - The trigger rejection factors (currently using Erwann's numbers).
+Using the minimum bias cross section obtained from ALICE Van Der Meer scans, the event counts from *normalizer*, and the trigger rejection factors, we calculate the integrated luminosity for the EG1 and EG2 trigger. The event and accpetance nomalized, purity weighted, cluster spectra (*hEG1_E* and *hEG2_E*) are then multiplied by the number of events for the respective trigger and divided by the integrated luminosity and total isolated photon efficiency in order to obtain the isolated photon cross section in accordance with the cross section equation described above.  
