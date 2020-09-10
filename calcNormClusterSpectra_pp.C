@@ -48,13 +48,15 @@ void calcNormClusterSpectra_pp(){
   //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_CALOonly_tof20_newPurity_eCross5_newExoticity_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_allpp_CALOonly_tof20_newPurity_eCross5_newExoticity_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISO1GeV/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIso1GeV_noNorm2.root", path.Data()), "READ");//ISO 1 GeV
-  TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV_noNorm2.root", path.Data()), "READ");//ISO 1.5 GeV
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV_noNorm2.root", path.Data()), "READ");//ISO 1.5 GeV
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISO2GeV/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIso2GeV_noNorm2.root", path.Data()), "READ");//ISO 2 GeV
+  TFile* fin = new TFile(Form("%scsOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_noNorm.root", path.Data()), "READ");
   
   TH1F* hEG2_caloE = (TH1F*)fin->Get("hEG2_caloE");
   TH1F* hNormalizer = (TH1F*)fin->Get("hNormalizer");
 
   Double_t numEvents_EG2calo = hNormalizer->GetBinContent(11);
+  cout << "Number of EG2 events: " << numEvents_EG2calo << endl;
   const double deltaEta = 1.334;
   const double deltaPhi = 1.884;
   double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
@@ -63,8 +65,8 @@ void calcNormClusterSpectra_pp(){
     double dE = hEG2_caloE->GetBinWidth(i);
     
     double contentEG2 = hEG2_caloE->GetBinContent(i);
-  0  double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
-52    double errorEG2 = hEG2_caloE->GetBinError(i);
+    double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
+    double errorEG2 = hEG2_caloE->GetBinError(i);
     double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
     if(numEvents_EG2calo) 
       {

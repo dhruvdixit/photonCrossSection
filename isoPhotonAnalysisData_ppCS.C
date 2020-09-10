@@ -341,8 +341,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
   Long64_t restrictEvents = lastEvent;
-  //4035922 --> starting of EMC good runs
-  //1749493 to 2939337 --> runs 282415-282402
   Long64_t numEntries = TMath::Min(totEvents,restrictEvents);
   std::cout << numEntries << std::endl;
   for (Long64_t ievent = firstEvent; ievent< numEntries ;ievent++) {
@@ -399,7 +397,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     //110 = 6 = DG2||EG2
     //111 = 7 = MB||DG2||EG2
     if((localTrigBit & 1) != 0) {isMBcent = true; hEventCut_MB->Fill(0);numEvents_MBcent_before++;}
-    //if(((localTrigBit & 4) != 0) && (!isMBcent)) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
     if(((localTrigBit & 4) != 0) && (!isMBcent)) {isEG2calo = true;hEventCut_EG2->Fill(0);numEvents_EG2calo_before++;}
     
     
@@ -500,7 +497,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hClusterCut->Fill(0);
 	hClusterCutFlow->Fill(0);
 	
-	//if( not(clusterPt>8)) {continue;} //select pt of photons
+	/*if( not(clusterPt>8)) {continue;} //select pt of photons
 	if( (cluster_ncell[n]>=2)){                    
 	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
 	} clusterCutPassed |= (1 << 0); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(1); //removes clusters with 1 or 2 cells
@@ -515,15 +512,15 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	} clusterCutPassed |= (1 << 3); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(4);//distnace to bad channels
 	if( (cluster_tof[n] > -20) && (cluster_tof[n] < 20)){
 	  clusterCutBits |= (1 << 4); hClusterCut->Fill(5);
-	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//time of flight*/
+	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//time of flight
 
 	//Isolation and shower shape selection:
 	if( (isolation < 1.5)){
 	  clusterCutBits |= (1 << 5); hClusterCut->Fill(6);
-	  } clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 1.5*/
+	  } clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 1.5
 	if((cluster_lambda_square[n][0] > 0.1) && (cluster_lambda_square[n][0] < 0.3)){
 	  clusterCutBits |= (1 << 6); hClusterCut->Fill(7);
-	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged*/
+	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged
 	
 
 	//fiducial cut
@@ -533,12 +530,25 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if((clusterPhi > 1.396) && (clusterPhi <3.28)){
 	  clusterCutBits |= (1 << 8); hClusterCut->Fill(9);
 	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
-	
 
-	
 	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
-	  continue;
+	continue;//*/
+	
+	if(not (cluster_ncell[n]>=2)) continue;
+	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
+	if(not (cluster_nlocal_maxima[n]<= 2)) continue;
+	if(not (cluster_distance_to_bad_channel[n]>=1))continue;
+	if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
+	
+	//acceptance cuts
+	if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
+	
+	//shower shape and isolation
+	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+	if(not (isolation < 1.5)) continue;
 
+	
 	if(ievent%1000==0)
 	  {
 	    std::cout << "cluster accepted" << std::endl;
@@ -552,7 +562,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	double purity = Get_Purity_ErrFunction(clusterPt);
 	
 	hReco_pt->Fill(clusterPt);
-	if((localTrigBit & 4) != 0) {
+	if(isEG2calo) {
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
 	}
@@ -660,9 +670,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  //filename += "_cluster_EMCandDMCTrigOnly_1Mevent_wTripPileupSkimEGCut_MBDG2EG2seperate_purityCorr_etaPhiAcceptancenew_EG2caloOnly";
-  //filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudy_NormalisoGeV_yesNoISOSSC_SSCEff_noNorm2";
-  filename += "_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV_noNorm2";
+  filename += "_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -736,18 +744,17 @@ void isoPhotonAnalysisData_ppCS(){
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root");
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root");
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282367_physel.root");
-
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part002.root");//21
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
-  Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part002.root");//21
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
 
   //4,035,922 --> starting of EMC good runs
   //1,749,493 to 2,939,337 --> runs 282415-282402
