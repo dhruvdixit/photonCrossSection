@@ -237,17 +237,17 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   const double maxEta = 0.8;
  
   const ULong64_t one1 = 1;
-  const int numTrigs = 5; 
+  const int numTrigs = 3; 
 
   /*//////////////////////////////////////////////////////////////////////////////////
     13d triggers
   //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13d_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13d_trigs[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13d_trigs[0] = (one1 << 2);
   trigMask_13d_trigs[1] = (one1 << 18);
   trigMask_13d_trigs[2] = (one1 << 19);
   
-  ULong64_t trigMask_13d_trigs2[5] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
+  ULong64_t trigMask_13d_trigs2[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2, 3 = EJ1, 4 = EJ2
   trigMask_13d_trigs2[0] = (one1 << 1);
   trigMask_13d_trigs2[1] = (one1 << 18);//EG1
   trigMask_13d_trigs2[2] = (one1 << 19);//EG2
@@ -256,12 +256,12 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   /*//////////////////////////////////////////////////////////////////////////////////
     13e triggers
   //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13e_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13e_trigs[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13e_trigs[0] = (one1 << 2);
   trigMask_13e_trigs[1] = (one1 << 17);
   trigMask_13e_trigs[2] = (one1 << 18);
 
-  ULong64_t trigMask_13e_trigs_r196208[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13e_trigs_r196208[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13e_trigs_r196208[0] = (one1 << 2);
   trigMask_13e_trigs_r196208[1] = (one1 << 12);
   trigMask_13e_trigs_r196208[2] = (one1 << 13);
@@ -269,22 +269,22 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   /*//////////////////////////////////////////////////////////////////////////////////
     13f triggers
  //////////////////////////////////////////////////////////////////////////////////*/
-  ULong64_t trigMask_13f_trigs1[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs1[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs1[0] = (one1 << 2);
   trigMask_13f_trigs1[1] = (one1 << 17);
   trigMask_13f_trigs1[2] = (one1 << 18);
 
-  ULong64_t trigMask_13f_trigs2[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs2[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs2[0] = (one1 << 2);
   trigMask_13f_trigs2[1] = (one1 << 12);
   trigMask_13f_trigs2[2] = (one1 << 13);
   
-  ULong64_t trigMask_13f_trigs3[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs3[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs3[0] = (one1 << 1);
   trigMask_13f_trigs3[1] = (one1 << 16);
   trigMask_13f_trigs3[2] = (one1 << 17);
 
-  ULong64_t trigMask_13f_trigs4[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13f_trigs4[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13f_trigs3[0] = (one1 << 9);
   trigMask_13f_trigs3[1] = (one1 << 13);
   trigMask_13f_trigs3[2] = (one1 << 14);
@@ -294,7 +294,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     13c triggers
  //////////////////////////////////////////////////////////////////////////////////*/
 
-  ULong64_t trigMask_13c_trigs[5] = {0};//0 = MB, 1 = EG1, 2 = EG2
+  ULong64_t trigMask_13c_trigs[numTrigs] = {0};//0 = MB, 1 = EG1, 2 = EG2
   trigMask_13c_trigs[0] = (one1 << 6);
 
   ULong64_t trigMask[numTrigs] = {0};
@@ -389,11 +389,17 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     }
     //cout << localTrigBit << endl;
     //001 = 1 = MB
+    //010 = 2 = EG1
+    //011 = 3 = MB||EG1
+    //100 = 4 = EG2
+    //101 = 5 = MB||EG2
     //110 = 6 = EG1||EG2
     //111 = 7 = MB||EG1||EG2
     //default trigSelection set to 6;
     //if(forRTrig) then trigSelection set to 7;
 
+    if((localTrigBit == 3) || (localTrigBit >= 5)) continue;
+      
     if((localTrigBit & 1) != 0) {isMB = true; hEventCut_MB->Fill(0);numEvents_MB_before++;}
     if(((localTrigBit & 4) != 0) && (!isMB) ) {isEG2 = true;hEventCut_EG2->Fill(0);numEvents_EG2_before++;}
     if(((localTrigBit & 2) != 0) && (!isMB) && (!isEG2) ) {isEG1 = true;hEventCut_EG1->Fill(0);numEvents_EG1_before++;}
@@ -440,6 +446,10 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   
     
     hEventCut->Fill(6);//all cuts
+    if(isEG1 && isEG2) continue;
+    if(isEG1 && isMB) continue;
+    if(isMB && isEG2) continue;
+    //cout << "localTrigBit" << localTrigBit << endl;
     if(isMB) {hEventCut_MB->Fill(6); numEvents_MB++;}
     if(isEG1) {hEventCut_EG1->Fill(6); numEvents_EG1++;}
     if(isEG2) {hEventCut_EG2->Fill(6); numEvents_EG2++;}
@@ -505,7 +515,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	if(clusterPt > 20) hCluster_tof20GeV->Fill(cluster_tof[n]);
 
 	//if( not(clusterPt>8)) {continue;} //select pt of photons
-	if( (cluster_ncell[n]>=2)){                    
+	/*if( (cluster_ncell[n]>=2)){                    
 	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
 	} clusterCutPassed |= (1 << 0); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(1); //removes clusters with 1 or 2 cells
 	if( ((cluster_e_cross[n]/cluster_e_max[n])>0.05)){
@@ -536,8 +546,23 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
 	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
 	
 	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
-	  continue;
+	  continue;//*/
 
+
+	if(not (cluster_ncell[n]>=2)) continue;
+	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
+	if(not (cluster_nlocal_maxima[n]<= 2)) continue;
+	if(not (cluster_distance_to_bad_channel[n]>=1))continue;
+	if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
+	
+	//acceptance cuts
+	if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
+	
+	//shower shape and isolation
+	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+	//if(not (isolation < 1.5)) continue;
+	
 	hClusterCut->Fill(10);
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
@@ -662,9 +687,9 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_forRTrig_MBEG1EG2exlusion_tof20_eCross5_newExoticity_noNorm";
+  filename += "noTrigOverlap_noNorm";
   cout << filename.Data() << endl;
-  auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
+  auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_forRTrig_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
   
 
   
@@ -743,6 +768,9 @@ void isoPhotonAnalysisData_pPbRF(){
   //Run(1, "pPb/13f/13f_10runs_noSkim_part3.root");
   //Run(1, "pPb/13f/13f_10runs_noSkim_part4.root");
   //Run(1, "pPb/13f/13f_3runs_noSkim_part5.root");
+  //Run(1, "pPb/13f/13f_new_9runs_noSkim_part1.root");
+  //Run(1, "pPb/13f/13f_new_9runs_noSkim_part2.root");
+  //Run(1, "pPb/13f/13f_new_9runs_noSkim_part3.root");
 
   
   //calo spectra

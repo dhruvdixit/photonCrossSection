@@ -225,6 +225,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hDG2_caloE = new TH1F("hDG2_caloE", "", nbinscluster, clusterbins);
   auto hDG2_centE = new TH1F("hDG2_centE", "", nbinscluster, clusterbins);
   auto hEG2_caloE = new TH1F("hEG2_caloE", "", nbinscluster, clusterbins);
+  auto hEG2woPurity = new TH1F("hEG2woPurity", "", nbinscluster, clusterbins);
   auto hEG2_centE = new TH1F("hEG2_centE", "", nbinscluster, clusterbins);
   auto hMB_centE = new TH1F("hMB_centE", "",  nbinscluster, clusterbins);
   
@@ -232,6 +233,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hCluster_pt->Sumw2();
   hDG2_caloE->Sumw2();  
   hEG2_caloE->Sumw2();
+  hEG2woPurity->Sumw2();
   hDG2_centE->Sumw2();  
   hEG2_centE->Sumw2();
   hMB_centE->Sumw2();
@@ -241,6 +243,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hMB_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
   hDG2_caloE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{DG2}dN/dE_{T}");
   hEG2_caloE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
+  hEG2woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
   hDG2_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{DG2}dN/dE_{T}");
   hEG2_centE->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
 
@@ -565,6 +568,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(isEG2calo) {
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
+	  hEG2woPurity->Fill(clusterPt);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
 	numClusters_clusterpt++;
@@ -683,6 +687,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hMB_centE->Write("hMB_centE");
   //hDG2_caloE->Write("hDG2_caloE");
   hEG2_caloE->Write("hEG2_caloE");
+  hEG2woPurity->Write("hEG2woPurity");
   //hEG2_centE->Write("hEG2_centE");
   normalizer->Write("hNormalizer");
   

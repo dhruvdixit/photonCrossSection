@@ -110,9 +110,10 @@ void Run(TString pPbFile, TString ppFile,
 
   
   //TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_Allevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
-  TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_100Kevents_erwanbinning_noNorm_allCutsEff2_yesNoISOSSC_SSCPlots_UEstudyIsoStd.root","READ");
+  //TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_100Kevents_erwanbinning_noNorm_allCutsEff2_yesNoISOSSC_SSCPlots_UEstudyIsoStd.root","READ");
+  TFile* mcFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals.root","READ");
   
-  TH1D* hEff_pp = (TH1D*)mcFile_pp->Get("hEfficiency");
+  TH1D* hEff_pp = (TH1D*)mcFile_pp->Get("hTotalEfficiency");
   hEff_pp->SetName("hEff_pp");
   hEff_pp->SetTitle("; E_{T} (GeV); #epsilon");
   hEff_pp->GetYaxis()->SetRangeUser(0,1);
@@ -122,7 +123,7 @@ void Run(TString pPbFile, TString ppFile,
   hEff_pp->SetMarkerSize(1);
   hEff_pp->SetLineWidth(2);
 
-  TH1D* hFakeRate_pp = (TH1D*)mcFile_pp->Get("hFakeRate");
+  /*TH1D* hFakeRate_pp = (TH1D*)mcFile_pp->Get("hFakeRate");
   hFakeRate_pp->SetName("FakeRate_pp");
   hFakeRate_pp->SetTitle("; E_{T} (GeV);");
   hFakeRate_pp->GetYaxis()->SetRangeUser(0,1);
@@ -474,7 +475,7 @@ void Run(TString pPbFile, TString ppFile,
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("xSectionHists/%s_crossSectionHistos_fullList_after_wEffErwannRf.root",outputName.Data()), "RECREATE");
+  TFile* fout = new TFile(Form("xSectionHists/%sAllppAnd13f.root",outputName.Data()), "RECREATE");
   crossSection_pPb->Write("crossSection_pPb");
   crossSection_EG2->Write("crossSection_EG2");
   crossSection_pp->Write("crossSection_pp");
@@ -500,71 +501,25 @@ void crossSection(){
     Double_t pPb_RF_EG2, Double_t pPb_RF_statErr_EG2, 
     Double_t pp_RF_EG2, Double_t pp_RF_statErr_EG2)//*/ 
 
-  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV2.root", 6724, 330, 1675, 110, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+  //pp & p-Pb
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_all_phySel.root", 6460, 434, 1739, 56, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+
+  //ITS-only pp
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel.root", 6724, 330, 1675, 110, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+
+   //13d
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13d_all10runs_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_all_phySel.root", 5948.27, 0.002, 1434.22, 0.01, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+ 
+  //13e
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13e_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_all_phySel.root", 6316.032, 0.002, 1532.07, 0.01, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+  
+  //13f
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13f_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_all_phySel.root", 5741.599, 0.001, 1402.57, 0.01, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
   
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/13def/IsoStd/fout_6_14bins_firstEvent0_13def_allruns_noSkim_CALOonly_tof20_newPurity_eCross5_newExoticity_iso.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV2.root", 6728, 320, 1677, 105, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
   
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_6_14bins_firstEvent0_pPb_all10runs_noSkimEG1EG2only_tof20.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_allpp_CALOonly_tof20_newPurity_eCross5_newExoticity.root", 5826, 395, 1777, 67, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
   
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_6_14bins_firstEvent0_pPb_all10runs_noSkimEG1EG2only_tof20.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_allpp_CALOonly_tof20_newPurity_eCross5_newExoticity.root", 6254, 630, 1777, 67, 1277, 5);//CURRENTLY USE FOR ALL TOF20 testing*/
-
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_6_14bins_firstEvent0_pPb_all10runs_noSkimEG1EG2only_tof20.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly_tof10.root", 6254, 630, 1716, 81, 991, 75);//CURRENTLY USE FOR ALL TOF20 testing*/
-  
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly.root", 6501, 763, 1644, 90, 990, 78);//*/
-  
-
-  
-
-  /*Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root",
-      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root",
-      5528, 233, 1454, 35, 959, 87);//*/
-
-  //13d
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13d_all10runs_noSkim_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 5421, 277, 1521, 43, 959, 87);//*/
-
-  //13e
-  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13epart12_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6151, 298, 1569, 43, 959, 87);//*/
-  
-  //13f
-  //Run("/project/projectdirs//alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__13fpart12345_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly.root", 5750, 279, 1505, 41, 584, 14);//*/
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part1_new_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6036, 293, 1572, 44, 959, 87);//*/
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part2_new_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 5582, 271, 1456, 41, 959, 87);//*/
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part3_newer_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 5356, 260, 1396, 39, 959, 87);//*/
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_10runs_noSkim_part4_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6122, 298, 1589, 45, 959, 87);//*/
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_13f_3runs_noSkim_part5_new_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_16_14bins_17q_CENT_wSDD_noThresh_EG2_caloE_vs_cluster_pt_Normalized.root", 6190, 301, 1587, 45, 959, 87);//*/
-
-
-
-  //pp compare
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed2.root", 6181, 299, 1572, 46, 957, 14);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391.root", 6181, 299, 1572, 46, 900, 15);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_415to402.root", 6181, 299, 1572, 46, 894, 15);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_441to437.root", 6181, 299, 1572, 46, 1010, 20);//*/
-
-
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_399to391.root", 6181, 299, 1572, 46, 760, 5);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_415to402.root", 6181, 299, 1572, 46, 760, 6);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_MB_Normalized_allEMCgoodOnly_bugFixed2_441to437.root", 6181, 299, 1572, 46, 783, 5);//*/
-
-  
-  //pPb
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_12_14bins_17q_CENT_wSDD_noThresh_MBcentEGcaloEGcent_Normalized_EMCgoodOnly_bugFixed2.root", 6181, 299, 1572, 46, 672, 6);//*/
-
-
-
-  //part 3 runs
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_r282441_CALOonly.root", 6181, 299, 1572, 46, 754, 14);//*/
-
-  //pp part 1 & 2
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_17q_CENT_wSDD_noThresh_EG2_Normalized_bugFixed2_part12.root", 6181, 299, 1572, 46, 709, 16);//*/
-  
-  
-  //pp EMC good runs
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_r282366_physel_CALOonly.root", 6181, 299, 1572, 46, 956, 94);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly.root", 6181, 299, 1572, 46, 1219, 74);//*/
-  //Run("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/Data/fout_16_14bins__allpPb_cluster_emcalTrigOnly_Allevents_wTrigPileUpSkimEGCut_MBEG1EG2seperate_purityCorr_etaPhiAcceptance_new.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_4_14bins_firstEvent0_17q_CENT_wSDD_noThresh_all_physel_CALOonly_MBEG2exlusion_tof20.root", 6181, 299, 1572, 46, 1219, 74);//*/
-
-
 
 
 

@@ -248,18 +248,25 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hEG2_E = new TH1F("hEG2_E", "", nbinscluster, clusterbins);
   auto hMB_E = new TH1F("hMB_E", "", nbinscluster, clusterbins);
 
+  auto hEG1woPurity = new TH1F("hEG1woPurity", "", nbinscluster, clusterbins);
+  auto hEG2woPurity = new TH1F("hEG2woPurity", "", nbinscluster, clusterbins);
+
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
   hEG1_E->Sumw2();  
   hEG2_E->Sumw2();
   hMB_E->Sumw2();
-
+  hEG1woPurity->Sumw2();  
+  hEG2woPurity->Sumw2();
+  
   hCluster_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hReco_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hMB_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
   hEG1_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
   hEG2_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
-
+  hEG1woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
+  hEG2woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
+  
   int nevent = 0; 
   int numEvents_tracks = 0;
   int numClustersPost = 0;
@@ -589,6 +596,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hReco_pt->Fill(clusterPt);
 	if(isEG2) hEG2_E->Fill(clusterPt, purity);
 	if(isEG1) hEG1_E->Fill(clusterPt, purity);
+	if(isEG2) hEG2woPurity->Fill(clusterPt);
+	if(isEG1) hEG1woPurity->Fill(clusterPt);
 	hCluster_pt->Fill(clusterPt,purity);
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
 	hIso_TPC->Fill(cluster_iso_tpc_04[n]);
@@ -704,6 +713,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hMB_E->Write("hMB_E");
   hEG1_E->Write("hEG1_E");
   hEG2_E->Write("hEG2_E");
+  hEG1woPurity->Write("hEG1woPurity");
+  hEG2woPurity->Write("hEG2woPurity");
   normalizer->Write("hNormalizer");
   
 

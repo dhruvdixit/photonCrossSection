@@ -42,7 +42,9 @@ void calcNormClusterSpectra_MC(){
   
   //17g6a1
   TFile* fin = new TFile(Form("%s17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals_noNorm.root", path.Data()), "READ");
-  
+
+  //18b10a
+  //TFile* fin = new TFile(Form("%s18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals_noNorm.root", path.Data()), "READ");
   if(!fin){
     cout << "Can't find file" << endl;
     return;
@@ -57,7 +59,7 @@ void calcNormClusterSpectra_MC(){
 
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
-  TH1F* hTotalEfficiency = new TH1F("hTotalEfficiency", ";p_{T}^{rec} [GeV/c]#\epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
+  TH1F* hTotalEfficiency = new TH1F("hTotalEfficiency", ";p_{T}^{rec} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
   TH1F* hEfficiency = new TH1F("hEfficiency", ";p_{T}^{tru} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
   TH1F* hBinMigration = new TH1F("hBinMigration", ";p_{T}^{rec} [GeV/c]; reco/truth", nbinscluster, clusterbins);
 
@@ -74,16 +76,26 @@ void calcNormClusterSpectra_MC(){
     
     double error_Reco = (hReco->GetBinError(i))/(dE);
     double error_Truth = (hTruth->GetBinError(i))/(dE);
-    double totEffError = TMath::Sqrt(TMath::Power(error_Reco,2) + TMath::Power(error_Truth,2));
+    double totEffError = totEff*(TMath::Sqrt(TMath::Power(error_Reco,2) + TMath::Power(error_Truth,2)));
     hTotalEfficiency->SetBinError(i, totEffError);
 
     
   }//*/  
 
+  hTotalEfficiency->SetLineColor(kRed+2);
+  hTotalEfficiency->SetMarkerColor(kRed+2);
+  hTotalEfficiency->SetMarkerStyle(kFullCircle);
+
+  TLine *line = new TLine(12, 0.5, 60, 0.5);
+  line->SetLineColor(kBlack);
+  
   TCanvas* c1 = new TCanvas();
   hTotalEfficiency->GetYaxis()->SetRangeUser(0,1);
+  hTotalEfficiency->GetXaxis()->SetRangeUser(12,60);
   hTotalEfficiency->Draw("e1");
-  TString filename = fin->GetName();
+  line->Draw("same");
+
+  /*TString filename = fin->GetName();
   Int_t index = filename.Index("_noNorm");
   filename.Replace(index, 7, "");
   if(filename.CompareTo(fin->GetName()) != 0){

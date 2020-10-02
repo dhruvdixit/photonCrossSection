@@ -50,7 +50,8 @@ void calcNormClusterSpectra_pp(){
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISO1GeV/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIso1GeV_noNorm2.root", path.Data()), "READ");//ISO 1 GeV
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISOStd/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIsoGeV_noNorm2.root", path.Data()), "READ");//ISO 1.5 GeV
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ISO2GeV/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_CALOonly_tof20_newPurity_eCross5_newExoticity_UEstudyIso2GeV_noNorm2.root", path.Data()), "READ");//ISO 2 GeV
-  TFile* fin = new TFile(Form("%scsOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_noNorm.root", path.Data()), "READ");
+  TFile* fin = new TFile(Form("%scsOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_all_phySel_noNorm.root", path.Data()), "READ");
   
   TH1F* hEG2_caloE = (TH1F*)fin->Get("hEG2_caloE");
   TH1F* hNormalizer = (TH1F*)fin->Get("hNormalizer");
