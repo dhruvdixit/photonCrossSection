@@ -388,7 +388,11 @@ void calcTriggerRejectionFactor_pPb(){
   double tm_ega_13e = hRF_EGA_13e->GetFunction("pol0")->GetParameter(0);
   double tm_ega_13f = hRF_EGA_13f->GetFunction("pol0")->GetParameter(0);
   double tm_ega_13def = hRF_EGA_13def->GetFunction("pol0")->GetParameter(0);
-
+  double tm_eg12a_13d = tm_eg2_13d*tm_ega_13d;
+  double tm_eg12a_13e = tm_eg2_13e*tm_ega_13e;
+  double tm_eg12a_13f = tm_eg2_13f*tm_ega_13f;
+  double tm_eg12a_13def = tm_eg2_13def*tm_ega_13def;
+  
   double tmEr_eg1_13d = hRF_EG1_13d->GetFunction("pol0")->GetParError(0);
   double tmEr_eg1_13e = hRF_EG1_13e->GetFunction("pol0")->GetParError(0);
   double tmEr_eg1_13f = hRF_EG1_13f->GetFunction("pol0")->GetParError(0);
@@ -401,8 +405,11 @@ void calcTriggerRejectionFactor_pPb(){
   double tmEr_ega_13e = hRF_EGA_13e->GetFunction("pol0")->GetParError(0);
   double tmEr_ega_13f = hRF_EGA_13f->GetFunction("pol0")->GetParError(0);
   double tmEr_ega_13def = hRF_EGA_13def->GetFunction("pol0")->GetParError(0);
-  
-  
+  double tmEr_eg12a_13d = tm_eg12a_13d*TMath::Sqrt(TMath::Power(tmEr_eg2_13d/tm_eg2_13d,2)+TMath::Power(tmEr_ega_13d/tm_ega_13d, 2));
+  double tmEr_eg12a_13e = tm_eg12a_13e*TMath::Sqrt(TMath::Power(tmEr_eg2_13e/tm_eg2_13e,2)+TMath::Power(tmEr_ega_13e/tm_ega_13e, 2));
+  double tmEr_eg12a_13f = tm_eg12a_13f*TMath::Sqrt(TMath::Power(tmEr_eg2_13f/tm_eg2_13f,2)+TMath::Power(tmEr_ega_13f/tm_ega_13f, 2));
+  double tmEr_eg12a_13def = tm_eg12a_13def*TMath::Sqrt(TMath::Power(tmEr_eg2_13def/tm_eg2_13def,2)+TMath::Power(tmEr_ega_13def/tm_ega_13def, 2));
+    
   cout << "RF EG1 13d: " << tm_eg1_13d << " +/- " << tmEr_eg1_13d << endl; 
   cout << "RF EG1 13e: " << tm_eg1_13e << " +/- " << tmEr_eg1_13e << endl; 
   cout << "RF EG1 13f: " << tm_eg1_13f << " +/- " << tmEr_eg1_13f << endl; 
@@ -415,6 +422,10 @@ void calcTriggerRejectionFactor_pPb(){
   cout << "RF EGA 13e: " << tm_ega_13e << " +/- " << tmEr_ega_13e << endl; 
   cout << "RF EGA 13f: " << tm_ega_13f << " +/- " << tmEr_ega_13f << endl; 
   cout << "RF EGA 13def: " << tm_ega_13def << " +/- " << tmEr_ega_13def << endl; 
+  cout << "RF EG12A 13d: " << tm_eg12a_13d << " +/- " << tmEr_eg12a_13d << endl; 
+  cout << "RF EG12A 13e: " << tm_eg12a_13e << " +/- " << tmEr_eg12a_13e << endl; 
+  cout << "RF EG12A 13f: " << tm_eg12a_13f << " +/- " << tmEr_eg12a_13f << endl; 
+  cout << "RF EG12A 13def: " << tm_eg12a_13def << " +/- " << tmEr_eg12a_13def << endl; 
 
   double sm_eg1_13d = 5948;
   double sm_eg1_13e = 6313;
@@ -435,9 +446,11 @@ void calcTriggerRejectionFactor_pPb(){
   TH1F* hTMscaledEG1_13f = new TH1F("hTMscaledEG1_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMscaledEG2_13f = new TH1F("hTMscaledEG2_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMscaledEGA_13f = new TH1F("hTMscaledEGA_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
+  TH1F* hTMscaledEG12A_13f = new TH1F("hTMscaledEG12A_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMscaledEG1_13def = new TH1F("hTMscaledEG1_13def", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMscaledEG2_13def = new TH1F("hTMscaledEG2_13def", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMscaledEGA_13def = new TH1F("hTMscaledEGA_13def", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
+  TH1F* hTMscaledEG12A_13def = new TH1F("hTMscaledEG12A_13def", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   
   hTMscaledEG1_13d->SetLineColor(kGreen);
   hTMscaledEG1_13d->SetMarkerColor(kGreen);
@@ -490,6 +503,15 @@ void calcTriggerRejectionFactor_pPb(){
   hTMscaledEGA_13def->SetMarkerStyle(kOpenDiamond);
   hTMscaledEGA_13def->SetMarkerSize(2);
 
+  hTMscaledEG12A_13f->SetLineColor(kCyan);
+  hTMscaledEG12A_13f->SetMarkerColor(kCyan);
+  hTMscaledEG12A_13f->SetMarkerStyle(kOpenStar);
+  hTMscaledEG12A_13f->SetMarkerSize(2);
+  hTMscaledEG12A_13def->SetLineColor(kRed);
+  hTMscaledEG12A_13def->SetMarkerColor(kRed);
+  hTMscaledEG12A_13def->SetMarkerStyle(kOpenStar);
+  hTMscaledEG12A_13def->SetMarkerSize(2);
+
   TH1F* hTMratioEG1_13d = new TH1F("hTMratioEG1_13d", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMratioEG1_13e = new TH1F("hTMratioEG1_13e", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMratioEG1_13f = new TH1F("hTMratioEG1_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
@@ -502,6 +524,10 @@ void calcTriggerRejectionFactor_pPb(){
   TH1F* hTMratioEGA_13e = new TH1F("hTMratioEGA_13e", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMratioEGA_13f = new TH1F("hTMratioEGA_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hTMratioEGA_13def = new TH1F("hTMratioEGA_13def", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
+  TH1F* hTMratioEG12A_13d = new TH1F("hTMratioEG12A_13d", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
+  TH1F* hTMratioEG12A_13e = new TH1F("hTMratioEG12A_13e", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
+  TH1F* hTMratioEG12A_13f = new TH1F("hTMratioEG12A_13f", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
+  TH1F* hTMratioEG12A_13def = new TH1F("hTMratioEG12A_13def", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   
   hTMratioEG1_13d->SetLineColor(kGreen);
   hTMratioEG1_13d->SetMarkerColor(kGreen);
@@ -553,6 +579,23 @@ void calcTriggerRejectionFactor_pPb(){
   hTMratioEGA_13def->SetMarkerColor(kRed);
   hTMratioEGA_13def->SetMarkerStyle(kOpenDiamond);
   hTMratioEGA_13def->SetMarkerSize(2);
+
+  hTMratioEG12A_13d->SetLineColor(kGreen);
+  hTMratioEG12A_13d->SetMarkerColor(kGreen);
+  hTMratioEG12A_13d->SetMarkerStyle(kOpenStar);
+  hTMratioEG12A_13d->SetMarkerSize(2);
+  hTMratioEG12A_13e->SetLineColor(kMagenta);
+  hTMratioEG12A_13e->SetMarkerColor(kMagenta);
+  hTMratioEG12A_13e->SetMarkerStyle(kOpenStar);
+  hTMratioEG12A_13e->SetMarkerSize(2);
+  hTMratioEG12A_13f->SetLineColor(kCyan);
+  hTMratioEG12A_13f->SetMarkerColor(kCyan);
+  hTMratioEG12A_13f->SetMarkerStyle(kOpenStar);
+  hTMratioEG12A_13f->SetMarkerSize(2);
+  hTMratioEG12A_13def->SetLineColor(kRed);
+  hTMratioEG12A_13def->SetMarkerColor(kRed);
+  hTMratioEG12A_13def->SetMarkerStyle(kOpenStar);
+  hTMratioEG12A_13def->SetMarkerSize(2);
 
   TH1F* hSMscaledEG1_13d = new TH1F("hSMscaledEG1_13d", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
   TH1F* hSMscaledEG2_13d = new TH1F("hSMscaledEG2_13d", ";E_{T} [GeV]; R_{trig}", nbinscluster, clusterbins);
@@ -641,15 +684,15 @@ void calcTriggerRejectionFactor_pPb(){
 
   hSMratioEGA_13d->SetLineColor(kBlue);
   hSMratioEGA_13d->SetMarkerColor(kBlue);
-  hSMratioEGA_13d->SetMarkerStyle(kOpenDiamond);
+  hSMratioEGA_13d->SetMarkerStyle(kOpenStar);
   hSMratioEGA_13d->SetMarkerSize(2);
   hSMratioEGA_13e->SetLineColor(kViolet+1);
   hSMratioEGA_13e->SetMarkerColor(kViolet+1);
-  hSMratioEGA_13e->SetMarkerStyle(kOpenDiamond);
+  hSMratioEGA_13e->SetMarkerStyle(kOpenStar);
   hSMratioEGA_13e->SetMarkerSize(2);
   hSMratioEGA_13f->SetLineColor(kOrange);
   hSMratioEGA_13f->SetMarkerColor(kOrange);
-  hSMratioEGA_13f->SetMarkerStyle(kOpenDiamond);
+  hSMratioEGA_13f->SetMarkerStyle(kOpenStar);
   hSMratioEGA_13f->SetMarkerSize(2);
 
   for(int i = 1; i < hMB_13cdef->GetNbinsX()+1; i++){
@@ -729,6 +772,8 @@ void calcTriggerRejectionFactor_pPb(){
     hTMscaledEGA_13f->SetBinError(i, errorEG1_13f/tm_ega_13f);
     hSMscaledEGA_13f->SetBinContent(i, contentEG1_13f/sm_ega_13f);
     hSMscaledEGA_13f->SetBinError(i, errorEG1_13f/sm_ega_13f);
+    hTMscaledEG12A_13f->SetBinContent(i, contentEG1_13f/tm_eg12a_13f);
+    hTMscaledEG12A_13f->SetBinError(i, errorEG1_13f/tm_eg12a_13f);
     if(contentEG2_13f){
       double ratioTM_EGA_13f = hTMscaledEGA_13f->GetBinContent(i)/contentEG2_13f;
       double errorTM_EGA_13f = TMath::Sqrt(TMath::Power(hTMscaledEGA_13f->GetBinError(i)/hTMscaledEGA_13f->GetBinContent(i),2) +TMath::Power(errorEG2_13f/contentEG2_13f,2))*ratioTM_EGA_13f;
@@ -751,6 +796,8 @@ void calcTriggerRejectionFactor_pPb(){
     hTMscaledEG2_13def->SetBinError(i, errorEG2_13def/tm_eg2_13def);
     hTMscaledEGA_13def->SetBinContent(i, contentEG1_13def/tm_ega_13def);
     hTMscaledEGA_13def->SetBinError(i, errorEG1_13def/tm_ega_13def);
+    hTMscaledEG12A_13def->SetBinContent(i, contentEG1_13def/tm_eg12a_13def);
+    hTMscaledEG12A_13def->SetBinError(i, errorEG1_13def/tm_eg12a_13def);
     if(contentEG2_13def){
       double ratioTM_EGA_13def = hTMscaledEGA_13def->GetBinContent(i)/contentEG2_13def;
       double errorTM_EGA_13def = TMath::Sqrt(TMath::Power(hTMscaledEGA_13def->GetBinError(i)/hTMscaledEGA_13def->GetBinContent(i),2) +TMath::Power(errorEG2_13def/contentEG2_13def,2))*ratioTM_EGA_13def;
@@ -789,12 +836,20 @@ void calcTriggerRejectionFactor_pPb(){
       double errorSM_EG1_13f = TMath::Sqrt(TMath::Power(hSMscaledEG1_13f->GetBinError(i)/hSMscaledEG1_13f->GetBinContent(i),2) +TMath::Power(errorMB/contentMB,2))*ratioSM_EG1_13f;
       hSMratioEG1_13f->SetBinContent(i, ratioSM_EG1_13f);
       hSMratioEG1_13f->SetBinError(i, errorSM_EG1_13f);
-
+      double ratioTM_EG12A_13f = hTMscaledEG12A_13f->GetBinContent(i)/contentMB;
+      double errorTM_EG12A_13f = TMath::Sqrt(TMath::Power(hTMscaledEG12A_13f->GetBinError(i)/hTMscaledEG12A_13f->GetBinContent(i),2) +TMath::Power(errorMB/contentMB,2))*ratioTM_EG12A_13f;
+      hTMratioEG12A_13f->SetBinContent(i, ratioTM_EG12A_13f);
+      hTMratioEG12A_13f->SetBinError(i, errorTM_EG12A_13f);
+     
       //13def
       double ratioTM_EG1_13def = hTMscaledEG1_13def->GetBinContent(i)/contentMB;
       double errorTM_EG1_13def = TMath::Sqrt(TMath::Power(hTMscaledEG1_13def->GetBinError(i)/hTMscaledEG1_13def->GetBinContent(i),2) +TMath::Power(errorMB/contentMB,2))*ratioTM_EG1_13def;
       hTMratioEG1_13def->SetBinContent(i, ratioTM_EG1_13def);
       hTMratioEG1_13def->SetBinError(i, errorTM_EG1_13def);
+      double ratioTM_EG12A_13def = hTMscaledEG12A_13def->GetBinContent(i)/contentMB;
+      double errorTM_EG12A_13def = TMath::Sqrt(TMath::Power(hTMscaledEG12A_13def->GetBinError(i)/hTMscaledEG12A_13def->GetBinContent(i),2) +TMath::Power(errorMB/contentMB,2))*ratioTM_EG12A_13def;
+      hTMratioEG12A_13def->SetBinContent(i, ratioTM_EG12A_13def);
+      hTMratioEG12A_13def->SetBinError(i, errorTM_EG12A_13def);
 
       //EG2
       //13d
@@ -867,7 +922,7 @@ void calcTriggerRejectionFactor_pPb(){
   hTMscaledEGA_13def->Draw("samee1");
   lscale->Draw("same");
   
-  TLine *line = new TLine(16, 1, 40, 1);
+  TLine *line = new TLine(14, 1, 40, 1);
   line->SetLineColor(kBlack);
   
   TLegend* lratio = new TLegend(0.65, 0.65,0.9, 0.9);
@@ -935,7 +990,40 @@ void calcTriggerRejectionFactor_pPb(){
   line->Draw("same");
   
 
+  TLegend* lscale12a = new TLegend(0.65, 0.65,0.9, 0.9);
+  lscale12a->AddEntry((TObject*)0, "Cluster Spectra Method", "");
+  lscale12a->AddEntry(hMB_13cdef, "Minimum bias trigger (MB)");
+  lscale12a->AddEntry(hEG1_13def, "13def (EG1)");
+  lscale12a->AddEntry(hEG1_13f, "13f (EG1)");
+  lscale12a->AddEntry(hTMscaledEG1_13f, "13f EG1/MB scaled");
+  lscale12a->AddEntry(hTMscaledEG1_13def, "13def EG1/MB scaled");
+  lscale12a->AddEntry(hTMscaledEG12A_13f, "13f EG1/EG2*EG2/MB scaled");
+  lscale12a->AddEntry(hTMscaledEG12A_13def, "13def EG1/EG2*EG2/MB scaled");
 
+  TCanvas* c3_12a = new TCanvas();
+  c3_12a->SetLogy();
+  hMB_13cdef->Draw("e1");
+  hEG1_13def->Draw("samee1");
+  hEG1_13f->Draw("samee1");
+  hTMscaledEG1_13f->Draw("samee1");
+  hTMscaledEG1_13def->Draw("samee1");
+  hTMscaledEG12A_13f->Draw("samee1");
+  hTMscaledEG12A_13def->Draw("samee1");
+  lscale12a->Draw("same");
 
-  
+  TLegend* lratio12a = new TLegend(0.65, 0.65,0.9, 0.9);
+  lratio12a->AddEntry((TObject*)0, "Cluster Spectra ratio", "");
+  lratio12a->AddEntry(hTMratioEG1_13f, "13f EG1/MB");
+  lratio12a->AddEntry(hTMratioEG1_13def, "13def EG1/MB");
+  lratio12a->AddEntry(hTMratioEG12A_13f, "13f EG1/EG2*EG2/MB");
+  lratio12a->AddEntry(hTMratioEG12A_13def, "13def EG1/EG2*EG2/MB");
+
+  TCanvas* cratio12a = new TCanvas();
+  hTMratioEGA_13d->GetYaxis()->SetRangeUser(0.5,1.5);
+  hTMratioEG1_13f->Draw("e1");
+  hTMratioEG1_13def->Draw("samee1");
+  hTMratioEG12A_13f->Draw("samee1");
+  hTMratioEG12A_13def->Draw("samee1");
+  lratio12a->Draw("same");
+  line->Draw("same");
 }
