@@ -5,7 +5,7 @@ void purityFit(){
   gStyle->SetLegendBorderSize(0);
 
 
-  const int nbins_purity = 5;
+  /*const int nbins_purity = 5;
   Double_t purity_bins[nbins_purity+1] = {12,15,20,25,40,55};//12,15,20,25,40,50};
   Double_t purity_binCenters[nbins_purity] = {0.0};
   Double_t purity_erX[nbins_purity] = {1.5, 2.5, 2.5, 7.5, 7.5};
@@ -88,5 +88,53 @@ void purityFit(){
   purityTest1->GetFunction("func")->SetLineColor(kCyan);
   purityTest2->GetFunction("func")->SetLineColor(kBlue);
   purityTest3->GetFunction("func")->SetLineColor(kMagenta);
-  purityTest4->GetFunction("func")->SetLineColor(kBlack);
+  purityTest4->GetFunction("func")->SetLineColor(kBlack);//*/
+  
+  const int nbins = 4;
+  Double_t purity_pp[nbins] = {0.201, 0.317, 0.473, 0.485};
+  Double_t statErr_pp[nbins] = {0.017, 0.020, 0.029, 0.035};
+  Double_t systErr_pp[nbins] = {0.037, 0.038, 0.042, 0.079};
+  Double_t totsErr_pp[nbins] = {0.0};
+  
+  Double_t purity_pPb[nbins] = {0.207, 0.342, 0.476, 0.546};
+  Double_t statErr_pPb[nbins] = {0.011, 0.012, 0.017, 0.018};
+  Double_t systErr_pPb[nbins] = {0.020, 0.028, 0.027, 0.039};
+  Double_t totsErr_pPb[nbins] = {0.0};
+
+  for(int i = 0; i < nbins; i++){
+    totsErr_pp[i] = TMath::Sqrt(TMath::Power(statErr_pp[i], 2) + TMath::Power(systErr_pp[i], 2));
+    totsErr_pPb[i] = TMath::Sqrt(TMath::Power(statErr_pPb[i], 2) + TMath::Power(systErr_pPb[i], 2));
+  }
+  
+  Double_t xBinCenters[nbins] = {13.198656, 16.903571, 22.064577, 30.107411};
+  Double_t xBinLeftErr[nbins] = {1.1986559999999997, 1.9035709999999995, 2.064577, 5.107410999999999};
+  Double_t xBinRightErr[nbins] = {1.8013440000000003, 3.0964290000000005, 2.935423, 9.892589000000001};
+
+  auto grPurity_pp = new TGraphAsymmErrors(nbins, xBinCenters, purity_pp, xBinLeftErr, xBinRightErr, totsErr_pp, totsErr_pp);
+  //grPurity_pp->SetTitle("pp purity");
+  grPurity_pp->SetLineColor(kBlue);
+  grPurity_pp->SetMarkerColor(kBlue);
+  grPurity_pp->SetMarkerStyle(kFullCircle);
+
+  auto grPurity_pPb = new TGraphAsymmErrors(nbins, xBinCenters, purity_pPb, xBinLeftErr, xBinRightErr, totsErr_pPb, totsErr_pPb);
+  //grPurity_pPb->SetTitle("pPb purity");
+  grPurity_pPb->SetLineColor(kRed);
+  grPurity_pPb->SetMarkerColor(kRed);
+  grPurity_pPb->SetMarkerStyle(kFullCircle);
+
+  TCanvas* c1 = new TCanvas("c1", "c1");
+  c1->SetGridx();
+  //c1->SetGridy();
+  c1->DrawFrame(12, 0.15, 40, 0.65);
+  //c1->DrawFrame(0,0,2000, 70)
+  grPurity_pp->Draw("p");
+  grPurity_pPb->Draw("p");
+  
+  TF1* erf = new TF1("erf","[0]*TMath::Erf((x-[1])/[2])",12,40);
+  erf->SetParameter(0,0.55);
+  erf->SetParameter(1,8.0);
+  erf->SetParameter(2,12.0);
+
+  grPurity_pp->Fit("erf", "S", "", 12, 40);
+  grPurity_pPb->Fit("erf", "S", "", 12, 40);
 }//end function
