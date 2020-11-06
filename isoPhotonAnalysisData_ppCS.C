@@ -39,19 +39,26 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
   //		    11.0498};
 
   Float_t par[3] = {0.49,
-		    9.83,
-		    10.6};
+		    9.85,
+		    9.5};
 
   if (strcmp(deviation.data(),"Plus")==0){
-    par[0] = 0.60750016509;
-    par[1] = 7.05184155403;
-    par[2] = 13.6116163603;
+    par[0] = 0.57;
+    par[1] = 9.36;
+    par[2] = 10.5;
+    //par[0] = 0.60750016509;
+    //par[1] = 7.05184155403;
+    //par[2] = 13.6116163603;
   }
 
   if (strcmp(deviation.data(),"Minus")==0){
-    par[0] = 0.479958593235;
-    par[1] = 9.05392932723;
-    par[2] = 10.2061359452;
+    par[0] = 0.399;
+    par[1] = 11.5;
+    par[2] = 7.87;
+    //par[0] = 0.479958593235;
+    //par[1] = 9.05392932723;
+    //par[2] = 10.2061359452;
+
   }
 
 
@@ -562,13 +569,13 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
 
-	double purity = Get_Purity_ErrFunction(clusterPt);
+	double purity = Get_Purity_ErrFunction(clusterPt, "Minus");
 	
 	hReco_pt->Fill(clusterPt);
 	if(isEG2calo) {
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
-	  hEG2woPurity->Fill(clusterPt);
+	  hEG2woPurity->Fill(clusterPt, 0.5);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
 	numClusters_clusterpt++;
@@ -674,7 +681,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_noNorm";
+  filename += "_StdCuts_MinusPurityFit_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 

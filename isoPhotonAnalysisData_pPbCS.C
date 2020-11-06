@@ -44,20 +44,26 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
   //		    13.3319};
 
   Float_t par[3] = {0.55,
-		    9.16,
-		    12.8};
+		    8.96,
+		    12.4};
 
     
   if (strcmp(deviation.data(),"Plus")==0){
-    par[0] = 0.60750016509;
-    par[1] = 7.05184155403;
-    par[2] = 13.6116163603;
+    par[0] = 0.59;
+    par[1] = 8.78;
+    par[2] = 12.5;
+    //par[0] = 0.60750016509;
+    //par[1] = 7.05184155403;
+    //par[2] = 13.6116163603;
   }
 
   if (strcmp(deviation.data(),"Minus")==0){
-    par[0] = 0.479958593235;
-    par[1] = 9.05392932723;
-    par[2] = 10.2061359452;
+    par[0] = 0.503;
+    par[1] = 9.53;
+    par[2] = 11.3;
+    //par[0] = 0.479958593235;
+    //par[1] = 9.05392932723;
+    //par[2] = 10.2061359452;
   }
 
 
@@ -241,6 +247,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   //Photon
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
+  const int numRuns = 10;
+  Double_t runListbins[numRuns+1] = {195724, 195760, 195767, 195783, 195787, 195829, 195831, 195867, 195871, 195872, 196000};
   
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
@@ -251,6 +259,9 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   auto hEG1woPurity = new TH1F("hEG1woPurity", "", nbinscluster, clusterbins);
   auto hEG2woPurity = new TH1F("hEG2woPurity", "", nbinscluster, clusterbins);
 
+  auto hEventPerRun = new TH1F("hEventPerRun", "", numRuns, runListbins);
+  auto hEG1woPvsRuns = new TH2F("hEG1woPvsRuns", "", nbinscluster, clusterbins, numRuns, runListbins);
+
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
   hEG1_E->Sumw2();  
@@ -258,7 +269,9 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hMB_E->Sumw2();
   hEG1woPurity->Sumw2();  
   hEG2woPurity->Sumw2();
-  
+  hEventPerRun->Sumw2();
+  hEG1woPvsRuns->Sumw2();
+    
   hCluster_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hReco_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hMB_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
@@ -266,11 +279,18 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEG2_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
   hEG1woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
   hEG2woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
-  
+  hEventPerRun->SetTitle("; Run number; counts");
+  hEG1woPvsRuns->SetTitle("; E_{T} (GeV) ; Run number; 1/N_{ev}^{EG2}dN/dE_{T}");
+
+  for(int i = 1; i < hEventPerRun->GetNbinsX()+1; i++){
+    hEventPerRun->GetXaxis()->SetBinLabel(i,Form("%f", runListbins[i-1]));
+  }
+	
   int nevent = 0; 
   int numEvents_tracks = 0;
   int numClustersPost = 0;
   int numClustersPre = 0;
+  int numClusterMoreThan5GeV = 0;
   int numEvents_tot = 0;
   int numEvents_passTrig = 0;
   int numEvents_passAll = 0;
@@ -378,6 +398,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
       std::memcpy(trigMask, trigMask_13d_trigs, sizeof(trigMask));
     if(run_number == 195724 || run_number == 195760)
       std::memcpy(trigMask, trigMask_13d_trigs2, sizeof(trigMask));
+    //if(run_number == 195871) continue;
+    //if(run_number == 195829) continue;
 
     //13e
     if(run_number >= 195935 && run_number <= 196310)
@@ -423,6 +445,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
       hEventCut->Fill(1);
       if(isEG1) hEventCut_EG1->Fill(1);
       if(isEG2) hEventCut_EG2->Fill(1);
+      if(isMB) hEventCut_MB->Fill(1);
       continue;
     }//no emcal gamma or jet triggers
 
@@ -431,37 +454,42 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
       if(isEG2 & !isEG1)
 	numEvents_onlyEG2++;
     }
-    if(not( TMath::Abs(primary_vertex[2])<10.0)){
-	hEventCut->Fill(2);
-	if(isEG1) hEventCut_EG1->Fill(2);
-	if(isEG2) hEventCut_EG2->Fill(2);
+    if(not(TMath::Abs(primary_vertex[2])<10.0)){
+      hEventCut->Fill(2);
+      if(isEG1) hEventCut_EG1->Fill(2);
+      if(isEG2) hEventCut_EG2->Fill(2);
+      if(isMB) hEventCut_MB->Fill(2);
       
-	numEvents_Zmore10++;
-	continue;
-      } //vertex z position
-
+      numEvents_Zmore10++;
+      continue;
+    } //vertex z position
+    
     if(primary_vertex[2] == 0.0000) {
       hEventCut->Fill(3);
       if(isEG1) hEventCut_EG1->Fill(3);
       if(isEG2) hEventCut_EG2->Fill(3);
+      if(isMB) hEventCut_MB->Fill(3);
       
       numEvents_noZ++;
-      continue;}//vertex exists
+      continue;
+    }//vertex exists
 
     if(is_pileup_from_spd_5_08) {
       hEventCut->Fill(4);
       if(isEG1) hEventCut_EG1->Fill(4);
       if(isEG2) hEventCut_EG2->Fill(4);
-      
       continue;
     } //removes pileup*/
 
     
     hEventCut->Fill(6);//all cuts
-    if(!isEG1 && !isEG2) continue;
+    //if(!isEG1 && !isEG2) continue;
     if(isEG1 && isEG2) continue;
+    if(isMB && isEG2) continue;
+    if(isEG1 && isMB) continue;
     if(isEG1) {hEventCut_EG1->Fill(6); numEvents_EG1++;}
     if(isEG2) {hEventCut_EG2->Fill(6); numEvents_EG2++;}
+    if(isMB) {hEventCut_MB->Fill(6); numEvents_MB++;}
 
     
     hZvertexAfter->Fill(primary_vertex[2]);
@@ -469,7 +497,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     numEvents_Zless10++;
     numEvents_passAll++;
     
-    
+    hEventPerRun->Fill(run_number);
+
     int eventFill = 0;    
     hUE->Fill(ue_estimate_its_const);
     //hUEse->Fill(ue_estimate_its_const_se);
@@ -592,12 +621,21 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	numClustersPost++;
 	
 	
-	double purity = Get_Purity_ErrFunction(clusterPt);
+	double purity = Get_Purity_ErrFunction(clusterPt, "Plus");
 	hReco_pt->Fill(clusterPt);
-	if(isEG2) hEG2_E->Fill(clusterPt, purity);
-	if(isEG1) hEG1_E->Fill(clusterPt, purity);
-	if(isEG2) hEG2woPurity->Fill(clusterPt);
-	if(isEG1) hEG1woPurity->Fill(clusterPt);
+	if(isEG2) {
+	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
+	  hEG2woPurity->Fill(clusterPt, 1.5);
+	  hEG2_E->Fill(clusterPt, purity);
+	}
+	if(isEG1){
+	  if(clusterPt > 5)
+	    numClusterMoreThan5GeV++;
+	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
+	  hEG1woPurity->Fill(clusterPt, 1.5);
+	  hEG1_E->Fill(clusterPt, purity);
+	  if(isolation < 1.5) hEG1woPvsRuns->Fill(clusterPt, run_number);
+	}
 	hCluster_pt->Fill(clusterPt,purity);
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
 	hIso_TPC->Fill(cluster_iso_tpc_04[n]);
@@ -617,7 +655,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     numEvents_passAll << "\t" << numEvents_MB << "\t" <<
     numEvents_EG1 << "\t" << numEvents_EG2 << "\t" <<
     endl;  
-  
+
+  cout << "NUMBER OF CLUSTER WITH e > 5 GeV: "  << numClusterMoreThan5GeV << endl;
   //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
   cout << numEvents_tracks << endl;
   cout << filename(0,3) << "\tTotal Events: " << numEntries << "\tEvent selection: " << numEvents_passAll << "\tPre-Cluster selection: " << numClustersPre << "\tPostCluster selection: " << numClustersPost << endl;
@@ -701,9 +740,17 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCut_EG2->GetXaxis()->SetBinLabel(6,"ntrack < 0");
   hEventCut_EG2->GetXaxis()->SetBinLabel(7,"passed");
 
+  hEventCut_MB->GetXaxis()->SetBinLabel(1,"All events");
+  hEventCut_MB->GetXaxis()->SetBinLabel(2,"no MB trigger");
+  hEventCut_MB->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
+  hEventCut_MB->GetXaxis()->SetBinLabel(4,"primary vertex = 0");
+  hEventCut_MB->GetXaxis()->SetBinLabel(5,"pile up");
+  hEventCut_MB->GetXaxis()->SetBinLabel(6,"ntrack < 0");
+  hEventCut_MB->GetXaxis()->SetBinLabel(7,"passed");
+
   
 //Writing to file
-  filename += "_noNorm";
+  filename += "_StdCuts_PlusPurityFit_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -715,6 +762,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEG2_E->Write("hEG2_E");
   hEG1woPurity->Write("hEG1woPurity");
   hEG2woPurity->Write("hEG2woPurity");
+  hEventPerRun->Write("hEventPerRun");
+  hEG1woPvsRuns->Write("hEG1woPvsRuns");
   normalizer->Write("hNormalizer");
   
 

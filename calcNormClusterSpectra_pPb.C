@@ -48,6 +48,9 @@ void calcNormClusterSpectra_pPb(){
   //13d
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13d_all10runs_noSkim_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/noPurityClusterSpectra/fout_6_14bins_firstEvent0_13d_all10runs_noSkim_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13d/RunListCheck/fout_7_14bins_firstEvent0_13d_all10runs_noSkim_checkEventCounts_noRun195871_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13d/RunListCheck/fout_7_14bins_firstEvent0_13d_all10runs_noSkim_checkEventCounts_noRun195871or195829_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13d/RunListCheck/fout_7_14bins_firstEvent0_13d_all10runs_noSkim_checkEventCounts_noRun195829_noNorm.root", path.Data()), "READ");
   
   //13e
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13e_noSkim_noNorm.root", path.Data()), "READ");
@@ -64,6 +67,12 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13def/IsoStd/fout_6_14bins_firstEvent0_13def_allruns_noSkim_CALOonly_tof20_newPurity_eCross5_newExoticity_iso_noNorm.root", path.Data()), "READ");//iso < 1.5
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/noPurityClusterSpectra/fout_6_14bins_firstEvent0_13def_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/SystemChecks/PurityVAriation/MinusPurity/fout_6_14bins_firstEvent0_13def_MinusPurity_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/SystemChecks/PurityVAriation/PlusPurity/fout_6_14bins_firstEvent0_13def_PlusPurity_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/fout_6_14bins_firstEvent0_13def_purityNewFitValues_halfWeightForwoPurity_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_CorrectPurityFit_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/PlusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_PlusPurityFit_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/MinusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_MinusPurityFit_noNorm.root", path.Data()), "READ");
 
   if(!fin){
     cout << "Can't find file" << endl;
