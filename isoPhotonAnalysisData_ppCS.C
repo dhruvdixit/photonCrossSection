@@ -24,44 +24,47 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 
   Float_t purity_val = 0;
 
-  //Non-platue assumption
-  // Float_t par[3] = {0.548247710,
-  //                   8.794543375,
-  //                   12.7423900};
-
-  //Old
-//   Float_t par[3] = {0.54225742923,
-//                     8.09242373515,
-//                     11.8085154181};
-
-  //Float_t par[3] = {0.494981,
-  //		    9.11279,
-  //		    11.0498};
-
-  Float_t par[3] = {0.49,
-		    9.85,
-		    9.5};
+  Float_t par[3] = {0.5,
+		    9.13,
+		    11.3};
 
   if (strcmp(deviation.data(),"Plus")==0){
-    par[0] = 0.57;
-    par[1] = 9.36;
-    par[2] = 10.5;
-    //par[0] = 0.60750016509;
-    //par[1] = 7.05184155403;
-    //par[2] = 13.6116163603;
+    par[0] = 0.59;
+    par[1] = 8.29;
+    par[2] = 13.2;
   }
 
   if (strcmp(deviation.data(),"Minus")==0){
-    par[0] = 0.399;
-    par[1] = 11.5;
-    par[2] = 7.87;
-    //par[0] = 0.479958593235;
-    //par[1] = 9.05392932723;
-    //par[2] = 10.2061359452;
-
+    par[0] = 0.42;
+    par[1] = 9.98;
+    par[2] = 9.58;
   }
 
+  if (strcmp(deviation.data(),"ssc0.26")==0){
+    par[0] = 0.54;
+    par[1] = 8.81;
+    par[2] = 12.8;
+  }
 
+  if (strcmp(deviation.data(),"ssc0.28")==0){
+    par[0] = 0.53;
+    par[1] = 8.57;
+    par[2] = 13.1;
+  }
+
+  if (strcmp(deviation.data(),"ssc0.33")==0){
+    par[0] = 0.46;
+    par[1] = 8.53;
+    par[2] = 11.2;
+  }
+
+  if (strcmp(deviation.data(),"ssc0.35")==0){
+    par[0] = 0.44;
+    par[1] = 8.19;
+    par[2] = 11.5;
+  }
+  
+  
   purity_val = par[0]*TMath::Erf((pT_GeV-par[1])/par[2]);
   return purity_val;
 }
@@ -555,7 +558,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 	
 	//shower shape and isolation
-	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.33 > cluster_lambda_square[n][0]))) continue;
 	if(not (isolation < 1.5)) continue;
 
 	
@@ -569,13 +572,13 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
 
-	double purity = Get_Purity_ErrFunction(clusterPt, "Minus");
+	double purity = Get_Purity_ErrFunction(clusterPt, "ssc0.33");
 	
 	hReco_pt->Fill(clusterPt);
 	if(isEG2calo) {
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
-	  hEG2woPurity->Fill(clusterPt, 0.5);
+	  hEG2woPurity->Fill(clusterPt, 0.33);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
 	numClusters_clusterpt++;
@@ -660,7 +663,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hClusterCutFlow->GetXaxis()->SetBinLabel(10,"phi aceptance");
   hClusterCutFlow->GetXaxis()->SetBinLabel(11,"accepted clusters");
 
-
   hEventCut->GetXaxis()->SetBinLabel(1,"All events");
   hEventCut->GetXaxis()->SetBinLabel(2,"no EMCA/MB trigger");
   hEventCut->GetXaxis()->SetBinLabel(3,"primary vertex > 10");
@@ -681,7 +683,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_StdCuts_MinusPurityFit_noNorm";
+  filename += "_StdCuts_EX0PurityFitSSC33_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 

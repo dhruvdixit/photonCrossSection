@@ -272,10 +272,10 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 
       //shower shape and isolation
-      if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+      if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.35 > cluster_lambda_square[n][0]))) continue;
       if(not (isolation < 1.5)) continue;
 
-      hRecoPure->Fill(cluster_pt[n]);
+      hRecoPure->Fill(cluster_pt[n], weight);
       // Access the corresonding mc_truth particle; skip if index is 65535, which is invalid, or the truth particle pT is less than 10, or the mc_truth_pdg_code is not 22 (it's not a photon)
       Bool_t isTruePhoton = false;
       Float_t truth_pt = -999.0;
@@ -321,7 +321,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   }//loop over events
   
   //Writing to file
-  filename += "_noNorm";
+  filename += "SSC35_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/fout_%ibins_firstEvent%lld_%s.root", nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -351,12 +351,25 @@ void isoPhotonAnalysisMC(){
   Run("17g6a1/17g6a1_pthat4_wNeutrals.root", 0, 1000000);
   Run("17g6a1/17g6a1_pthat5_wNeutrals.root", 0, 1000000);//*/
 
-  Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 1000000);
+  /*Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 1000000);
   Run("18b10a/18b10a_calo_pthat2_wNeutrals.root", 0, 1000000);
   Run("18b10a/18b10a_calo_pthat3_wNeutrals.root", 0, 1000000);
   Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 1000000);
   Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 1000000);
-  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 1000000);
+  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 1000000);//*/
+
+  /*Run("17g6a1/17g6a1_pthat1_wNeutrals.root");
+  Run("17g6a1/17g6a1_pthat2_wNeutrals.root");
+  Run("17g6a1/17g6a1_pthat3_wNeutrals.root");
+  Run("17g6a1/17g6a1_pthat4_wNeutrals.root");
+  Run("17g6a1/17g6a1_pthat5_wNeutrals.root");//*/
+
+  /*Run("18b10a/18b10a_calo_pthat1_wNeutrals.root");
+  Run("18b10a/18b10a_calo_pthat2_wNeutrals.root");
+  Run("18b10a/18b10a_calo_pthat3_wNeutrals.root");
+  Run("18b10a/18b10a_calo_pthat4_wNeutrals.root");
+  Run("18b10a/18b10a_calo_pthat5_wNeutrals.root");
+  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root");//*/
 
   
   auto end = std::chrono::system_clock::now();

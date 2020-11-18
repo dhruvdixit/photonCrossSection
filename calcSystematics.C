@@ -7,144 +7,386 @@ void calcSystematics(){
   gStyle->SetEndErrorSize(5);
   
   
-
-  //Obtain and plotting histograms from data
-
-  TFile* file_Std = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_CorrectPurityFit.root","READ");
-  TH1F* rpa_Std = (TH1F*)file_Std->Get("h_RpA");rpa_Std->SetLineColor(kRed);rpa_Std->SetMarkerColor(kRed);
-  TH1F* hcsEG1_Std = (TH1F*)file_Std->Get("crossSection_pPb");hcsEG1_Std->SetLineColor(kRed);hcsEG1_Std->SetMarkerColor(kRed);
-  TH1F* hcspp_Std = (TH1F*)file_Std->Get("crossSection_pp");hcspp_Std->SetLineColor(kRed);hcspp_Std->SetMarkerColor(kRed);
-
-  TFile* file_Plus = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_PlusPurityFit.root","READ");
-  TH1F* rpa_Plus = (TH1F*)file_Plus->Get("h_RpA");rpa_Plus->SetLineColor(kMagenta);rpa_Plus->SetMarkerColor(kMagenta);
-  TH1F* hcsEG1_Plus = (TH1F*)file_Plus->Get("crossSection_pPb");hcsEG1_Plus->SetLineColor(kMagenta);hcsEG1_Plus->SetMarkerColor(kMagenta);
-  TH1F* hcspp_Plus = (TH1F*)file_Plus->Get("crossSection_pp");hcspp_Plus->SetLineColor(kMagenta);hcspp_Plus->SetMarkerColor(kMagenta);
-
-  TFile* file_Minus = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_MinusPurityFit.root","READ");
-  TH1F* rpa_Minus = (TH1F*)file_Minus->Get("h_RpA");rpa_Minus->SetLineColor(kBlue);rpa_Minus->SetMarkerColor(kBlue);
-  TH1F* hcsEG1_Minus = (TH1F*)file_Minus->Get("crossSection_pPb");hcsEG1_Minus->SetLineColor(kBlue);hcsEG1_Minus->SetMarkerColor(kBlue);
-  TH1F* hcspp_Minus = (TH1F*)file_Minus->Get("crossSection_pp");hcspp_Minus->SetLineColor(kBlue);hcspp_Minus->SetMarkerColor(kBlue);
-  
-  
-  
   TLine *line = new TLine(12, 1, 60, 1);
   line->SetLineColor(kBlack);
 
+  
+  //Purity systematic
+  TFile* file_StdPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit.root","READ");
+  TH1F* rpa_StdPurity = (TH1F*)file_StdPurity->Get("h_RpA");rpa_StdPurity->SetLineColor(kRed);rpa_StdPurity->SetMarkerColor(kRed);
+  TH1F* hcsEG1_StdPurity = (TH1F*)file_StdPurity->Get("crossSection_pPb");hcsEG1_StdPurity->SetLineColor(kRed);hcsEG1_StdPurity->SetMarkerColor(kRed);
+  TH1F* hcspp_StdPurity = (TH1F*)file_StdPurity->Get("crossSection_pp");hcspp_StdPurity->SetLineColor(kRed);hcspp_StdPurity->SetMarkerColor(kRed);
+
+  TFile* file_PlusPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PlusPurityFit.root","READ");
+  TH1F* rpa_PlusPurity = (TH1F*)file_PlusPurity->Get("h_RpA");rpa_PlusPurity->SetLineColor(kMagenta);rpa_PlusPurity->SetMarkerColor(kMagenta);
+  TH1F* hcsEG1_PlusPurity = (TH1F*)file_PlusPurity->Get("crossSection_pPb");hcsEG1_PlusPurity->SetLineColor(kMagenta);hcsEG1_PlusPurity->SetMarkerColor(kMagenta);
+  TH1F* hcspp_PlusPurity = (TH1F*)file_PlusPurity->Get("crossSection_pp");hcspp_PlusPurity->SetLineColor(kMagenta);hcspp_PlusPurity->SetMarkerColor(kMagenta);
+
+  TFile* file_MinusPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0MinusPurityFit.root","READ");
+  TH1F* rpa_MinusPurity = (TH1F*)file_MinusPurity->Get("h_RpA");rpa_MinusPurity->SetLineColor(kBlue);rpa_MinusPurity->SetMarkerColor(kBlue);
+  TH1F* hcsEG1_MinusPurity = (TH1F*)file_MinusPurity->Get("crossSection_pPb");hcsEG1_MinusPurity->SetLineColor(kBlue);hcsEG1_MinusPurity->SetMarkerColor(kBlue);
+  TH1F* hcspp_MinusPurity = (TH1F*)file_MinusPurity->Get("crossSection_pp");hcspp_MinusPurity->SetLineColor(kBlue);hcspp_MinusPurity->SetMarkerColor(kBlue);
+  
+  
   //RpA
-  TLegend* lRpA = new TLegend(0.6,0.7,0.85,0.85);
-  lRpA->SetHeader("R_{pPb}");
-  lRpA->AddEntry(rpa_Std, "Usual purity");
+  TLegend* lRpA_Purity = new TLegend(0.6,0.7,0.85,0.85);
+  lRpA_Purity->SetHeader("R_{pPb}");
+  lRpA_Purity->AddEntry(rpa_StdPurity, "Usual purity");
+  lRpA_Purity->AddEntry(rpa_PlusPurity, "+#sigma purity");
+  lRpA_Purity->AddEntry(rpa_MinusPurity, "-#sigma purity");
+  
 
-
-  TCanvas* cRpA = new TCanvas();
-  rpa_Std->Draw("e1");
+  TCanvas* cRpA_Purity = new TCanvas();
+  rpa_StdPurity->Draw("e1");
+  rpa_PlusPurity->Draw("same e1");
+  rpa_MinusPurity->Draw("same e1");
   line->Draw("same");
-  lRpA->Draw("same");
+  lRpA_Purity->Draw("same");
 
 
   //HcsEG1
-  TLegend* lHcsEG1 = new TLegend(0.6,0.7,0.85,0.85);
-  lHcsEG1->SetHeader("p-Pb EG1 cross section");
-  lHcsEG1->AddEntry(hcsEG1_Std, "usual purity");
-  lHcsEG1->AddEntry(hcsEG1_Plus, "+#sigma purity");
-  lHcsEG1->AddEntry(hcsEG1_Minus, "-#sigma purity");
+  TLegend* lHcsEG1_Purity = new TLegend(0.6,0.7,0.85,0.85);
+  lHcsEG1_Purity->SetHeader("p-Pb EG1 cross section");
+  lHcsEG1_Purity->AddEntry(hcsEG1_StdPurity, "usual purity");
+  lHcsEG1_Purity->AddEntry(hcsEG1_PlusPurity, "+#sigma purity");
+  lHcsEG1_Purity->AddEntry(hcsEG1_MinusPurity, "-#sigma purity");
 
-  TCanvas* cHcsEG1 = new TCanvas();
-  cHcsEG1->SetLogy();
-  hcsEG1_Std->GetXaxis()->SetRangeUser(12, 60);
-  hcsEG1_Std->Draw("e1");
-  hcsEG1_Plus->Draw("samee1");
-  hcsEG1_Minus->Draw("samee1");
-  lHcsEG1->Draw("same");
+  TCanvas* cHcsEG1_Purity = new TCanvas();
+  cHcsEG1_Purity->SetLogy();
+  hcsEG1_StdPurity->GetXaxis()->SetRangeUser(12, 60);
+  hcsEG1_StdPurity->GetYaxis()->SetRangeUser(1, 5e3);
+  hcsEG1_StdPurity->Draw("e1");
+  hcsEG1_PlusPurity->Draw("samee1");
+  hcsEG1_MinusPurity->Draw("samee1");
+  lHcsEG1_Purity->Draw("same");
 
   //Hcspp
-  TLegend* lHcspp = new TLegend(0.6,0.7,0.85,0.85);
-  lHcspp->SetHeader("pp cross section");
-  lHcspp->AddEntry(hcspp_Std, "usual purity");
-  lHcspp->AddEntry(hcspp_Plus, "+#sigma purity");
-  lHcspp->AddEntry(hcspp_Minus, "-#sigma purity");
+  TLegend* lHcspp_Purity = new TLegend(0.6,0.7,0.85,0.85);
+  lHcspp_Purity->SetHeader("pp cross section");
+  lHcspp_Purity->AddEntry(hcspp_StdPurity, "usual purity");
+  lHcspp_Purity->AddEntry(hcspp_PlusPurity, "+#sigma purity");
+  lHcspp_Purity->AddEntry(hcspp_MinusPurity, "-#sigma purity");
 
-  TCanvas* cHcspp = new TCanvas();
-  cHcspp->SetLogy();
-  hcspp_Std->GetXaxis()->SetRangeUser(12, 60);
-  hcspp_Std->Draw("e1");
-  hcspp_Plus->Draw("samee1");
-  hcspp_Minus->Draw("samee1");
-  lHcspp->Draw("same");
+  TCanvas* cHcspp_Purity = new TCanvas();
+  cHcspp_Purity->SetLogy();
+  hcspp_StdPurity->GetXaxis()->SetRangeUser(12, 60);
+  hcspp_StdPurity->Draw("e1");
+  hcspp_PlusPurity->Draw("samee1");
+  hcspp_MinusPurity->Draw("samee1");
+  lHcspp_Purity->Draw("same");
 
 
-  const int nbinscluster = 14;
-  Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
-  TH1F* diffPlus_pPb = (TH1F*)hcsEG1_Plus->Clone("diffPlus_pPb");
-  diffPlus_pPb->SetTitle(";E_{T} [GeV/c]; #frac{|+#sigma_{purity} - CV_{purity}|}{CV_{purity}} [%]");
-  diffPlus_pPb->Add(hcsEG1_Std, -1);
-  //diffPlus_pPb->Scale(0.5);
-  diffPlus_pPb->Divide(hcsEG1_Std);
-
-  TH1F* diffMinus_pPb = (TH1F*)hcsEG1_Std->Clone("diffMinus_pPb");
-  diffMinus_pPb->SetTitle(";E_{T} [GeV/c]; #frac{|-#sigma_{purity} - CV_{purity}|}{CV_{purity}} [%]");
-  diffMinus_pPb->Add(hcsEG1_Minus, -1);
-  //diffMinus_pPb->Scale(0.5);
-  diffMinus_pPb->Divide(hcsEG1_Std);
-
-  TCanvas* cdiffPlus_pPb = new TCanvas("cdiffPlus_pPb", "", 1600, 800);
-  cdiffPlus_pPb->Divide(2);
-  cdiffPlus_pPb->cd(1);
-  cdiffPlus_pPb->SetLeftMargin(0.15);
-  cdiffPlus_pPb->SetRightMargin(0.05);
-  diffPlus_pPb->GetXaxis()->SetRangeUser(12, 60);
-  diffPlus_pPb->GetYaxis()->SetRangeUser(0, 0.25);
-  diffPlus_pPb->GetYaxis()->SetTitleOffset(2);
-  diffPlus_pPb->Draw("hist");
+  TH1F* diff_pPb_Purity = (TH1F*)hcsEG1_PlusPurity->Clone("diffPlus_pPb_Purity");
+  diff_pPb_Purity->SetTitle("Purity systematic: p-Pb;E_{T} [GeV/c]; #frac{|#sigma_{purity}^{+} - #sigma_{purity}^{-}|}{2CV_{purity}} [%]");
+  diff_pPb_Purity->Add(hcsEG1_MinusPurity, -1);
+  diff_pPb_Purity->Scale(0.5);
+  //diff_pPb_Purity->Divide(hcsEG1_StdPurity);
+		   
+  TCanvas* cdiff_pPb_Purity = new TCanvas("cdiff_pPb_Purity", "p-Pb systematic from purity");
+  diff_pPb_Purity->GetXaxis()->SetRangeUser(12, 60);
+  diff_pPb_Purity->GetYaxis()->SetRangeUser(0, 0.25);
+  diff_pPb_Purity->Draw("hist");
 
   
-  //TCanvas* cdiffMinus_pPb = new TCanvas();
-  cdiffPlus_pPb->cd(2);
-  cdiffPlus_pPb->SetLeftMargin(0.15);
-  cdiffPlus_pPb->SetRightMargin(0.05);
-  diffMinus_pPb->GetXaxis()->SetRangeUser(12, 60);
-  diffMinus_pPb->GetYaxis()->SetRangeUser(0, 0.25);
-  diffMinus_pPb->GetYaxis()->SetTitleOffset(2);
-  diffMinus_pPb->Draw("hist");
-
   //pp
-  TH1F* diffPlus_pp = (TH1F*)hcspp_Plus->Clone("diffPlus_pp");
-  diffPlus_pp->SetTitle(";E_{T} [GeV/c]; #frac{|+#sigma_{purity} - CV_{purity}|}{CV_{purity}} [%]");
-  diffPlus_pp->Add(hcspp_Std, -1);
-  //diffPlus_pp->Scale(0.5);
-  diffPlus_pp->Divide(hcspp_Std);
-
-  TH1F* diffMinus_pp = (TH1F*)hcspp_Std->Clone("diffMinus_pp");
-  diffMinus_pp->SetTitle(";E_{T} [GeV/c]; #frac{|-#sigma_{purity} - CV_{purity}|}{CV_{purity}} [%]");
-  diffMinus_pp->Add(hcspp_Minus, -1);
-  //diffMinus_pp->Scale(0.5);
-  diffMinus_pp->Divide(hcspp_Std);
-
-  TCanvas* cdiffPlus_pp = new TCanvas("cdiffPlus_pp", "", 1600, 800);
-  cdiffPlus_pp->Divide(2);
-  cdiffPlus_pp->cd(1);
-  cdiffPlus_pp->SetLeftMargin(0.15);
-  cdiffPlus_pp->SetRightMargin(0.05);
-  diffPlus_pp->GetXaxis()->SetRangeUser(12, 60);
-  diffPlus_pp->GetYaxis()->SetRangeUser(0, 0.25);
-  diffPlus_pp->GetYaxis()->SetTitleOffset(2);
-  diffPlus_pp->Draw("hist");
+  TH1F* diff_pp_Purity = (TH1F*)hcspp_PlusPurity->Clone("diffPlus_pp_Purity");
+  diff_pp_Purity->SetTitle("Purity systematic: pp;E_{T} [GeV/c]; #frac{|#sigma_{purity}^{+} - #sigma_{purity}^{-}|}{2CV_{purity}} [%]");
+  diff_pp_Purity->Add(hcspp_MinusPurity, -1);
+  diff_pp_Purity->Scale(0.5);
+  //diff_pp_Purity->Divide(hcspp_StdPurity);
+		   
+  TCanvas* cdiff_pp_Purity = new TCanvas("cdiff_pp_Purity", "pp systematic from purity");
+  diff_pp_Purity->GetXaxis()->SetRangeUser(12, 60);
+  diff_pp_Purity->GetYaxis()->SetRangeUser(0, 0.25);
+  diff_pp_Purity->Draw("hist");
 
   
-  //TCanvas* cdiffMinus_pp = new TCanvas();
-  cdiffPlus_pp->cd(2);
-  cdiffPlus_pp->SetLeftMargin(0.15);
-  cdiffPlus_pp->SetRightMargin(0.05);
-  diffMinus_pp->GetXaxis()->SetRangeUser(12, 60);
-  diffMinus_pp->GetYaxis()->SetRangeUser(0, 0.25);
-  diffMinus_pp->GetYaxis()->SetTitleOffset(2);
-  diffMinus_pp->Draw("hist");
+  /***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+  
+  //Luminosity systematic
+  TFile* file_StdLumi = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_LumiCV.root","READ");
+  TH1F* rpa_StdLumi = (TH1F*)file_StdLumi->Get("h_RpA");rpa_StdLumi->SetLineColor(kRed);rpa_StdLumi->SetMarkerColor(kRed);
+  TH1F* hcsEG1_StdLumi = (TH1F*)file_StdLumi->Get("crossSection_pPb");hcsEG1_StdLumi->SetLineColor(kRed);hcsEG1_StdLumi->SetMarkerColor(kRed);
+  TH1F* hcspp_StdLumi = (TH1F*)file_StdLumi->Get("crossSection_pp");hcspp_StdLumi->SetLineColor(kRed);hcspp_StdLumi->SetMarkerColor(kRed);
+
+  TFile* file_PlusLumi = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_PlusLumi.root","READ");
+  TH1F* rpa_PlusLumi = (TH1F*)file_PlusLumi->Get("h_RpA");rpa_PlusLumi->SetLineColor(kMagenta);rpa_PlusLumi->SetMarkerColor(kMagenta);
+  TH1F* hcsEG1_PlusLumi = (TH1F*)file_PlusLumi->Get("crossSection_pPb");hcsEG1_PlusLumi->SetLineColor(kMagenta);hcsEG1_PlusLumi->SetMarkerColor(kMagenta);
+  TH1F* hcspp_PlusLumi = (TH1F*)file_PlusLumi->Get("crossSection_pp");hcspp_PlusLumi->SetLineColor(kMagenta);hcspp_PlusLumi->SetMarkerColor(kMagenta);
+
+  TFile* file_MinusLumi = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_MinusLumi.root","READ");
+  TH1F* rpa_MinusLumi = (TH1F*)file_MinusLumi->Get("h_RpA");rpa_MinusLumi->SetLineColor(kBlue);rpa_MinusLumi->SetMarkerColor(kBlue);
+  TH1F* hcsEG1_MinusLumi = (TH1F*)file_MinusLumi->Get("crossSection_pPb");hcsEG1_MinusLumi->SetLineColor(kBlue);hcsEG1_MinusLumi->SetMarkerColor(kBlue);
+  TH1F* hcspp_MinusLumi = (TH1F*)file_MinusLumi->Get("crossSection_pp");hcspp_MinusLumi->SetLineColor(kBlue);hcspp_MinusLumi->SetMarkerColor(kBlue);
   
   
+  //RpA
+  TLegend* lRpA_Lumi = new TLegend(0.6,0.7,0.85,0.85);
+  lRpA_Lumi->SetHeader("R_{pPb}");
+  lRpA_Lumi->AddEntry(rpa_StdLumi, "Usual lumi");
+  lRpA_Lumi->AddEntry(rpa_PlusLumi, "+#sigma lumi");
+  lRpA_Lumi->AddEntry(rpa_MinusLumi, "-#sigma lumi");
   
 
+  TCanvas* cRpA_Lumi = new TCanvas();
+  rpa_StdLumi->Draw("e1");
+  rpa_PlusLumi->Draw("same e1");
+  rpa_MinusLumi->Draw("same e1");
+  line->Draw("same");
+  lRpA_Lumi->Draw("same");
 
 
+  //HcsEG1
+  TLegend* lHcsEG1_Lumi = new TLegend(0.6,0.7,0.85,0.85);
+  lHcsEG1_Lumi->SetHeader("p-Pb EG1 cross section");
+  lHcsEG1_Lumi->AddEntry(hcsEG1_StdLumi, "usual lumi");
+  lHcsEG1_Lumi->AddEntry(hcsEG1_PlusLumi, "+#sigma lumi");
+  lHcsEG1_Lumi->AddEntry(hcsEG1_MinusLumi, "-#sigma lumi");
+
+  TCanvas* cHcsEG1_Lumi = new TCanvas();
+  cHcsEG1_Lumi->SetLogy();
+  hcsEG1_StdLumi->GetXaxis()->SetRangeUser(12, 60);
+  hcsEG1_StdLumi->GetYaxis()->SetRangeUser(1, 5e3);
+  hcsEG1_StdLumi->Draw("e1");
+  hcsEG1_PlusLumi->Draw("samee1");
+  hcsEG1_MinusLumi->Draw("samee1");
+  lHcsEG1_Lumi->Draw("same");
+
+  //Hcspp
+  TLegend* lHcspp_Lumi = new TLegend(0.6,0.7,0.85,0.85);
+  lHcspp_Lumi->SetHeader("pp cross section");
+  lHcspp_Lumi->AddEntry(hcspp_StdLumi, "usual lumi");
+  lHcspp_Lumi->AddEntry(hcspp_PlusLumi, "+#sigma lumi");
+  lHcspp_Lumi->AddEntry(hcspp_MinusLumi, "-#sigma lumi");
+
+  TCanvas* cHcspp_Lumi = new TCanvas();
+  cHcspp_Lumi->SetLogy();
+  hcspp_StdLumi->GetXaxis()->SetRangeUser(12, 60);
+  hcspp_StdLumi->Draw("e1");
+  hcspp_PlusLumi->Draw("samee1");
+  hcspp_MinusLumi->Draw("samee1");
+  lHcspp_Lumi->Draw("same");
+
+
+  TH1F* diff_pPb_Lumi = (TH1F*)hcsEG1_MinusLumi->Clone("diffPlus_pPb_Lumi");
+  diff_pPb_Lumi->SetTitle("Luminosity systematic: p-Pb;E_{T} [GeV/c]; #frac{|#sigma_{lumi}^{+} - #sigma_{lumi}^{-}|}{2CV_{lumi}} [%]");
+  diff_pPb_Lumi->Add(hcsEG1_PlusLumi, -1);
+  diff_pPb_Lumi->Scale(0.5);
+  //diff_pPb_Lumi->Divide(hcsEG1_StdLumi);
+		   
+  TCanvas* cdiff_pPb_Lumi = new TCanvas("cdiff_pPb_Lumi", "p-Pb systematic from lumi");
+  diff_pPb_Lumi->GetXaxis()->SetRangeUser(12, 60);
+  diff_pPb_Lumi->GetYaxis()->SetRangeUser(0, 0.05);
+  diff_pPb_Lumi->Draw("hist");
+
+  
+  //pp
+  TH1F* diff_pp_Lumi = (TH1F*)hcspp_MinusLumi->Clone("diffPlus_pp_Lumi");
+  diff_pp_Lumi->SetTitle("Luminosity systematic: pp;E_{T} [GeV/c]; #frac{|#sigma_{lumi}^{+} - #sigma_{lumi}^{-}|}{2CV_{lumi}} [%]");
+  diff_pp_Lumi->Add(hcspp_PlusLumi, -1);
+  diff_pp_Lumi->Scale(0.5);
+  //diff_pp_Lumi->Divide(hcspp_StdLumi);
+		   
+  TCanvas* cdiff_pp_Lumi = new TCanvas("cdiff_pp_Lumi", "pp systematic from lumi");
+  diff_pp_Lumi->GetXaxis()->SetRangeUser(12, 60);
+  diff_pp_Lumi->GetYaxis()->SetRangeUser(0, 0.05);
+  diff_pp_Lumi->Draw("hist");
+  
+  /***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+  //SSC Efficiency
+  TFile* file_StdSSCEff = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_LumiCV.root","READ");
+  TH1F* rpa_StdSSCEff = (TH1F*)file_StdSSCEff->Get("h_RpA");rpa_StdSSCEff->SetLineColor(kRed);rpa_StdSSCEff->SetMarkerColor(kRed);
+  TH1F* hcsEG1_StdSSCEff = (TH1F*)file_StdSSCEff->Get("crossSection_pPb");hcsEG1_StdSSCEff->SetLineColor(kRed);hcsEG1_StdSSCEff->SetMarkerColor(kRed);
+  TH1F* hcspp_StdSSCEff = (TH1F*)file_StdSSCEff->Get("crossSection_pp");hcspp_StdSSCEff->SetLineColor(kRed);hcspp_StdSSCEff->SetMarkerColor(kRed);
+
+  TFile* file_PlusSSCEff = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_PlusEffSSC.root","READ");
+  TH1F* rpa_PlusSSCEff = (TH1F*)file_PlusSSCEff->Get("h_RpA");rpa_PlusSSCEff->SetLineColor(kMagenta);rpa_PlusSSCEff->SetMarkerColor(kMagenta);
+  TH1F* hcsEG1_PlusSSCEff = (TH1F*)file_PlusSSCEff->Get("crossSection_pPb");hcsEG1_PlusSSCEff->SetLineColor(kMagenta);hcsEG1_PlusSSCEff->SetMarkerColor(kMagenta);
+  TH1F* hcspp_PlusSSCEff = (TH1F*)file_PlusSSCEff->Get("crossSection_pp");hcspp_PlusSSCEff->SetLineColor(kMagenta);hcspp_PlusSSCEff->SetMarkerColor(kMagenta);
+
+  TFile* file_MinusSSCEff = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_MinusEffSSC.root","READ");
+  TH1F* rpa_MinusSSCEff = (TH1F*)file_MinusSSCEff->Get("h_RpA");rpa_MinusSSCEff->SetLineColor(kBlue);rpa_MinusSSCEff->SetMarkerColor(kBlue);
+  TH1F* hcsEG1_MinusSSCEff = (TH1F*)file_MinusSSCEff->Get("crossSection_pPb");hcsEG1_MinusSSCEff->SetLineColor(kBlue);hcsEG1_MinusSSCEff->SetMarkerColor(kBlue);
+  TH1F* hcspp_MinusSSCEff = (TH1F*)file_MinusSSCEff->Get("crossSection_pp");hcspp_MinusSSCEff->SetLineColor(kBlue);hcspp_MinusSSCEff->SetMarkerColor(kBlue);
+  
+  
+  //RpA
+  TLegend* lRpA_SSCEff = new TLegend(0.6,0.7,0.85,0.85);
+  lRpA_SSCEff->SetHeader("R_{pPb}");
+  lRpA_SSCEff->AddEntry(rpa_StdSSCEff, "Usual eff");
+  lRpA_SSCEff->AddEntry(rpa_PlusSSCEff, "+#sigma eff");
+  lRpA_SSCEff->AddEntry(rpa_MinusSSCEff, "-#sigma eff");
+  
+
+  TCanvas* cRpA_SSCEff = new TCanvas();
+  rpa_StdSSCEff->Draw("e1");
+  rpa_PlusSSCEff->Draw("same e1");
+  rpa_MinusSSCEff->Draw("same e1");
+  line->Draw("same");
+  lRpA_SSCEff->Draw("same");
+
+
+  //HcsEG1
+  TLegend* lHcsEG1_SSCEff = new TLegend(0.6,0.7,0.85,0.85);
+  lHcsEG1_SSCEff->SetHeader("p-Pb EG1 cross section");
+  lHcsEG1_SSCEff->AddEntry(hcsEG1_StdSSCEff, "usual ssc eff");
+  lHcsEG1_SSCEff->AddEntry(hcsEG1_PlusSSCEff, "+#sigma ssc eff");
+  lHcsEG1_SSCEff->AddEntry(hcsEG1_MinusSSCEff, "-#sigma ssc eff");
+
+  TCanvas* cHcsEG1_SSCEff = new TCanvas();
+  cHcsEG1_SSCEff->SetLogy();
+  hcsEG1_StdSSCEff->GetXaxis()->SetRangeUser(12, 60);
+  hcsEG1_StdSSCEff->GetYaxis()->SetRangeUser(1, 5e3);
+  hcsEG1_StdSSCEff->Draw("e1");
+  hcsEG1_PlusSSCEff->Draw("samee1");
+  hcsEG1_MinusSSCEff->Draw("samee1");
+  lHcsEG1_SSCEff->Draw("same");
+
+  //Hcspp
+  TLegend* lHcspp_SSCEff = new TLegend(0.6,0.7,0.85,0.85);
+  lHcspp_SSCEff->SetHeader("pp cross section");
+  lHcspp_SSCEff->AddEntry(hcspp_StdSSCEff, "usual ssc eff");
+  lHcspp_SSCEff->AddEntry(hcspp_PlusSSCEff, "+#sigma ssc eff");
+  lHcspp_SSCEff->AddEntry(hcspp_MinusSSCEff, "-#sigma ssc eff");
+
+  TCanvas* cHcspp_SSCEff = new TCanvas();
+  cHcspp_SSCEff->SetLogy();
+  hcspp_StdSSCEff->GetXaxis()->SetRangeUser(12, 60);
+  hcspp_StdSSCEff->Draw("e1");
+  hcspp_PlusSSCEff->Draw("samee1");
+  hcspp_MinusSSCEff->Draw("samee1");
+  lHcspp_SSCEff->Draw("same");
+
+
+  TH1F* diff_pPb_SSCEff = (TH1F*)hcsEG1_MinusSSCEff->Clone("diffPlus_pPb_SSCEff");
+  diff_pPb_SSCEff->SetTitle("SSC Efficiency systematic: p-Pb;E_{T} [GeV/c]; #frac{|#sigma_{eff}^{+} - #sigma_{eff}^{-}|}{2CV_{eff}} [%]");
+  diff_pPb_SSCEff->Add(hcsEG1_PlusSSCEff, -1);
+  diff_pPb_SSCEff->Scale(0.5);
+  //diff_pPb_SSCEff->Divide(hcsEG1_StdSSCEff);
+		   
+  TCanvas* cdiff_pPb_SSCEff = new TCanvas("cdiff_pPb_SSCEff", "p-Pb systematic from shower shape variation in efficiency");
+  diff_pPb_SSCEff->GetXaxis()->SetRangeUser(12, 60);
+  diff_pPb_SSCEff->GetYaxis()->SetRangeUser(0, 0.15);
+  diff_pPb_SSCEff->Draw("hist");
+
+  
+  //pp
+  TH1F* diff_pp_SSCEff = (TH1F*)hcspp_MinusSSCEff->Clone("diffPlus_pp_SSCEff");
+  diff_pp_SSCEff->SetTitle("SSC Efficiency systematic: pp;E_{T} [GeV/c]; #frac{|#sigma_{eff}^{+} - #sigma_{eff}^{-}|}{2CV_{eff}} [%]");
+  diff_pp_SSCEff->Add(hcspp_PlusSSCEff, -1);
+  diff_pp_SSCEff->Scale(0.5);
+  //diff_pp_SSCEff->Divide(hcspp_StdSSCEff);
+		   
+  TCanvas* cdiff_pp_SSCEff = new TCanvas("cdiff_pp_SSCEff", "pp systematic from shower shape variation in efficiency");
+  diff_pp_SSCEff->GetXaxis()->SetRangeUser(12, 60);
+  diff_pp_SSCEff->GetYaxis()->SetRangeUser(0, 0.15);
+  diff_pp_SSCEff->Draw("hist");
+
+  /***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+  //ISO Efficiency
+  TFile* file_StdISOEff = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_LumiCV.root","READ");
+  TH1F* rpa_StdISOEff = (TH1F*)file_StdISOEff->Get("h_RpA");rpa_StdISOEff->SetLineColor(kRed);rpa_StdISOEff->SetMarkerColor(kRed);
+  TH1F* hcsEG1_StdISOEff = (TH1F*)file_StdISOEff->Get("crossSection_pPb");hcsEG1_StdISOEff->SetLineColor(kRed);hcsEG1_StdISOEff->SetMarkerColor(kRed);
+  TH1F* hcspp_StdISOEff = (TH1F*)file_StdISOEff->Get("crossSection_pp");hcspp_StdISOEff->SetLineColor(kRed);hcspp_StdISOEff->SetMarkerColor(kRed);
+
+  TFile* file_PlusISOEff = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_PlusEffISO.root","READ");
+  TH1F* rpa_PlusISOEff = (TH1F*)file_PlusISOEff->Get("h_RpA");rpa_PlusISOEff->SetLineColor(kMagenta);rpa_PlusISOEff->SetMarkerColor(kMagenta);
+  TH1F* hcsEG1_PlusISOEff = (TH1F*)file_PlusISOEff->Get("crossSection_pPb");hcsEG1_PlusISOEff->SetLineColor(kMagenta);hcsEG1_PlusISOEff->SetMarkerColor(kMagenta);
+  TH1F* hcspp_PlusISOEff = (TH1F*)file_PlusISOEff->Get("crossSection_pp");hcspp_PlusISOEff->SetLineColor(kMagenta);hcspp_PlusISOEff->SetMarkerColor(kMagenta);
+
+  TFile* file_MinusISOEff = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_MinusEffISO.root","READ");
+  TH1F* rpa_MinusISOEff = (TH1F*)file_MinusISOEff->Get("h_RpA");rpa_MinusISOEff->SetLineColor(kBlue);rpa_MinusISOEff->SetMarkerColor(kBlue);
+  TH1F* hcsEG1_MinusISOEff = (TH1F*)file_MinusISOEff->Get("crossSection_pPb");hcsEG1_MinusISOEff->SetLineColor(kBlue);hcsEG1_MinusISOEff->SetMarkerColor(kBlue);
+  TH1F* hcspp_MinusISOEff = (TH1F*)file_MinusISOEff->Get("crossSection_pp");hcspp_MinusISOEff->SetLineColor(kBlue);hcspp_MinusISOEff->SetMarkerColor(kBlue);
+  
+  
+  //RpA
+  TLegend* lRpA_ISOEff = new TLegend(0.6,0.7,0.85,0.85);
+  lRpA_ISOEff->SetHeader("R_{pPb}");
+  lRpA_ISOEff->AddEntry(rpa_StdISOEff, "Usual eff");
+  lRpA_ISOEff->AddEntry(rpa_PlusISOEff, "+#sigma eff");
+  lRpA_ISOEff->AddEntry(rpa_MinusISOEff, "-#sigma eff");
+  
+
+  TCanvas* cRpA_ISOEff = new TCanvas();
+  rpa_StdISOEff->Draw("e1");
+  rpa_PlusISOEff->Draw("same e1");
+  rpa_MinusISOEff->Draw("same e1");
+  line->Draw("same");
+  lRpA_ISOEff->Draw("same");
+
+
+  //HcsEG1
+  TLegend* lHcsEG1_ISOEff = new TLegend(0.6,0.7,0.85,0.85);
+  lHcsEG1_ISOEff->SetHeader("p-Pb EG1 cross section");
+  lHcsEG1_ISOEff->AddEntry(hcsEG1_StdISOEff, "usual iso eff");
+  lHcsEG1_ISOEff->AddEntry(hcsEG1_PlusISOEff, "+#sigma iso eff");
+  lHcsEG1_ISOEff->AddEntry(hcsEG1_MinusISOEff, "-#sigma iso eff");
+
+  TCanvas* cHcsEG1_ISOEff = new TCanvas();
+  cHcsEG1_ISOEff->SetLogy();
+  hcsEG1_StdISOEff->GetXaxis()->SetRangeUser(12, 60);
+  hcsEG1_StdISOEff->GetYaxis()->SetRangeUser(1, 5e3);
+  hcsEG1_StdISOEff->Draw("e1");
+  hcsEG1_PlusISOEff->Draw("samee1");
+  hcsEG1_MinusISOEff->Draw("samee1");
+  lHcsEG1_ISOEff->Draw("same");
+
+  //Hcspp
+  TLegend* lHcspp_ISOEff = new TLegend(0.6,0.7,0.85,0.85);
+  lHcspp_ISOEff->SetHeader("pp cross section");
+  lHcspp_ISOEff->AddEntry(hcspp_StdISOEff, "usual iso eff");
+  lHcspp_ISOEff->AddEntry(hcspp_PlusISOEff, "+#sigma iso eff");
+  lHcspp_ISOEff->AddEntry(hcspp_MinusISOEff, "-#sigma iso eff");
+
+  TCanvas* cHcspp_ISOEff = new TCanvas();
+  cHcspp_ISOEff->SetLogy();
+  hcspp_StdISOEff->GetXaxis()->SetRangeUser(12, 60);
+  hcspp_StdISOEff->Draw("e1");
+  hcspp_PlusISOEff->Draw("samee1");
+  hcspp_MinusISOEff->Draw("samee1");
+  lHcspp_ISOEff->Draw("same");
+
+
+  TH1F* diff_pPb_ISOEff = (TH1F*)hcsEG1_MinusISOEff->Clone("diffPlus_pPb_ISOEff");
+  diff_pPb_ISOEff->SetTitle("ISO Efficiency systematic: p-Pb;E_{T} [GeV/c]; #frac{|#sigma_{eff}^{+} - #sigma_{eff}^{-}|}{2CV_{eff}} [%]");
+  diff_pPb_ISOEff->Add(hcsEG1_PlusISOEff, -1);
+  diff_pPb_ISOEff->Scale(0.5);
+  //diff_pPb_ISOEff->Divide(hcsEG1_StdISOEff);
+		   
+  TCanvas* cdiff_pPb_ISOEff = new TCanvas("cdiff_pPb_ISOEff", "p-Pb systematic from isolation variation in efficiency");
+  diff_pPb_ISOEff->GetXaxis()->SetRangeUser(12, 60);
+  diff_pPb_ISOEff->GetYaxis()->SetRangeUser(0, 0.15);
+  diff_pPb_ISOEff->Draw("hist");
+
+  
+  //pp
+  TH1F* diff_pp_ISOEff = (TH1F*)hcspp_MinusISOEff->Clone("diffPlus_pp_ISOEff");
+  diff_pp_ISOEff->SetTitle("ISO Efficiency systematic: pp;E_{T} [GeV/c]; #frac{|#sigma_{eff}^{+} - #sigma_{eff}^{-}|}{2CV_{eff}} [%]");
+  diff_pp_ISOEff->Add(hcspp_PlusISOEff, -1);
+  diff_pp_ISOEff->Scale(0.5);
+  //diff_pp_ISOEff->Divide(hcspp_StdISOEff);
+		   
+  TCanvas* cdiff_pp_ISOEff = new TCanvas("cdiff_pp_ISOEff", "pp systematic from sisolation variation in efficiency");
+  diff_pp_ISOEff->GetXaxis()->SetRangeUser(12, 60);
+  diff_pp_ISOEff->GetYaxis()->SetRangeUser(0, 0.15);
+  diff_pp_ISOEff->Draw("hist");
+
+  
+  cout << "bin center" << "\t" << "value" << "\t" << "stat" << "\t" << "purity sys" << "\t" << "lumi sys" << "\t" << "iso sys" << "\t" << "totsys" << endl;
+  for(int i = 7; i < diff_pp_ISOEff->GetNbinsX()+1; i++){
+    cout << diff_pp_Purity->GetBinCenter(i) << "\t"
+	 << hcspp_StdPurity->GetBinContent(i) << "\t"
+	 << hcspp_StdPurity->GetBinError(i) << "\t"
+	 << diff_pp_Purity->GetBinContent(i) << "\t"
+	 << diff_pp_Lumi->GetBinContent(i) << "\t"
+	 << diff_pp_ISOEff->GetBinContent(i) << "\t"
+	 << TMath::Sqrt(TMath::Power( diff_pp_Purity->GetBinContent(i), 2) + TMath::Power(diff_pp_Lumi->GetBinContent(i), 2) + TMath::Power(diff_pp_ISOEff->GetBinContent(i), 2)) << "\t"
+	 << diff_pp_Purity->GetBinContent(i)/TMath::Sqrt(TMath::Power( diff_pp_Purity->GetBinContent(i), 2) + TMath::Power(diff_pp_Lumi->GetBinContent(i), 2) + TMath::Power(diff_pp_ISOEff->GetBinContent(i), 2)) << endl;
+      
+  }
  
 
 

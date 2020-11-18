@@ -48,7 +48,8 @@ void calcTriggerRejectionFactor_pPb(){
   TString path = "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/rfOutput/pPOutput";
   
   //13d
-  TFile* file_13d = new TFile(Form("%s/StdEventsAndClusterCuts/fout_6_26bins_forRTrigEG_13d_Allruns_noThresh_phySel.root", path.Data()), "READ");
+  //TFile* file_13d = new TFile(Form("%s/StdEventsAndClusterCuts/fout_6_26bins_forRTrigEG_13d_Allruns_noThresh_phySel.root", path.Data()), "READ");
+  TFile* file_13d = new TFile(Form("%s/13dOutput/GoodRunsCheck/fout_7_26bins_forRTrig_13d_all10runs_noSkimnoTrigOverlap_no195871.root", path.Data()), "READ");
   TH1F* hEG1_13d = (TH1F*)file_13d->Get("hEG1_E");
   TH1F* hEG2_13d = (TH1F*)file_13d->Get("hEG2_E");
   

@@ -56,7 +56,9 @@ void calcNormClusterSpectra_pp(){
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/SystemChecks/PurityVAriation/PlusPurity/fout_4_14bins_firstEvent0_17q_All_PlusPurity_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_CorrectPurityFit_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/PlusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_PlusPurityFit_noNorm.root", path.Data()), "READ");
-  TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/MinusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_MinusPurityFit_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/MinusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_MinusPurityFit_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17q_ITSonly_StdCuts_EX0PurityFit_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/EfficiencySystematics/26/fout_4_14bins_firstEvent0_17q_ITSonly_StdCuts_EX0PurityFitSSC26_noNorm.root", path.Data()), "READ");
   
   TH1F* hEG2_caloE = (TH1F*)fin->Get("hEG2_caloE");
   TH1F* hNormalizer = (TH1F*)fin->Get("hNormalizer");

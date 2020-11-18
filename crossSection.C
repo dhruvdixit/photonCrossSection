@@ -1,6 +1,7 @@
 #include <fstream>
 #include <vector>
 void Run(TString pPbFile, TString ppFile,
+	 TString pPbFile_MC, TString ppFile_MC,
 	 Double_t pPbRf_EG1, Double_t pPbRfStatErr_EG1,
 	 Double_t pPbRf_EG2, Double_t pPbRfStatErr_EG2,
 	 Double_t ppRf_EG2, Double_t ppRfStatErr_EG2){
@@ -63,7 +64,8 @@ void Run(TString pPbFile, TString ppFile,
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_50Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");//main use
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffTogether_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
   //TFile* mcFile_pPb = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/17g6a1_100Kevents_erwanbinning_noNorm_allCutsEff2_yesNoISOSSC_SSCPlots_UEstudyIsoStd.root","READ");
-  TFile* mcFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root", "READ");
+  //TFile* mcFile_pPb = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root", "READ");
+  TFile* mcFile_pPb = new TFile(Form("%s", pPbFile_MC.Data()),"READ");
 
   TH1D* hEff_pPb = (TH1D*)mcFile_pPb->Get("hTotalEfficiency");
   hEff_pPb->SetName("hEff_pPb");
@@ -107,11 +109,15 @@ void Run(TString pPbFile, TString ppFile,
   hBinMigration_pPb->SetMarkerColor(kMagenta);
   hBinMigration_pPb->SetMarkerStyle(24);
   hBinMigration_pPb->SetMarkerSize(3);//*/
-
+  for(int i = 1; i < hEff_pPb->GetNbinsX()+1; i++){
+    cout << hEff_pPb->GetBinLowEdge(i) << "\t" << hEff_pPb->GetBinLowEdge(i+1) << "\t" << hEff_pPb->GetBinContent(i) << "\t" << hEff_pPb->GetBinError(i) << endl;
+  }
   
   //TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_Allevents_erwanbinning_noNorm_newIsoDef_fullEMCalAcceptance_isoEffsscEffRecoEffSeperate_cutFlow_binMigration_hCorr_corr_stdCuts.root","READ");
   //TFile* mcFile_pp = new TFile("/project/projectdirs/alice/ddixit/CorrelationAnalysis/NtupleAnalysis/PhotonOutput/MC/18b10a_100Kevents_erwanbinning_noNorm_allCutsEff2_yesNoISOSSC_SSCPlots_UEstudyIsoStd.root","READ");
-  TFile* mcFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals.root","READ");
+  //TFile* mcFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals.root","READ");
+  //TFile* mcFile_pp = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/FullStats/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsFullStats.root","READ");
+  TFile* mcFile_pp = new TFile(Form("%s", ppFile_MC.Data()),"READ");
   
   TH1D* hEff_pp = (TH1D*)mcFile_pp->Get("hTotalEfficiency");
   hEff_pp->SetName("hEff_pp");
@@ -161,6 +167,16 @@ void Run(TString pPbFile, TString ppFile,
   //hFakeRate_pp->Draw("samee1");
   legEff->Draw("same");//*/
 
+  //Efficiency systematic
+  TFile* effFile = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/efficiencySystematics.root","READ");
+  TH1F* hSSCDiff_pPb = (TH1F*)effFile->Get("hSSCDiff_pPb");
+  TH1F* hSSCDiff_pp = (TH1F*)effFile->Get("hSSCDiff_pp");
+  TH1F* hISODiff_pPb = (TH1F*)effFile->Get("hISODiff_pPb");
+  TH1F* hISODiff_pp = (TH1F*)effFile->Get("hISODiff_pp");
+  bool calcEffSys = false;
+  TString type = "ISO";
+  double multiplier = 1.0;
+  
   //Luminosity Calulation
   TH1D* hNumEvents_pPb = (TH1D*)dataFile_pPb->Get("hNormalizer");
   TH1D* hNumEvents_pp = (TH1D*)dataFile_pp->Get("hNormalizer");
@@ -189,6 +205,10 @@ void Run(TString pPbFile, TString ppFile,
   double relLumiError_pp = TMath::Sqrt(TMath::Power((ppRfStatErr_EG2/ppRf_EG2), 2)+TMath::Power((pp_xsErr/pp_xs),2));
   double lumi_error_pp = lumi_pp*relLumiError_pp;
 
+  //lumi_EG1 = lumi_EG1-lumi_error_EG1;
+  //lumi_EG2 = lumi_EG2-lumi_error_EG2;
+  //lumi_pp = lumi_pp-lumi_error_pp;
+  
   cout << "Luminosity" << endl;
   cout << "p-Pb EG1:" << lumi_EG1 << " +/- " << lumi_error_EG1 << endl;
   cout << "p-Pb EG2:" << lumi_EG2 << " +/- " << lumi_error_EG2 << endl;
@@ -213,12 +233,19 @@ void Run(TString pPbFile, TString ppFile,
     double eff = hEff_pPb->GetBinContent(i);
     double eff_error = hEff_pPb->GetBinError(i);
     double relEffError = eff_error/eff;
-    
-    /*double bm = hBinMigration_pPb->GetBinContent(i);
-    double bm_error = hBinMigration_pPb->GetBinError(i);
-    double relBmError = bm_error/bm;//*/
 
-    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_EG1,2));
+    if(calcEffSys){
+      if(type == (TString)"SSC"){
+	double effSys = hSSCDiff_pPb->GetBinContent(i);
+	eff = eff + multiplier*effSys;
+      }
+      if(type == (TString)"ISO"){
+	double effSys = hISODiff_pPb->GetBinContent(i);
+	eff = eff + multiplier*effSys;
+      }
+    }
+    //double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_EG1,2));
+    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2));
     double xsection = (content*Nevtot_EG1)/(lumi_EG1*eff);
     double xsection_error = relXSectionError*xsection;
 
@@ -250,11 +277,18 @@ void Run(TString pPbFile, TString ppFile,
     double eff_error = hEff_pPb->GetBinError(i);
     double relEffError = eff_error/eff;
 
-    /*double bm = hBinMigration_pPb->GetBinContent(i);
-    double bm_error = hBinMigration_pPb->GetBinError(i);
-    double relBmError = bm_error/bm;//*/
-
-    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_EG2,2));
+    if(calcEffSys){
+      if(type == (TString)"SSC"){
+	double effSys = hSSCDiff_pPb->GetBinContent(i);
+	eff = eff + multiplier*effSys;
+      }
+      if(type == (TString)"ISO"){
+	double effSys = hISODiff_pPb->GetBinContent(i);
+	eff = eff + multiplier*effSys;
+      }
+    }
+    
+    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2));
     double xsection = (content*Nevtot_EG2)/(lumi_EG2*eff);
     double xsection_error = relXSectionError*xsection;
 
@@ -292,11 +326,18 @@ void Run(TString pPbFile, TString ppFile,
     double eff_error = hEff_pp->GetBinError(i);
     double relEffError = eff_error/eff;
     
-    /*double bm = hBinMigration_pp->GetBinContent(i);
-    double bm_error = hBinMigration_pp->GetBinError(i);
-    double relBmError = bm_error/bm;//*/
+    if(calcEffSys){
+      if(type == (TString)"SSC"){
+	double effSys = hSSCDiff_pp->GetBinContent(i);
+	eff = eff + multiplier*effSys;
+      }
+      if(type == (TString)"ISO"){
+	double effSys = hISODiff_pp->GetBinContent(i);
+	eff = eff + multiplier*effSys;
+      }
+    }
 
-    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_pp,2));
+    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2));
     double xsection = (content*Nevtot_pp)/(lumi_pp*eff);
     double xsection_error = relXSectionError*xsection;
     
@@ -482,7 +523,7 @@ void Run(TString pPbFile, TString ppFile,
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_MinusPurityFit.root",outputName.Data()), "RECREATE");
+  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFitSSC35.root",outputName.Data()), "RECREATE");
   crossSection_pPb->Write("crossSection_pPb");
   crossSection_EG2->Write("crossSection_EG2");
   crossSection_pp->Write("crossSection_pp");
@@ -502,20 +543,18 @@ void Run(TString pPbFile, TString ppFile,
 }//end Run()
 void crossSection(){
 
-  /*Run(TString pPbFile, 
-    TString ppFile,
+  /*Run(TString pPbFile, TString ppFile,
+    TString pPbFile_MC, TString ppFile_MC,
     Double_t pPb_RF_EG1, Double_t pPb_RF_statErr_EG1, 
     Double_t pPb_RF_EG2, Double_t pPb_RF_statErr_EG2, 
     Double_t pp_RF_EG2, Double_t pp_RF_statErr_EG2)//*/ 
 
   //pp & p-Pb
-  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/MinusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_MinusPurityFit.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/MinusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_MinusPurityFit.root", 6917, 245, 1739, 56, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
+  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/FullStats/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsFullStats.root", 6917, 245, 1739, 56, 1240, 28);//ANALYSIS NOTE RESULTS
 
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_all_phySel.root", 6917, 245, 1739, 56, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/
-
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/SystemChecks/PurityVAriation/PlusPurity/fout_6_14bins_firstEvent0_13def_PlusPurity.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/SystemChecks/PurityVAriation/PlusPurity/fout_4_14bins_firstEvent0_17q_All_PlusPurity.root", 6917, 245, 1739, 56, 1240, 28);//Plus purity
-
-  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/SystemChecks/PurityVAriation/MinusPurity/fout_6_14bins_firstEvent0_13def_MinusPurity.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/SystemChecks/PurityVAriation/MinusPurity/fout_4_14bins_firstEvent0_17q_All_MinusPurity.root", 6917, 245, 1739, 56, 1240, 28);//Minus purity
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/EfficiencySystematics/35/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFitSSC35.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/EfficiencySystematics/35/fout_4_14bins_firstEvent0_17q_ITSonly_StdCuts_EX0PurityFitSSC35.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/EfficiencySystematics/35/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsSSC35.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/EfficiencySystematics/35/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsSSC35.root", 6917, 245, 1739, 56, 1240, 28);//ANALYSIS NOTE RESULTS
+  
+  //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/PlusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_PlusPurityFit.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/PlusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_PlusPurityFit.root", 6917, 245, 1739, 56, 1240, 28);//Plus purity
 
   //ITS-only pp
   //Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/StdEventsAndClusterCuts/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel.root", 6724, 330, 1675, 110, 1240, 28);//CURRENTLY USE FOR ALL TOF20 testing*/

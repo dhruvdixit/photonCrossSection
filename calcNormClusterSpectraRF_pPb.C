@@ -47,6 +47,7 @@ void calcNormClusterSpectraRF_pPb(){
 
   //13d
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/StdEventsAndClusterCuts/fout_6_26bins_forRTrigEG_13d_Allruns_noThresh_phySel_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%srfOutput/pPOutput/13dOutput/GoodRunsCheck/fout_7_26bins_forRTrig_13d_all10runs_noSkimnoTrigOverlap_no195829_noNorm.root", path.Data()), "READ");
 
   //13e
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/StdEventsAndClusterCuts/fout_6_26bins_forRTrigEG_13e_Allruns_noThresh_phySel_noNorm.root", path.Data()), "READ");

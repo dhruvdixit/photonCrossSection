@@ -48,58 +48,9 @@ bool ptDepShowerShapeCut(Float_t clus_pt, Float_t lambda2){
 }
 
 
-double purityWeights(Float_t clus_pt, TString system){
-  
-  if(system == "pPb"){
-    if(clus_pt < 12)
-      return 0.18;
-    
-    if(clus_pt > 12 && clus_pt < 14)
-      return 0.21;
-    
-    if(clus_pt > 14 && clus_pt < 16)
-      return 0.244;
-    
-    if(clus_pt > 16 && clus_pt < 18)
-      return 0.349;
-    
-    if(clus_pt > 18 && clus_pt < 20)
-      return 0.393;
-    
-    if(clus_pt > 20 && clus_pt < 25)
-      return 0.498;
-    
-    if(clus_pt > 25 && clus_pt < 30)
-      return 0.527;
-    
-    if(clus_pt > 30 && clus_pt < 40)
-      return 0.527;
-    
-    if(clus_pt > 40 && clus_pt < 60)
-      return 0.527;
-  }
-
-  
-  //if(system == "pp"){
-    
-  //}
-
-  return -1.0;
-}
-
 Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 
   Float_t purity_val = 0;
-
-  //Non-platue assumption
-  // Float_t par[3] = {0.548247710,
-  //                   8.794543375,
-  //                   12.7423900};
-
-  //Old
-//   Float_t par[3] = {0.54225742923,
-//                     8.09242373515,
-//                     11.8085154181};
 
   Float_t par[3] = {0.549446,
 		    8.44801,
@@ -994,11 +945,11 @@ p-Pb data sets:
   //Run(16, "pPb/13d/13d_all10runs_noSkim.root", false, true);
   //Run(16, "pPb/13e/13e_10runs_noSkim_part1.root", false, true);
   //Run(16, "pPb/13e/13e_10runs_noSkim_part2.root", false, true);
-  Run(16, "pPb/13f/13f_10runs_noSkim_part1_new.root", false, true);
-  Run(16, "pPb/13f/13f_10runs_noSkim_part2_new.root", false, true);
-  Run(16, "pPb/13f/13f_10runs_noSkim_part3_newer.root", false, true);
-  Run(16, "pPb/13f/13f_10runs_noSkim_part4.root", false, true);
-  Run(16, "pPb/13f/13f_3runs_noSkim_part5_new.root", false, true);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part1_new.root", false, true);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part2_new.root", false, true);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part3_newer.root", false, true);
+  //Run(16, "pPb/13f/13f_10runs_noSkim_part4.root", false, true);
+  //Run(16, "pPb/13f/13f_3runs_noSkim_part5_new.root", false, true);
   
 
 

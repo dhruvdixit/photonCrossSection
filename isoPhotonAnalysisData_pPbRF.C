@@ -346,6 +346,8 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
       std::memcpy(trigMask, trigMask_13d_trigs, sizeof(trigMask));
     if(run_number == 195724 || run_number == 195760)
       std::memcpy(trigMask, trigMask_13d_trigs2, sizeof(trigMask));
+    //if(run_number == 195871) continue;
+    //if(run_number == 195829) continue;
 
     //13e
     if(run_number >= 195935 && run_number <= 196310)
@@ -446,9 +448,9 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   
     
     hEventCut->Fill(6);//all cuts
-    if(isEG1 && isEG2) continue;
-    if(isEG1 && isMB) continue;
-    if(isMB && isEG2) continue;
+    //if(isEG1 && isEG2) continue;
+    //if(isEG1 && isMB) continue;
+    //if(isMB && isEG2) continue;
     //cout << "localTrigBit" << localTrigBit << endl;
     if(isMB) {hEventCut_MB->Fill(6); numEvents_MB++;}
     if(isEG1) {hEventCut_EG1->Fill(6); numEvents_EG1++;}
@@ -687,7 +689,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "noTrigOverlap_noNorm";
+  filename += "_noNorm";
   cout << filename.Data() << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_forRTrig_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
   
