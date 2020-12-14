@@ -1,3 +1,4 @@
+
 #include <fstream>
 #include <vector>
 void Run(TString pPbFile, TString ppFile,
@@ -69,13 +70,13 @@ void Run(TString pPbFile, TString ppFile,
 
   TH1D* hEff_pPb = (TH1D*)mcFile_pPb->Get("hTotalEfficiency");
   hEff_pPb->SetName("hEff_pPb");
-  hEff_pPb->SetTitle("; E_{T} (GeV); #epsilon");
+  hEff_pPb->SetTitle("; E_{T} (GeV); #epsilon^{iso}_{gamma}");
   hEff_pPb->GetYaxis()->SetRangeUser(0,1);
-  hEff_pPb->SetLineColor(kRed+1);
-  hEff_pPb->SetMarkerColor(kRed+1);
-  hEff_pPb->SetMarkerStyle(24);
-  hEff_pPb->SetMarkerSize(2);
-  hEff_pPb->SetLineWidth(2);
+  hEff_pPb->SetLineColor(kRed);
+  hEff_pPb->SetMarkerColor(kRed);
+  hEff_pPb->SetMarkerStyle(kFullCircle);
+  //hEff_pPb->SetMarkerSize(2);
+  //hEff_pPb->SetLineWidth(2);
 
   /*TH1D* hFakeRate_pPb = (TH1D*)mcFile_pPb->Get("hFakeRate");
   hFakeRate_pPb->SetName("FakeRate_pPb");
@@ -123,11 +124,11 @@ void Run(TString pPbFile, TString ppFile,
   hEff_pp->SetName("hEff_pp");
   hEff_pp->SetTitle("; E_{T} (GeV); #epsilon");
   hEff_pp->GetYaxis()->SetRangeUser(0,1);
-  hEff_pp->SetLineColor(kRed-1);
-  hEff_pp->SetMarkerColor(kRed-1);
-  hEff_pp->SetMarkerStyle(21);
-  hEff_pp->SetMarkerSize(1);
-  hEff_pp->SetLineWidth(2);
+  hEff_pp->SetLineColor(kBlue);
+  hEff_pp->SetMarkerColor(kBlue);
+  hEff_pp->SetMarkerStyle(kFullSquare);
+  //hEff_pp->SetMarkerSize(1);
+  //hEff_pp->SetLineWidth(2);
 
   /*TH1D* hFakeRate_pp = (TH1D*)mcFile_pp->Get("hFakeRate");
   hFakeRate_pp->SetName("FakeRate_pp");
@@ -149,14 +150,19 @@ void Run(TString pPbFile, TString ppFile,
   hBinMigration_pp->SetMarkerSize(1);
   hBinMigration_pp->SetLineWidth(2);//*/
   
-  TLegend* legEff = new TLegend(0.25,0.7,0.85,0.85);
-  legEff->AddEntry(hEff_pPb,"5 TeV p-Pb GJ MC 17g6a1: Efficiency = #epsilon_{reco} x #epsilon_{ssc} x #epsilon_{iso} / bin migration");
+  TLegend* legEff = new TLegend(0.25,0.13,0.85,0.45);
+  //legEff->AddEntry(hEff_pPb,"5 TeV p-Pb GJ MC 17g6a1: Efficiency = #epsilon_{reco} x #epsilon_{ssc} x #epsilon_{iso} / bin migration");
   //legEff->AddEntry(hFakeRate_pPb,"p-Pb: Fake rate");
   //legEff->AddEntry(hBinMigration_pPb,"p-Pb: Bin Migration");
-  legEff->AddEntry(hEff_pp,"5 TeV pp GJ MC 18b10a: Efficiency = #epsilon_{reco} x #epsilon_{ssc} x #epsilon_{iso} / bin migration");
+  //legEff->AddEntry(hEff_pp,"5 TeV pp GJ MC 18b10a: Efficiency = #epsilon_{reco} x #epsilon_{ssc} x #epsilon_{iso} / bin migration");
   //legEff->AddEntry(hFakeRate_pp,"pp: Fake rate");
   //legEff->AddEntry(hBinMigration_pp,"pp: Bin Migration");
+  legEff->AddEntry((TObject*)0, "ALICE", "");
+  legEff->AddEntry((TObject*)0, "#sqrt{s_{NN}} = 5.02 TeV", "");
+  legEff->AddEntry(hEff_pPb,"p-Pb Monte Carlo: Pythia #gamma-Jet in DPMJET");
+  legEff->AddEntry(hEff_pp,"pp Monte Carlo: Pythia #gamma-Jet");
 
+  
   TCanvas* cEff = new TCanvas();
   hEff_pPb->GetXaxis()->SetRangeUser(12,60);
   hEff_pPb->Draw("e1");
@@ -166,6 +172,7 @@ void Run(TString pPbFile, TString ppFile,
   //hBinMigration_pp->Draw("samee1");
   //hFakeRate_pp->Draw("samee1");
   legEff->Draw("same");//*/
+  //cEff->SaveAs("efficiency.pdf");
 
   //Efficiency systematic
   TFile* effFile = new TFile("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/efficiencySystematics.root","READ");
@@ -184,9 +191,12 @@ void Run(TString pPbFile, TString ppFile,
   double Nevtot_EG1 = hNumEvents_pPb->GetBinContent(12);
   double Nevtot_pp = hNumEvents_pp->GetBinContent(11);
   double Nevtot_EG2 = hNumEvents_pPb->GetBinContent(13);
+  double Nevtot_pPb = Nevtot_EG1 + Nevtot_EG2;
+  
   cout << "Numbers of events" << endl;
   cout << "p-Pb EG1: " << Nevtot_EG1 << endl;
   cout << "p-Pb EG2: " << Nevtot_EG2 << endl;
+  cout << "p-Pb: " << Nevtot_pPb << endl;
   cout << "pp EG2: " << Nevtot_pp << endl;
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   
@@ -201,10 +211,13 @@ void Run(TString pPbFile, TString ppFile,
   double lumi_EG2 = ((pPbRf_EG2*Nevtot_EG2)/pPb_xs)*1.00E-09;
   double relLumiError_EG2 = TMath::Sqrt(TMath::Power((pPbRfStatErr_EG2/pPbRf_EG2), 2)+TMath::Power((pPb_xsErr/pPb_xs), 2));
   double lumi_error_EG2 = lumi_EG2*relLumiError_EG2;
+  double lumi_pPb = ((pPbRf_EG1*Nevtot_EG1 + pPbRf_EG2*Nevtot_EG2)/pPb_xs)*1.00E-09;
+  double relLumiError_pPb = TMath::Sqrt(TMath::Power((pPbRfStatErr_EG1/pPbRf_EG1), 2)+TMath::Power((pPbRfStatErr_EG2/pPbRf_EG2), 2)+TMath::Power((pPb_xsErr/pPb_xs), 2));
+  double lumi_error_pPb = lumi_pPb*relLumiError_pPb;
   double lumi_pp = ((ppRf_EG2*Nevtot_pp)/pp_xs)*1.00E-09;
   double relLumiError_pp = TMath::Sqrt(TMath::Power((ppRfStatErr_EG2/ppRf_EG2), 2)+TMath::Power((pp_xsErr/pp_xs),2));
   double lumi_error_pp = lumi_pp*relLumiError_pp;
-
+  
   //lumi_EG1 = lumi_EG1-lumi_error_EG1;
   //lumi_EG2 = lumi_EG2-lumi_error_EG2;
   //lumi_pp = lumi_pp-lumi_error_pp;
@@ -212,22 +225,68 @@ void Run(TString pPbFile, TString ppFile,
   cout << "Luminosity" << endl;
   cout << "p-Pb EG1:" << lumi_EG1 << " +/- " << lumi_error_EG1 << endl;
   cout << "p-Pb EG2:" << lumi_EG2 << " +/- " << lumi_error_EG2 << endl;
-  cout << "pp EG2:" << lumi_pp << " +/- " << lumi_error_pp << endl;
+  cout << "p-Pb:" << lumi_pPb << " +/- " << lumi_error_pPb << endl;
+  cout << "pp:" << lumi_pp << " +/- " << lumi_error_pp << endl;
   
-  //Cross Section Calculation  
-  /*////////////////////////////////////////////////////////////
-    pPb cross section using EG1 trigger
+  //Cross Section Calculation
+    /*////////////////////////////////////////////////////////////
+    pPb cross section using EG1 and EG2 trigger
   ///////////////////////////////////////////////////////////*/
-  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n p-Pb EG1 trigger cross section \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n p-Pb cross section \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   
   TH1F* crossSection_pPb = (TH1F*)hClusterSpectra_EG1->Clone();
   crossSection_pPb->SetName("crossSection_pPb");
   crossSection_pPb->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   for(int i = 1; i < crossSection_pPb->GetNbinsX()+1;i++){
+
+    double contentEG1 = hClusterSpectra_EG1->GetBinContent(i);
+    double errorEG1 = hClusterSpectra_EG1->GetBinError(i);
+    double relErrorEG1 = errorEG1/contentEG1;
+
+    double contentEG2 = hClusterSpectra_EG2->GetBinContent(i);
+    double errorEG2 = hClusterSpectra_EG2->GetBinError(i);
+    double relErrorEG2 = errorEG2/contentEG2;
+
+    double weightSum = errorEG1+errorEG2;
+    double weightEG1 = 1.0-errorEG1/weightSum;
+    double weightEG2 = 1.0-errorEG2/weightSum;
+    double content = contentEG1*weightEG1+contentEG2*weightEG2;
+    double error = TMath::Sqrt(TMath::Power(errorEG1, 2) + TMath::Power(errorEG2, 2));
+    double relError = error/content;
+
+    double eff = hEff_pPb->GetBinContent(i);
+    double eff_error = hEff_pPb->GetBinError(i);
+    double relEffError = eff_error/eff;
+
+    //double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2)+TMath::Power(relLumiError_pPb,2));
+    double relXSectionError = TMath::Sqrt(TMath::Power(relError,2)+TMath::Power(relEffError,2));
+    double xsection = (content*Nevtot_pPb)/(lumi_pPb*eff);
+    double xsection_error = relXSectionError*xsection;
+
+    //cout statement
+    //cout << crossSection_pPb->GetBinLowEdge(i) << "\t" << crossSection_pPb->GetBinLowEdge(i+1) << "\t" << contentEG1 << "\t" << contentEG2 << "\t" << lumi_pPb << "\t" << eff << "\t" << xsection << endl;
+    cout << crossSection_pPb->GetBinLowEdge(i) << "\t" << crossSection_pPb->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_pPb << "\t" << lumi_pPb << "\t" << eff << "\t" << xsection << endl;
+
+    //filling the cross section hist
+    crossSection_pPb->SetBinContent(i, xsection);
+    crossSection_pPb->SetBinError(i, xsection_error);
     
-    double content = crossSection_pPb->GetBinContent(i);
-    double error = crossSection_pPb->GetBinError(i);
+  }//*/
+  
+  /*////////////////////////////////////////////////////////////
+    pPb cross section using EG1 trigger
+  ///////////////////////////////////////////////////////////*/
+  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n p-Pb EG1 trigger cross section \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+  
+  TH1F* crossSection_EG1 = (TH1F*)hClusterSpectra_EG1->Clone();
+  crossSection_EG1->SetName("crossSection_EG1");
+  crossSection_EG1->SetTitle(";E_{T} (GeV); #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+
+  for(int i = 1; i < crossSection_EG1->GetNbinsX()+1;i++){
+    
+    double content = crossSection_EG1->GetBinContent(i);
+    double error = crossSection_EG1->GetBinError(i);
     double relError = error/content;
 
     double eff = hEff_pPb->GetBinContent(i);
@@ -250,11 +309,11 @@ void Run(TString pPbFile, TString ppFile,
     double xsection_error = relXSectionError*xsection;
 
     //cout statement
-    cout << crossSection_pPb->GetBinLowEdge(i) << "\t" << crossSection_pPb->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_EG1 << "\t" << lumi_EG1 << "\t" << eff << "\t" << xsection << endl;
+    cout << crossSection_EG1->GetBinLowEdge(i) << "\t" << crossSection_EG1->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_EG1 << "\t" << lumi_EG1 << "\t" << eff << "\t" << xsection <<  "\t" << xsection_error << endl;
 
     //filling the cross section hist
-    crossSection_pPb->SetBinContent(i, xsection);
-    crossSection_pPb->SetBinError(i, xsection_error);
+    crossSection_EG1->SetBinContent(i, xsection);
+    crossSection_EG1->SetBinError(i, xsection_error);
     
   }//*/
   
@@ -293,14 +352,14 @@ void Run(TString pPbFile, TString ppFile,
     double xsection_error = relXSectionError*xsection;
 
     //cout statement
-    cout << crossSection_pPb->GetBinLowEdge(i) << "\t" << crossSection_pPb->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_EG2 << "\t" << lumi_EG2 << "\t" << eff << "\t" << xsection << endl;
+    cout << crossSection_EG1->GetBinLowEdge(i) << "\t" << crossSection_EG1->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_EG2 << "\t" << lumi_EG2 << "\t" << eff << "\t" << xsection <<  "\t" << xsection_error << endl;
 
     //filling the cross section hist
     crossSection_EG2->SetBinContent(i, xsection);
     crossSection_EG2->SetBinError(i, xsection_error);
     
   }//*/
-
+  
   /*////////////////////////////////////////////////////////////
     pp cross section using EG2 trigger
   ///////////////////////////////////////////////////////////*/
@@ -381,8 +440,8 @@ void Run(TString pPbFile, TString ppFile,
   h_RpA->SetTitle(";E_{T} (GeV); RpA (#sigma_{pPb}/A_{Pb}#sigma_{pp})");
   for(int i = 1; i < h_RpA->GetNbinsX()+1;i++){
     
-    double content_pPb = crossSection_pPb->GetBinContent(i);
-    double error_pPb = crossSection_pPb->GetBinError(i);
+    double content_pPb = crossSection_EG1->GetBinContent(i);
+    double error_pPb = crossSection_EG1->GetBinError(i);
     //double content_pPb = crossSection_erwann->GetBinContent(i);
     //double error_pPb = crossSection_erwann->GetBinError(i);
     double relError_pPb = error_pPb/content_pPb;
@@ -430,15 +489,20 @@ void Run(TString pPbFile, TString ppFile,
   crossSection_ppScaled->SetMarkerColor(kCyan);
   crossSection_ppScaled->SetMarkerSize(2);
   
-  crossSection_pPb->SetLineColor(kRed);
-  crossSection_pPb->SetMarkerStyle(21);
-  crossSection_pPb->SetMarkerColor(kRed);
-  crossSection_pPb->SetMarkerSize(2);
+  crossSection_EG1->SetLineColor(kRed);
+  crossSection_EG1->SetMarkerStyle(21);
+  crossSection_EG1->SetMarkerColor(kRed);
+  crossSection_EG1->SetMarkerSize(2);
   
   crossSection_EG2->SetLineColor(kGreen);
   crossSection_EG2->SetMarkerStyle(21);
   crossSection_EG2->SetMarkerColor(kGreen);
   crossSection_EG2->SetMarkerSize(2);
+
+  crossSection_pPb->SetLineColor(kMagenta);
+  crossSection_pPb->SetMarkerStyle(21);
+  crossSection_pPb->SetMarkerColor(kMagenta);
+  crossSection_pPb->SetMarkerSize(2);
   
   //unity --> line at 1
   TLine *line = new TLine(12, 1, 60, 1);
@@ -450,8 +514,9 @@ void Run(TString pPbFile, TString ppFile,
   leg->AddEntry((TObject*)0, "pp and p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
   leg->AddEntry(crossSection_pp,"pp");
   leg->AddEntry(crossSection_ppScaled,"pp*A(208)");
-  leg->AddEntry(crossSection_pPb,"p-Pb_{EG1}");
+  leg->AddEntry(crossSection_EG1,"p-Pb_{EG1}");
   leg->AddEntry(crossSection_EG2,"p-Pb_{EG2}");
+  leg->AddEntry(crossSection_pPb,"p-Pb");
   leg->AddEntry(crossSection_erwann,"Erwann's p-Pb");
 
 
@@ -466,12 +531,13 @@ void Run(TString pPbFile, TString ppFile,
 
   TCanvas* cXSection = new TCanvas();
   cXSection->SetLogy();
-  crossSection_pPb->GetXaxis()->SetRangeUser(12,60);
-  crossSection_pPb->GetYaxis()->SetRangeUser(1e-4,1e4);
-  crossSection_pPb->Draw("e1");
+  crossSection_EG1->GetXaxis()->SetRangeUser(12,60);
+  crossSection_EG1->GetYaxis()->SetRangeUser(1e-4,1e4);
+  crossSection_EG1->Draw("e1");
   crossSection_pp->Draw("samee1");
   crossSection_ppScaled->Draw("samee1");
   crossSection_EG2->Draw("samee1");
+  crossSection_pPb->Draw("samee1");
   crossSection_erwann->Draw("samee1");
   leg->Draw("same");
 
@@ -491,7 +557,7 @@ void Run(TString pPbFile, TString ppFile,
   TH1F* crossSectionRatio_EG1 = (TH1F*)crossSection_erwann->Clone();
   crossSectionRatio_EG1->SetName("crossSectionRatio_EG1");
   crossSectionRatio_EG1->SetTitle(";E_{T} (GeV);#frac{CrossSection_{Erwann}}{CrossSection_{Dhruv}}");
-  crossSectionRatio_EG1->Divide(crossSection_pPb);
+  crossSectionRatio_EG1->Divide(crossSection_EG1);
   crossSectionRatio_EG1->GetXaxis()->SetRangeUser(12,60);
   crossSectionRatio_EG1->GetYaxis()->SetRangeUser(0,2);
   crossSectionRatio_EG1->SetLineColor(kRed);
@@ -506,32 +572,82 @@ void Run(TString pPbFile, TString ppFile,
   crossSectionRatio_EG2->SetLineColor(kGreen);
   crossSectionRatio_EG2->SetMarkerColor(kGreen);
 
+  TH1F* crossSectionRatio_pPb = (TH1F*)crossSection_erwann->Clone();
+  crossSectionRatio_pPb->SetName("crossSectionRatio_pPb");
+  crossSectionRatio_pPb->SetTitle(";E_{T};#frac{CrossSection_{Erwann}}{CrossSection_{Dhruv}}");
+  crossSectionRatio_pPb->Divide(crossSection_pPb);
+  crossSectionRatio_pPb->GetXaxis()->SetRangeUser(12,60);
+  crossSectionRatio_pPb->GetYaxis()->SetRangeUser(0,2);
+  crossSectionRatio_pPb->SetLineColor(kMagenta);
+  crossSectionRatio_pPb->SetMarkerColor(kMagenta);
+
   
-  TLegend* legRatio = new TLegend(0.5,0.8,0.65,0.87);
+  TLegend* legRatio = new TLegend(0.5,0.13,0.75,0.4);
   legRatio->AddEntry(crossSectionRatio_EG1,"EG1 trigger");
   legRatio->AddEntry(crossSectionRatio_EG2,"EG2 trigger");
+  //legRatio->AddEntry(crossSectionRatio_pPb,"p-Pb");
 
   //Ratio with Erwann
   TCanvas* cRatio = new TCanvas();
   crossSectionRatio_EG1->Draw("e1");
   crossSectionRatio_EG2->Draw("samee1");
+  //crossSectionRatio_pPb->Draw("samee1");
   legRatio->Draw("samee1");
   line->Draw("same");//*/
+
+  cout << "Cross Section EG1 = {";
+  for(int i = 7; i < crossSection_EG1->GetNbinsX()+1; i++){
+    cout << crossSection_EG1->GetBinContent(i) << ", ";
+  }
+  cout << "}" << endl;
+
+  cout << "Cross Section Error EG1 = {";
+  for(int i = 7; i < crossSection_EG1->GetNbinsX()+1; i++){
+    cout << crossSection_EG1->GetBinError(i) << ", ";
+  }
+  cout << "}" << endl;
+
+
+  cout << "Cross Section EG2 = {";
+  for(int i = 7; i < crossSection_EG2->GetNbinsX()+1; i++){
+    cout << crossSection_EG2->GetBinContent(i) << ", ";
+  }
+  cout << "}" << endl;
+
+  cout << "Cross Section Error EG2 = {";
+  for(int i = 7; i < crossSection_EG2->GetNbinsX()+1; i++){
+    cout << crossSection_EG2->GetBinError(i) << ", ";
+  }
+  cout << "}" << endl;
+
+  cout << "Cross Section pp = {";
+  for(int i = 7; i < crossSection_pp->GetNbinsX()+1; i++){
+    cout << crossSection_pp->GetBinContent(i) << ", ";
+  }
+  cout << "}" << endl;
+
+  cout << "Cross Section Error pp = {";
+  for(int i = 7; i < crossSection_pp->GetNbinsX()+1; i++){
+    cout << crossSection_pp->GetBinError(i) << ", ";
+  }
+  cout << "}" << endl;
 
   //Writing to file
   /*int startingPoint = pPbFile.Index("bins_")+5;
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFitSSC35.root",outputName.Data()), "RECREATE");
-  crossSection_pPb->Write("crossSection_pPb");
+  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFit_ISO1Point33_check.root",outputName.Data()), "RECREATE");
+  crossSection_EG1->Write("crossSection_EG1");
   crossSection_EG2->Write("crossSection_EG2");
+  crossSection_pPb->Write("crossSection_pPb");
   crossSection_pp->Write("crossSection_pp");
   h_RpA->Write("h_RpA");
   crossSectionRatio_EG1->Write("crossSectionRatio_EG1");
   crossSectionRatio_EG2->Write("crossSectionRatio_EG2");
+  crossSectionRatio_pPb->Write("crossSectionRatio_pPb");
   hEff_pPb->Write("hEff_pPb");
-  hEff_pp->Write("hEff_pPb");
+  hEff_pp->Write("hEff_pp");
   hClusterSpectra_EG1->Write("hClusterSpectra_EG1");
   hClusterSpectra_EG2->Write("hClusterSpectra_EG2");
   hClusterSpectra_pp->Write("hClusterSpectra_pp");
@@ -550,7 +666,19 @@ void crossSection(){
     Double_t pp_RF_EG2, Double_t pp_RF_statErr_EG2)//*/ 
 
   //pp & p-Pb
-  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/FullStats/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsFullStats.root", 6917, 245, 1739, 56, 1240, 28);//ANALYSIS NOTE RESULTS
+  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/GenISO/StdCuts/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/GenIso/StdCuts/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8.root",
+      6917, 245, 1739, 56, 1240, 28);//StdCuts EX0Purity NOTE RESULTS*/
+
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/ISO133/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit_ISO1Point33.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/GenISO/StdCuts/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsISO1Point33_GenIsoFixed_ITSAcceptance8.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/FullStats/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsFullStats.root",
+      6917, 245, 1739, 56, 1240, 28);//EX0Purity ISO < 1.33*/
+  
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/PlusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PlusPurityFit_NoSigSys.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/PlusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PlusPurityFit_NoSigSys.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/FullStats/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsFullStats.root", 6917, 245, 1739, 56, 1240, 28);//PLUS/Minus NOTE RESULTS*/
 
   /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/EfficiencySystematics/35/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFitSSC35.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/EfficiencySystematics/35/fout_4_14bins_firstEvent0_17q_ITSonly_StdCuts_EX0PurityFitSSC35.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/EfficiencySystematics/35/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsSSC35.root", "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/EfficiencySystematics/35/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsSSC35.root", 6917, 245, 1739, 56, 1240, 28);//ANALYSIS NOTE RESULTS
   

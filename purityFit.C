@@ -16,7 +16,10 @@ void purityFit(){
 
   Double_t purity_pp[nbins] = {0.201, 0.317, 0.473, 0.485, 0.485};
   Double_t statErr_pp[nbins] = {0.017, 0.020, 0.029, 0.035, 0.035};
-  Double_t systErr_pp[nbins] = {0.037, 0.038, 0.042, 0.079, 0.079};
+  Double_t systErr_pp[nbins] = {0.034, 0.036, 0.040, 0.078, 0.078};
+  Double_t sigErr_pp[nbins] = {0.020, 0.025, 0.008, 0.058, 0.058};
+  Double_t antiErr_pp[nbins] = {0.012, 0.015, 0.030, 0.040, 0.040};
+  Double_t bkgErr_pp[nbins] = {0.025, 0.021, 0.026, 0.032, 0.032};
   Double_t totsErr_pp[nbins] = {0.0};
   Double_t PlusErr_pp[nbins] = {0.0};
   Double_t MinusErr_pp[nbins] = {0.0};
@@ -29,24 +32,28 @@ void purityFit(){
   //Double_t statErr_pPb[nbins] = {0.0083, 0.0124, 0.0197, 0.0263, 0.0263};//ssc < 0.33
   //Double_t purity_pPb[nbins]= {0.2028, 0.3282, 0.4182, 0.4852, 0.4852};//ssc < 0.35
   //Double_t statErr_pPb[nbins] = {0.0083, 0.0122, 0.0193, 0.0263, 0.0263};//ssc < 0.35
-
-  Double_t purity_pPb[nbins] = {0.207, 0.342, 0.476, 0.546, 0.546};
-  Double_t statErr_pPb[nbins] = {0.011, 0.012, 0.017, 0.018, 0.018};
+  Double_t purity_pPb[nbins] = {0.210, 0.349, 0.477, 0.557, 0.557};//iso < 1.33
+  Double_t statErr_pPb[nbins] = {0.018, 0.010, 0.012, 0.015, 0.015};//iso < 1.33
+  //Double_t purity_pPb[nbins] = {0.207, 0.342, 0.476, 0.546, 0.546};
+  //Double_t statErr_pPb[nbins] = {0.011, 0.012, 0.017, 0.018, 0.018};
+  Double_t sigErr_pPb[nbins] = {0.011, 0.020, 0.019, 0.023, 0.023};
+  Double_t antiErr_pPb[nbins] = {0.008, 0.016, 0.011, 0.024, 0.024};
+  Double_t bkgErr_pPb[nbins] = {0.015, 0.012, 0.027, 0.011, 0.011};
   Double_t systErr_pPb[nbins] = {0.020, 0.028, 0.027, 0.039, 0.039};
   Double_t totsErr_pPb[nbins] = {0.0};
   Double_t PlusErr_pPb[nbins] = {0.0};
   Double_t MinusErr_pPb[nbins] = {0.0};
 
   for(int i = 0; i < nbins; i++){
-    //totsErr_pp[i] = TMath::Sqrt(TMath::Power(statErr_pp[i], 2) + TMath::Power(systErr_pp[i], 2));
-    //totsErr_pPb[i] = TMath::Sqrt(TMath::Power(statErr_pPb[i], 2) + TMath::Power(systErr_pPb[i], 2));
-    totsErr_pp[i] = systErr_pp[i];
-    totsErr_pPb[i] = systErr_pPb[i];
+    totsErr_pp[i] = TMath::Sqrt(TMath::Power(antiErr_pp[i], 2) + TMath::Power(bkgErr_pp[i], 2));
+    totsErr_pPb[i] = TMath::Sqrt(TMath::Power(antiErr_pPb[i], 2) + TMath::Power(bkgErr_pPb[i], 2));
+    //totsErr_pp[i] = systErr_pp[i];
+    //totsErr_pPb[i] = systErr_pPb[i];
     
-    PlusErr_pp[i] = purity_pp[i]+systErr_pp[i];
-    MinusErr_pp[i] = purity_pp[i]-systErr_pp[i];
-    PlusErr_pPb[i] = purity_pPb[i]+systErr_pPb[i];
-    MinusErr_pPb[i] = purity_pPb[i]-systErr_pPb[i];
+    PlusErr_pp[i] = purity_pp[i]+totsErr_pp[i];
+    MinusErr_pp[i] = purity_pp[i]-totsErr_pp[i];
+    PlusErr_pPb[i] = purity_pPb[i]+totsErr_pPb[i];
+    MinusErr_pPb[i] = purity_pPb[i]-totsErr_pPb[i];
 
   }
   
@@ -129,6 +136,7 @@ void purityFit(){
   l1->AddEntry(grPurityPlus_pp, "CV + #sigma");
   l1->AddEntry(grPurityMinus_pp, "CV - #sigma");
   l1->Draw("same");
+  //c1->SaveAs("purityFits_pp.pdf");
 
   cout << "pp parameters" << endl;
   cout << "CV parameters" << endl;
@@ -187,6 +195,7 @@ void purityFit(){
   l2->AddEntry(grPurityPlus_pPb, "CV + #sigma");
   l2->AddEntry(grPurityMinus_pPb, "CV - #sigma");
   l2->Draw("same");
+  c2->SaveAs("purityFits_pPb.pdf");
 
   cout << "pPb parameters" << endl;
   cout << "CV parameters" << endl;

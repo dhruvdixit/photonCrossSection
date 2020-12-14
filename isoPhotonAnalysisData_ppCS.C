@@ -40,6 +40,30 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
     par[2] = 9.58;
   }
 
+  if (strcmp(deviation.data(),"PlusAntiIso")==0){
+    par[0] = 0.54;
+    par[1] = 8.85;
+    par[2] = 12.2;
+  }
+
+  if (strcmp(deviation.data(),"MinusAntiIso")==0){
+    par[0] = 0.45;
+    par[1] = 9.10;
+    par[2] = 10.8;
+  }
+
+  if (strcmp(deviation.data(),"PlusNoSig")==0){
+    par[0] = 0.55;
+    par[1] = 8.44;
+    par[2] = 12.6;
+  }
+
+  if (strcmp(deviation.data(),"MinusNoSig")==0){
+    par[0] = 0.44;
+    par[1] = 9.52;
+    par[2] = 10.4;
+  }
+
   if (strcmp(deviation.data(),"ssc0.26")==0){
     par[0] = 0.54;
     par[1] = 8.81;
@@ -558,7 +582,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 	
 	//shower shape and isolation
-	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.33 > cluster_lambda_square[n][0]))) continue;
+	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
 	if(not (isolation < 1.5)) continue;
 
 	
@@ -572,13 +596,13 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
 
-	double purity = Get_Purity_ErrFunction(clusterPt, "ssc0.33");
+	double purity = Get_Purity_ErrFunction(clusterPt, "MinusNoSig");
 	
 	hReco_pt->Fill(clusterPt);
 	if(isEG2calo) {
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
-	  hEG2woPurity->Fill(clusterPt, 0.33);
+	  hEG2woPurity->Fill(clusterPt, 0.5);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
 	numClusters_clusterpt++;
@@ -683,7 +707,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_StdCuts_EX0PurityFitSSC33_noNorm";
+  filename += "_StdCuts_EX0MinusPurityFit_NoSigSys_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -756,7 +780,7 @@ void isoPhotonAnalysisData_ppCS(){
 
   //pp data sets  
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root");
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root");
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel_copy.root");
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282367_physel.root");
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25

@@ -112,13 +112,13 @@ void calcTriggerRejectionFactor_pp(){
   hEG2_caloE->SetMarkerStyle(kFullCircle);
   hMB_centE->SetMarkerStyle(kFullCircle);
 
-  TLegend* ls = new TLegend(0.6, 0.6,0.85, 0.85);
-  ls->AddEntry((TObject*)0, "Cluster Spectra", "");
+  TLegend* ls = new TLegend(0.55, 0.6,0.85, 0.85);
+  ls->AddEntry((TObject*)0, "Raw Cluster Spectra", "");
   ls->AddEntry((TObject*)0, "pp #sqrt{s_{NN}} = 5.02 TeV", "");
   ls->AddEntry(hMB_centE, "Minimum bias trigger (MB)");
   ls->AddEntry(hEG2_caloE, "EMCal L1 trigger (EG2 calo)");
   
-  TCanvas* c1 = new TCanvas();
+  TCanvas* c1 = new TCanvas("c1", "c1", 1200, 600);
   c1->SetLogy();
   hMB_centE->GetXaxis()->SetRangeUser(0, 40);
   hMB_centE->GetYaxis()->SetRangeUser(1e-9, 1);
@@ -126,8 +126,9 @@ void calcTriggerRejectionFactor_pp(){
   hMB_centE->Draw("e1");
   hEG2_caloE->Draw("samee1");
   ls->Draw("same");
+  //c1->SaveAs("RFSpectra_pp.pdf");
 
-  TCanvas* c2 = new TCanvas();
+  TCanvas* c2 = new TCanvas("c2", "c2", 1200, 600);
   c2->SetLogy();
   TH1F* Rtrig = (TH1F*)hEG2_caloE->Clone();
   Rtrig->SetName("Rtrig");
@@ -143,32 +144,32 @@ void calcTriggerRejectionFactor_pp(){
   cout << "7, 40" << endl;
   Rtrig->Fit("pol0", "", "", 7, 40);
   TF1* fit7 = (TF1*)Rtrig->GetFunction("pol0");fit7->SetName("fit7");
-  fit7->SetLineColorAlpha(kCyan, 0.25);
-  fit7->SetLineWidth(10);
+  fit7->SetLineColorAlpha(kCyan, 1);
+  fit7->SetLineWidth(3);
   cout << "************************************************" << endl;
   cout << "8, 40" << endl;
   Rtrig->Fit("pol0", "+", "", 8, 40);
   TF1* fit8 = (TF1*)Rtrig->GetFunction("pol0");fit8->SetName("fit8");
-  fit8->SetLineColorAlpha(kBlue, 0.25);
-  fit8->SetLineWidth(10);
+  fit8->SetLineColorAlpha(kBlue, 1);
+  fit8->SetLineWidth(3);
   cout << "************************************************" << endl;
   cout << "9, 40" << endl;
   Rtrig->Fit("pol0", "+", "", 9, 40);
   TF1* fit9 = (TF1*)Rtrig->GetFunction("pol0");fit9->SetName("fit9");
-  fit9->SetLineColorAlpha(kMagenta, 0.25);
-  fit9->SetLineWidth(10);
+  fit9->SetLineColorAlpha(kMagenta, 1);
+  fit9->SetLineWidth(3);
   cout << "************************************************" << endl;
   cout << "10, 40" << endl;
   Rtrig->Fit("pol0", "+", "", 10, 40);
   TF1* fit10 = (TF1*)Rtrig->GetFunction("pol0");fit10->SetName("fit10");
-  fit10->SetLineColorAlpha(kRed, 0.25);
-  fit10->SetLineWidth(10);
+  fit10->SetLineColorAlpha(kRed, 1);
+  fit10->SetLineWidth(3);
   cout << "************************************************" << endl;
   cout << "11, 40" << endl;
   Rtrig->Fit("pol0", "+", "", 11, 40);
   TF1* fit11 = (TF1*)Rtrig->GetFunction("pol0");fit11->SetName("fit11");
-  fit11->SetLineColorAlpha(kOrange, 0.25);
-  fit11->SetLineWidth(10);
+  fit11->SetLineColorAlpha(kOrange, 1);
+  fit11->SetLineWidth(3);
   cout << "************************************************" << endl;
 
   
@@ -209,12 +210,12 @@ void calcTriggerRejectionFactor_pp(){
   lRF->AddEntry(scalar17p, "Scalar method 17p, R_{trig}=1264#pm5", "l");
   lRF->AddEntry(scalar17q, "Scalar method 17q, R_{trig}=1278#pm5", "l");
   lRF->Draw("same");
-
+  c2->SaveAs("RFTurnOnCurve_pp.pdf");
   //TFile* fout = new TFile("/global/homes/d/ddixit/photonCrossSection/rfOutput/noNormResults_17qAll.root", "RECREATE");
   //Rtrig->Write("RTrig");
   //fout->Close();
 
-  TCanvas* c4 = new TCanvas();
+  TCanvas* c4 = new TCanvas("c4", "c4", 1200, 600);
   c4->SetLogy();
   hMB_centE->GetXaxis()->SetRangeUser(0, 40);
   hMB_centE->GetYaxis()->SetRangeUser(1e-9, 1);
@@ -226,22 +227,27 @@ void calcTriggerRejectionFactor_pp(){
   TH1F* scale1 = (TH1F*)hEG2_caloE->Clone(); scale1->SetName("scale1"); scale1->Scale(1.0/1278.0);scale1->SetLineColor(kRed); scale1->SetMarkerColor(kRed);scale1->Draw("samee1");
   TH1F* scale2 = (TH1F*)hEG2_caloE->Clone(); scale2->SetName("scale2"); scale2->Scale(1.0/1130.0);scale2->SetLineColor(kBlue); scale2->SetMarkerColor(kBlue);scale2->Draw("samee1");
 
-  ls->AddEntry(scale1, "Using RF = 1278, Scalar method");
-  ls->AddEntry(scale2, "Using RF = 1240, Cluster spectra method");
-  ls->Draw("same");
-
+  TLegend* lscale = new TLegend(0.5, 0.6,0.85, 0.85);
+  lscale->AddEntry((TObject*)0, "Raw Cluster Spectra", "");
+  lscale->AddEntry((TObject*)0, "pp #sqrt{s_{NN}} = 5.02 TeV", "");
+  lscale->AddEntry(hMB_centE, "Minimum bias trigger (MB)");
+  lscale->AddEntry(hEG2_caloE, "EMCal L1 trigger (EG2 calo)");
+  lscale->AddEntry(scale1, "Using RF = 1278, Scalar method");
+  lscale->AddEntry(scale2, "Using RF = 1240, Cluster spectra method");
+  lscale->Draw("same");
+  //c4->SaveAs("RFScaledEG2calo_pp.pdf");
+    
   TH1F* ratio1 = (TH1F*)scale1->Clone(); ratio1->Divide(hMB_centE);
   TH1F* ratio2 = (TH1F*)scale2->Clone(); ratio2->Divide(hMB_centE);
   
-  TLegend* lratio = new TLegend(0.15, 0.75, 0.45, 0.85);
+  TLegend* lratio = new TLegend(0.3, 0.13, 0.85, 0.35);
   ratio1->SetTitle(";E_{T} [GeV]; #frac{Scaled EG2 spectra}{MB spectra}");
   lratio->SetBorderSize(0);
-  lratio->SetTextSize(0.025);
   lratio->AddEntry(ratio1, "Using RF = 1278, Scalar method");
   lratio->AddEntry(ratio2, "Using RF = 1240, Cluster spectra method");
   
 
-  TCanvas* c5 = new TCanvas();
+  TCanvas* c5 = new TCanvas("c5","c5", 1200, 600);
   ratio1->GetXaxis()->SetRangeUser(0, 40);
   TLine *line2 = new TLine(0, 1, 40, 1);
   line2->SetLineColorAlpha(kBlack, 0.5);
@@ -251,7 +257,7 @@ void calcTriggerRejectionFactor_pp(){
   ratio2->Draw("samee1");
   line2->Draw("same");
   lratio->Draw("same");//*/
-  
+  //c5->SaveAs("RFTMvSM_pp.pdf");
 
 
   

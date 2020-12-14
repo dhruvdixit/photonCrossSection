@@ -48,8 +48,8 @@ void calcTriggerRejectionFactor_pPb(){
   TString path = "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/rfOutput/pPOutput";
   
   //13d
-  //TFile* file_13d = new TFile(Form("%s/StdEventsAndClusterCuts/fout_6_26bins_forRTrigEG_13d_Allruns_noThresh_phySel.root", path.Data()), "READ");
-  TFile* file_13d = new TFile(Form("%s/13dOutput/GoodRunsCheck/fout_7_26bins_forRTrig_13d_all10runs_noSkimnoTrigOverlap_no195871.root", path.Data()), "READ");
+  TFile* file_13d = new TFile(Form("%s/StdEventsAndClusterCuts/fout_6_26bins_forRTrigEG_13d_Allruns_noThresh_phySel.root", path.Data()), "READ");
+  //TFile* file_13d = new TFile(Form("%s/13dOutput/GoodRunsCheck/fout_7_26bins_forRTrig_13d_all10runs_noSkimnoTrigOverlap_no195871.root", path.Data()), "READ");
   TH1F* hEG1_13d = (TH1F*)file_13d->Get("hEG1_E");
   TH1F* hEG2_13d = (TH1F*)file_13d->Get("hEG2_E");
   
@@ -206,7 +206,7 @@ void calcTriggerRejectionFactor_pPb(){
   hMB_13cdef->SetLineColor(kBlack);
   hMB_13cdef->SetMarkerColor(kBlack);
   hMB_13cdef->SetMarkerStyle(kFullCircle);
-  hMB_13cdef->SetMarkerSize(2);
+  hMB_13cdef->SetMarkerSize(1);
 
   hEG1_13d->SetLineColor(kGreen);
   hEG1_13d->SetMarkerColor(kGreen);
@@ -220,10 +220,10 @@ void calcTriggerRejectionFactor_pPb(){
   hEG1_13f->SetMarkerColor(kCyan);
   hEG1_13f->SetMarkerStyle(kOpenCircle);
   hEG1_13f->SetMarkerSize(2);
-  hEG1_13def->SetLineColor(kRed);
-  hEG1_13def->SetMarkerColor(kRed);
-  hEG1_13def->SetMarkerStyle(kOpenCircle);
-  hEG1_13def->SetMarkerSize(2);
+  hEG1_13def->SetLineColor(kBlue);
+  hEG1_13def->SetMarkerColor(kBlue);
+  hEG1_13def->SetMarkerStyle(kFullCircle);
+  hEG1_13def->SetMarkerSize(1);
 
   hEG2_13d->SetLineColor(kGreen);
   hEG2_13d->SetMarkerColor(kGreen);
@@ -239,44 +239,45 @@ void calcTriggerRejectionFactor_pPb(){
   hEG2_13f->SetMarkerSize(2);
   hEG2_13def->SetLineColor(kRed);
   hEG2_13def->SetMarkerColor(kRed);
-  hEG2_13def->SetMarkerStyle(kOpenSquare);
-  hEG2_13def->SetMarkerSize(2);
+  hEG2_13def->SetMarkerStyle(kFullCircle);
+  hEG2_13def->SetMarkerSize(1);
 
   
 
-  TLegend* ls = new TLegend(0.55, 0.7,0.87, 0.88);
-  ls->SetNColumns(2);
-  ls->AddEntry((TObject*)0, "Cluster Spectra for RF", "");
-  ls->AddEntry((TObject*)0, "", "");
+  TLegend* ls = new TLegend(0.65, 0.7,0.88, 0.88);
+  ls->SetNColumns(1);
+  ls->AddEntry((TObject*)0, "Raw Cluster Spectra", "");
+  ls->AddEntry((TObject*)0, "p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
   ls->AddEntry(hMB_13cdef, "Minimum bias trigger (MB)");
-  ls->AddEntry((TObject*)0, "", "");
-  ls->AddEntry(hEG1_13def, "13def (EG1)");
-  ls->AddEntry(hEG2_13def, "13def (EG2)");
-  ls->AddEntry(hEG1_13d, "13d (EG1)");
-  ls->AddEntry(hEG2_13d, "13d (EG2)");
-  ls->AddEntry(hEG1_13e, "13e (EG1)");
-  ls->AddEntry(hEG2_13e, "13e (EG2)");
-  ls->AddEntry(hEG1_13f, "13f (EG1)");
-  ls->AddEntry(hEG2_13f, "13f (EG2)");
+  ls->AddEntry(hEG1_13def, "EMCal EG1 #gamma trigger");
+  ls->AddEntry(hEG2_13def, "EMCal EG2 #gamma trigger");
+  //ls->AddEntry(hEG1_13d, "13d (EG1)");
+  //ls->AddEntry(hEG2_13d, "13d (EG2)");
+  //ls->AddEntry(hEG1_13e, "13e (EG1)");
+  //ls->AddEntry(hEG2_13e, "13e (EG2)");
+  //ls->AddEntry(hEG1_13f, "13f (EG1)");
+  //ls->AddEntry(hEG2_13f, "13f (EG2)");
   
-  TCanvas* c1 = new TCanvas();
+  TCanvas* c1 = new TCanvas("c1", "c1", 1200, 600);
   c1->SetLogy();
   hMB_13cdef->GetXaxis()->SetRangeUser(0, 40);
   hMB_13cdef->GetYaxis()->SetRangeUser(1e-9, 1);
   hMB_13cdef->SetTitle(";E_{T} [GeV]; #frac{1}{N_{ev}}x#frac{dN}{dE_{T}} [a.u.]");
   hMB_13cdef->Draw("e1");
   hEG1_13def->Draw("samee1");
-  hEG1_13d->Draw("samee1");
-  hEG1_13e->Draw("samee1");
-  hEG1_13f->Draw("samee1");
   hEG2_13def->Draw("samee1");
-  hEG2_13d->Draw("samee1");
-  hEG2_13e->Draw("samee1");
-  hEG2_13f->Draw("samee1");
+  //hEG1_13d->Draw("samee1");
+  //hEG1_13e->Draw("samee1");
+  //hEG1_13f->Draw("samee1");
+  //hEG2_13d->Draw("samee1");
+  //hEG2_13e->Draw("samee1");
+  //hEG2_13f->Draw("samee1");
   ls->Draw("same");
-
+  //c1->SaveAs("RFspectra_pPb.pdf");//Save image for p-Pb cluster spectra
+  //c1->SaveAs("RFspectra_pPb.png");//Save image for p-Pb cluster spectra
+  
   //RF
-  hRF_EG1_13d->SetLineColor(kGreen);
+  /*hRF_EG1_13d->SetLineColor(kGreen);
   hRF_EG1_13d->SetMarkerColor(kGreen);
   hRF_EG1_13d->SetMarkerStyle(kOpenCircle);
   hRF_EG1_13d->SetMarkerSize(2);
@@ -287,13 +288,13 @@ void calcTriggerRejectionFactor_pPb(){
   hRF_EG1_13f->SetLineColor(kCyan);
   hRF_EG1_13f->SetMarkerColor(kCyan);
   hRF_EG1_13f->SetMarkerStyle(kOpenCircle);
-  hRF_EG1_13f->SetMarkerSize(2);
-  hRF_EG1_13def->SetLineColor(kRed);
-  hRF_EG1_13def->SetMarkerColor(kRed);
-  hRF_EG1_13def->SetMarkerStyle(kOpenCircle);
-  hRF_EG1_13def->SetMarkerSize(2);
+  hRF_EG1_13f->SetMarkerSize(2);//*/
+  hRF_EG1_13def->SetLineColor(kBlue);
+  hRF_EG1_13def->SetMarkerColor(kBlue);
+  hRF_EG1_13def->SetMarkerStyle(kFullCircle);
+  hRF_EG1_13def->SetMarkerSize(1);
   
-  hRF_EG2_13d->SetLineColor(kGreen);
+  /*hRF_EG2_13d->SetLineColor(kGreen);
   hRF_EG2_13d->SetMarkerColor(kGreen);
   hRF_EG2_13d->SetMarkerStyle(kOpenSquare);
   hRF_EG2_13d->SetMarkerSize(2);
@@ -304,13 +305,13 @@ void calcTriggerRejectionFactor_pPb(){
   hRF_EG2_13f->SetLineColor(kCyan);
   hRF_EG2_13f->SetMarkerColor(kCyan);
   hRF_EG2_13f->SetMarkerStyle(kOpenSquare);
-  hRF_EG2_13f->SetMarkerSize(2);
+  hRF_EG2_13f->SetMarkerSize(2);//*/
   hRF_EG2_13def->SetLineColor(kRed);
   hRF_EG2_13def->SetMarkerColor(kRed);
-  hRF_EG2_13def->SetMarkerStyle(kOpenSquare);
-  hRF_EG2_13def->SetMarkerSize(2);
+  hRF_EG2_13def->SetMarkerStyle(kFullCircle);
+  hRF_EG2_13def->SetMarkerSize(1);
   
-  hRF_EGA_13d->SetLineColor(kGreen);
+  /*hRF_EGA_13d->SetLineColor(kGreen);
   hRF_EGA_13d->SetMarkerColor(kGreen);
   hRF_EGA_13d->SetMarkerStyle(kOpenDiamond);
   hRF_EGA_13d->SetMarkerSize(2);
@@ -321,63 +322,79 @@ void calcTriggerRejectionFactor_pPb(){
   hRF_EGA_13f->SetLineColor(kCyan);
   hRF_EGA_13f->SetMarkerColor(kCyan);
   hRF_EGA_13f->SetMarkerStyle(kOpenDiamond);
-  hRF_EGA_13f->SetMarkerSize(2);
-  hRF_EGA_13def->SetLineColor(kRed);
-  hRF_EGA_13def->SetMarkerColor(kRed);
-  hRF_EGA_13def->SetMarkerStyle(kOpenDiamond);
-  hRF_EGA_13def->SetMarkerSize(2);
+  hRF_EGA_13f->SetMarkerSize(2);//*/
+  hRF_EGA_13def->SetLineColor(kBlack);
+  hRF_EGA_13def->SetMarkerColor(kBlack);
+  hRF_EGA_13def->SetMarkerStyle(kFullCircle);
+  hRF_EGA_13def->SetMarkerSize(1);
 
   
 
-  TLegend* lsRF = new TLegend(0.25, 0.13,0.65, 0.4);
-  lsRF->SetNColumns(3);
-  lsRF->AddEntry((TObject*)0, "Turn on curves", "");
-  lsRF->AddEntry((TObject*)0, "", "");
-  lsRF->AddEntry((TObject*)0, "", "");
-  lsRF->AddEntry(hRF_EG1_13def, "13def (EG1/MB)");
-  lsRF->AddEntry(hRF_EG2_13def, "13def (EG2/MB)");
-  lsRF->AddEntry(hRF_EGA_13def, "13def (EG1/EG2)");
-  lsRF->AddEntry(hRF_EG1_13d, "13d (EG1/MB)");
-  lsRF->AddEntry(hRF_EG2_13d, "13d (EG2/MB)");
-  lsRF->AddEntry(hRF_EGA_13d, "13d (EG1/EG2)");
-  lsRF->AddEntry(hRF_EG1_13e, "13e (EG1/MB)");
-  lsRF->AddEntry(hRF_EG2_13e, "13e (EG2/MB)");
-  lsRF->AddEntry(hRF_EGA_13e, "13e (EG1/EG2)");
-  lsRF->AddEntry(hRF_EG1_13f, "13f (EG1/MB)");
-  lsRF->AddEntry(hRF_EG2_13f, "13f (EG2/MB)");
-  lsRF->AddEntry(hRF_EGA_13f, "13f (EG1/EG2)");
   
-  TCanvas* c2 = new TCanvas();
+  
+  TCanvas* c2 = new TCanvas("c2", "c2", 1600, 800);
   c2->SetLogy();
-  hRF_EG1_13def->GetYaxis()->SetRangeUser(1E-3, 1E5);
+  hRF_EG1_13def->GetYaxis()->SetRangeUser(5e-4, 5e4);
+  hRF_EG1_13def->GetXaxis()->SetRangeUser(0, 40);
   hRF_EG1_13def->Draw("e1");
-  hRF_EG1_13d->Draw("samee1");
-  hRF_EG1_13e->Draw("samee1");
-  hRF_EG1_13f->Draw("samee1");
   hRF_EG2_13def->Draw("samee1");
-  hRF_EG2_13d->Draw("samee1");
-  hRF_EG2_13e->Draw("samee1");
-  hRF_EG2_13f->Draw("samee1");
   hRF_EGA_13def->Draw("samee1");
-  hRF_EGA_13d->Draw("samee1");
-  hRF_EGA_13e->Draw("samee1");
-  hRF_EGA_13f->Draw("samee1");
+
+
+  hRF_EG1_13def->Fit("pol0", "0", "", 14, 40);
+  hRF_EG2_13def->Fit("pol0", "0", "", 10, 40);
+  hRF_EGA_13def->Fit("pol0", "0", "", 16, 40);
+  TF1* fitEG1 = (TF1*)hRF_EG1_13def->GetFunction("pol0");
+  fitEG1->SetName("fitEG1");
+  double tmEG1_13def = fitEG1->GetParameter(0);
+  double tmEG1_Er_13def = fitEG1->GetParError(0);
+  TLine *lineEG1 = new TLine(0, tmEG1_13def, 40, tmEG1_13def);
+  lineEG1->SetLineColorAlpha(kBlue, 0.2);
+  lineEG1->SetLineWidth(8);
+  lineEG1->Draw("same");
+  TF1* fitEG2 = (TF1*)hRF_EG2_13def->GetFunction("pol0");
+  fitEG2->SetName("fitEG2");
+  double tmEG2_13def = fitEG2->GetParameter(0);
+  double tmEG2_Er_13def = fitEG2->GetParError(0);
+  TLine *lineEG2 = new TLine(0, tmEG2_13def, 40, tmEG2_13def);
+  lineEG2->SetLineColorAlpha(kRed, 0.2);
+  lineEG2->SetLineWidth(2);
+  lineEG2->Draw("same");
+    
+
+  TF1* fitEGA = (TF1*)hRF_EGA_13def->GetFunction("pol0");
+  fitEGA->SetName("fitEGA");
+  double tmEGA_13def = fitEGA->GetParameter(0);
+  double tmEGA_Er_13def = fitEGA->GetParError(0);
+  TLine *lineEGA = new TLine(0, tmEGA_13def, 40, tmEGA_13def);
+  lineEGA->SetLineColorAlpha(kBlack, 0.2);
+  lineEGA->SetLineWidth(1);
+  lineEGA->Draw("same");
+
+  TLegend* lsRF = new TLegend(0.35, 0.13,0.85, 0.4);
+  lsRF->SetHeader("ALICE Performance, p-Pb #sqrt{s_{NN}} = 5.02 TeV");
+  lsRF->SetNColumns(2);
+  lsRF->AddEntry(hRF_EG1_13def, "EG1/MB");
+  lsRF->AddEntry(lineEG1, Form("Constant Fit (14, 40) GeV, R_{trig} = %.0f #pm %.0f", tmEG1_13def, tmEG1_Er_13def), "l");
+  lsRF->AddEntry(hRF_EG2_13def, "EG2/MB");
+  lsRF->AddEntry(lineEG2, Form("Constant Fit (10, 40) GeV, R_{trig} = %.0f #pm %.0f", tmEG2_13def, tmEG2_Er_13def), "l");
+  lsRF->AddEntry(hRF_EGA_13def, "EG1/EG2");
+  lsRF->AddEntry(lineEGA, Form("Constant Fit (16, 40) GeV, R_{trig} = %.2f #pm %.2f", tmEGA_13def, tmEGA_Er_13def), "l");
   lsRF->Draw("same");
+  //c2->SaveAs("RFTurnOnCurve_pPb.pdf");//Save image for p-Pb cluster spectra
+  //c2->SaveAs("RFTurnOnCurve_pPb.png");//Save image for p-Pb cluster spectra
+  
+  //hRF_EGA_13d->Fit("pol0", "QRM+", "", 16, 40);
+  //hRF_EGA_13e->Fit("pol0", "QRM+", "", 16, 40);
+  //hRF_EGA_13f->Fit("pol0", "QRM+", "", 16, 40);
+  //hRF_EG1_13d->Fit("pol0", "QRM+", "", 14, 40);
+  //hRF_EG1_13e->Fit("pol0", "QRM+", "", 14, 40);
+  //hRF_EG1_13f->Fit("pol0", "QRM+", "", 14, 40);
+  //hRF_EG2_13d->Fit("pol0", "QRM+", "", 10, 40);
+  //hRF_EG2_13e->Fit("pol0", "QRM+", "", 10, 40);
+  //hRF_EG2_13f->Fit("pol0", "QRM+", "", 10, 40);
 
-  hRF_EG1_13def->Fit("pol0", "QRM+", "", 14, 40);
-  hRF_EG1_13d->Fit("pol0", "QRM+", "", 14, 40);
-  hRF_EG1_13e->Fit("pol0", "QRM+", "", 14, 40);
-  hRF_EG1_13f->Fit("pol0", "QRM+", "", 14, 40);
-  hRF_EG2_13def->Fit("pol0", "QRM+", "", 10, 40);
-  hRF_EG2_13d->Fit("pol0", "QRM+", "", 10, 40);
-  hRF_EG2_13e->Fit("pol0", "QRM+", "", 10, 40);
-  hRF_EG2_13f->Fit("pol0", "QRM+", "", 10, 40);
-  hRF_EGA_13def->Fit("pol0", "QRM+", "", 16, 40);
-  hRF_EGA_13d->Fit("pol0", "QRM+", "", 16, 40);
-  hRF_EGA_13e->Fit("pol0", "QRM+", "", 16, 40);
-  hRF_EGA_13f->Fit("pol0", "QRM+", "", 16, 40);
-
-  double tm_eg1_13d = hRF_EG1_13d->GetFunction("pol0")->GetParameter(0);
+  /*double tm_eg1_13d = hRF_EG1_13d->GetFunction("pol0")->GetParameter(0);
   double tm_eg1_13e = hRF_EG1_13e->GetFunction("pol0")->GetParameter(0);
   double tm_eg1_13f = hRF_EG1_13f->GetFunction("pol0")->GetParameter(0);
   double tm_eg1_13def = hRF_EG1_13def->GetFunction("pol0")->GetParameter(0);
@@ -887,12 +904,12 @@ void calcTriggerRejectionFactor_pPb(){
       double ratioTM_EG2_13def = hTMscaledEG2_13def->GetBinContent(i)/contentMB;
       double errorTM_EG2_13def = TMath::Sqrt(TMath::Power(hTMscaledEG2_13def->GetBinError(i)/hTMscaledEG2_13def->GetBinContent(i),2) +TMath::Power(errorMB/contentMB,2))*ratioTM_EG2_13def;
       hTMratioEG2_13def->SetBinContent(i, ratioTM_EG2_13def);
-      hTMratioEG2_13def->SetBinError(i, errorTM_EG2_13def);//*/
+      hTMratioEG2_13def->SetBinError(i, errorTM_EG2_13def);//
     }
   }//end for
 
 
-  TLegend* lscale = new TLegend(0.65, 0.65,0.9, 0.9);
+  /*TLegend* lscale = new TLegend(0.65, 0.65,0.9, 0.9);
   lscale->AddEntry((TObject*)0, "Cluster Spectra", "");
   //lscale->AddEntry(hMB_13cdef, "Minimum bias trigger (MB)");
   lscale->AddEntry(hEG2_13def, "13def (EG2)");
@@ -921,12 +938,12 @@ void calcTriggerRejectionFactor_pPb(){
   hSMscaledEGA_13e->Draw("samee1");
   hSMscaledEGA_13f->Draw("samee1");
   hTMscaledEGA_13def->Draw("samee1");
-  lscale->Draw("same");
+  lscale->Draw("same");//*/
   
   TLine *line = new TLine(14, 1, 40, 1);
   line->SetLineColor(kBlack);
   
-  TLegend* lratio = new TLegend(0.65, 0.65,0.9, 0.9);
+  /*TLegend* lratio = new TLegend(0.65, 0.65,0.9, 0.9);
   lratio->AddEntry((TObject*)0, "Cluster Spectra", "");
   lratio->AddEntry(hTMratioEGA_13d, "13d cluster spectra method");
   lratio->AddEntry(hTMratioEGA_13e, "13e cluster spectra method");
@@ -946,9 +963,9 @@ void calcTriggerRejectionFactor_pPb(){
   hSMratioEGA_13e->Draw("samee1");
   hSMratioEGA_13f->Draw("samee1");
   lratio->Draw("same");
-  line->Draw("same");
+  line->Draw("same");//*/
   
-  TLegend* l13d = new TLegend(0.65, 0.65,0.9, 0.9);
+  /*TLegend* l13d = new TLegend(0.65, 0.65,0.9, 0.9);
   l13d->AddEntry((TObject*)0, "Min bias cross section ratio", "");
   l13d->AddEntry(hTMratioEGA_13d, "13d cluster spectra method");
   l13d->AddEntry(hSMratioEGA_13d, "13d scalar method");
@@ -960,9 +977,9 @@ void calcTriggerRejectionFactor_pPb(){
   hTMratioEGA_13def->Draw("samee1");
   hSMratioEGA_13d->Draw("samee1");
   l13d->Draw("same");
-  line->Draw("same");
+  line->Draw("same");//*/
   
-  TLegend* l13e = new TLegend(0.65, 0.65,0.9, 0.9);
+  /*TLegend* l13e = new TLegend(0.65, 0.65,0.9, 0.9);
   l13e->AddEntry((TObject*)0, "Min bias cross section ratio", "");
   l13e->AddEntry(hTMratioEG1_13e, "13e cluster spectra method");
   l13e->AddEntry(hSMratioEG1_13e, "13e scalar method");
@@ -974,9 +991,9 @@ void calcTriggerRejectionFactor_pPb(){
   hTMratioEGA_13def->Draw("samee1");
   hSMratioEGA_13e->Draw("samee1");
   l13e->Draw("same");
-  line->Draw("same");
+  line->Draw("same");//*/
   
-  TLegend* l13f = new TLegend(0.65, 0.65,0.9, 0.9);
+  /*TLegend* l13f = new TLegend(0.65, 0.65,0.9, 0.9);
   l13f->AddEntry((TObject*)0, "Min bias cross section ratio", "");
   l13f->AddEntry(hTMratioEGA_13f, "13f cluster spectra method");
   l13f->AddEntry(hSMratioEGA_13f, "13f scalar method");
@@ -988,10 +1005,10 @@ void calcTriggerRejectionFactor_pPb(){
   hTMratioEGA_13def->Draw("samee1");
   hSMratioEGA_13f->Draw("samee1");
   l13f->Draw("same");
-  line->Draw("same");
+  line->Draw("same");//*/
   
-
-  TLegend* lscale12a = new TLegend(0.65, 0.65,0.9, 0.9);
+  
+  /*TLegend* lscale12a = new TLegend(0.65, 0.65,0.9, 0.9);
   lscale12a->AddEntry((TObject*)0, "Cluster Spectra Method", "");
   lscale12a->AddEntry(hMB_13cdef, "Minimum bias trigger (MB)");
   lscale12a->AddEntry(hEG1_13def, "13def (EG1)");
@@ -1010,9 +1027,9 @@ void calcTriggerRejectionFactor_pPb(){
   hTMscaledEG1_13def->Draw("samee1");
   hTMscaledEG12A_13f->Draw("samee1");
   hTMscaledEG12A_13def->Draw("samee1");
-  lscale12a->Draw("same");
+  lscale12a->Draw("same");//*/
 
-  TLegend* lratio12a = new TLegend(0.65, 0.65,0.9, 0.9);
+  /*TLegend* lratio12a = new TLegend(0.65, 0.65,0.9, 0.9);
   lratio12a->AddEntry((TObject*)0, "Cluster Spectra ratio", "");
   lratio12a->AddEntry(hTMratioEG1_13f, "13f EG1/MB");
   lratio12a->AddEntry(hTMratioEG1_13def, "13def EG1/MB");
@@ -1026,5 +1043,5 @@ void calcTriggerRejectionFactor_pPb(){
   hTMratioEG12A_13f->Draw("samee1");
   hTMratioEG12A_13def->Draw("samee1");
   lratio12a->Draw("same");
-  line->Draw("same");
+  line->Draw("same");//*/
 }

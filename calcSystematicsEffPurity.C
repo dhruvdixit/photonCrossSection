@@ -100,27 +100,27 @@ void calcSystematicsEffPurity(){
   //hcsEG1_SSC28->Add(hcsEG1_StdPurity, -1);
   //hcsEG1_SSC33->Add(hcsEG1_StdPurity, -1);
   //hcsEG1_SSC35->Add(hcsEG1_StdPurity, -1);
-  //hcspp_StdPurity->Add(hcspp_StdPurity, -1);
+  //hcsEG1_StdPurity->Add(hcsEG1_StdPurity, -1);
 
   const int nbinsSSC = 5;
   Double_t xBins[nbinsSSC] = {0.26, 0.28, 0.30, 0.33, 0.35};
   Double_t xErr[nbinsSSC] = {0};
-  Double_t yPt1_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(7), hcspp_SSC28->GetBinContent(7), hcspp_StdPurity->GetBinContent(7), hcspp_SSC33->GetBinContent(7), hcspp_SSC35->GetBinContent(7)};
-  Double_t yPt1_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(7), hcspp_SSC28->GetBinError(7), hcspp_StdPurity->GetBinError(7), hcspp_SSC33->GetBinError(7), hcspp_SSC35->GetBinError(7)};
-  Double_t yPt2_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(8), hcspp_SSC28->GetBinContent(8), hcspp_StdPurity->GetBinContent(8), hcspp_SSC33->GetBinContent(8), hcspp_SSC35->GetBinContent(8)};
-  Double_t yPt2_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(8), hcspp_SSC28->GetBinError(8), hcspp_StdPurity->GetBinError(8), hcspp_SSC33->GetBinError(8), hcspp_SSC35->GetBinError(8)};
-  Double_t yPt3_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(9), hcspp_SSC28->GetBinContent(9), hcspp_StdPurity->GetBinContent(9), hcspp_SSC33->GetBinContent(9), hcspp_SSC35->GetBinContent(9)};
-  Double_t yPt3_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(9), hcspp_SSC28->GetBinError(9), hcspp_StdPurity->GetBinError(9), hcspp_SSC33->GetBinError(9), hcspp_SSC35->GetBinError(9)};
-  Double_t yPt4_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(10), hcspp_SSC28->GetBinContent(10), hcspp_StdPurity->GetBinContent(10), hcspp_SSC33->GetBinContent(10), hcspp_SSC35->GetBinContent(10)};
-  Double_t yPt4_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(10), hcspp_SSC28->GetBinError(10), hcspp_StdPurity->GetBinError(10), hcspp_SSC33->GetBinError(10), hcspp_SSC35->GetBinError(10)};
-  Double_t yPt5_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(11), hcspp_SSC28->GetBinContent(11), hcspp_StdPurity->GetBinContent(11), hcspp_SSC33->GetBinContent(11), hcspp_SSC35->GetBinContent(11)};
-  Double_t yPt5_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(11), hcspp_SSC28->GetBinError(11), hcspp_StdPurity->GetBinError(11), hcspp_SSC33->GetBinError(11), hcspp_SSC35->GetBinError(11)};
-  Double_t yPt6_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(12), hcspp_SSC28->GetBinContent(12), hcspp_StdPurity->GetBinContent(12), hcspp_SSC33->GetBinContent(12), hcspp_SSC35->GetBinContent(12)};
-  Double_t yPt6_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(12), hcspp_SSC28->GetBinError(12), hcspp_StdPurity->GetBinError(12), hcspp_SSC33->GetBinError(12), hcspp_SSC35->GetBinError(12)};
-  Double_t yPt7_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(13), hcspp_SSC28->GetBinContent(13), hcspp_StdPurity->GetBinContent(13), hcspp_SSC33->GetBinContent(13), hcspp_SSC35->GetBinContent(13)};
-  Double_t yPt7_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(13), hcspp_SSC28->GetBinError(13), hcspp_StdPurity->GetBinError(13), hcspp_SSC33->GetBinError(13), hcspp_SSC35->GetBinError(13)};
-  Double_t yPt8_pp[nbinsSSC] = {hcspp_SSC26->GetBinContent(14), hcspp_SSC28->GetBinContent(14), hcspp_StdPurity->GetBinContent(14), hcspp_SSC33->GetBinContent(14), hcspp_SSC35->GetBinContent(14)};
-  Double_t yPt8_ppErr[nbinsSSC] = {hcspp_SSC26->GetBinError(14), hcspp_SSC28->GetBinError(14), hcspp_StdPurity->GetBinError(14), hcspp_SSC33->GetBinError(14), hcspp_SSC35->GetBinError(14)};//*/
+  Double_t yPt1_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(7), hcsEG1_SSC28->GetBinContent(7), hcsEG1_StdPurity->GetBinContent(7), hcsEG1_SSC33->GetBinContent(7), hcsEG1_SSC35->GetBinContent(7)};
+  Double_t yPt1_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(7), hcsEG1_SSC28->GetBinError(7), hcsEG1_StdPurity->GetBinError(7), hcsEG1_SSC33->GetBinError(7), hcsEG1_SSC35->GetBinError(7)};
+  Double_t yPt2_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(8), hcsEG1_SSC28->GetBinContent(8), hcsEG1_StdPurity->GetBinContent(8), hcsEG1_SSC33->GetBinContent(8), hcsEG1_SSC35->GetBinContent(8)};
+  Double_t yPt2_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(8), hcsEG1_SSC28->GetBinError(8), hcsEG1_StdPurity->GetBinError(8), hcsEG1_SSC33->GetBinError(8), hcsEG1_SSC35->GetBinError(8)};
+  Double_t yPt3_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(9), hcsEG1_SSC28->GetBinContent(9), hcsEG1_StdPurity->GetBinContent(9), hcsEG1_SSC33->GetBinContent(9), hcsEG1_SSC35->GetBinContent(9)};
+  Double_t yPt3_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(9), hcsEG1_SSC28->GetBinError(9), hcsEG1_StdPurity->GetBinError(9), hcsEG1_SSC33->GetBinError(9), hcsEG1_SSC35->GetBinError(9)};
+  Double_t yPt4_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(10), hcsEG1_SSC28->GetBinContent(10), hcsEG1_StdPurity->GetBinContent(10), hcsEG1_SSC33->GetBinContent(10), hcsEG1_SSC35->GetBinContent(10)};
+  Double_t yPt4_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(10), hcsEG1_SSC28->GetBinError(10), hcsEG1_StdPurity->GetBinError(10), hcsEG1_SSC33->GetBinError(10), hcsEG1_SSC35->GetBinError(10)};
+  Double_t yPt5_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(11), hcsEG1_SSC28->GetBinContent(11), hcsEG1_StdPurity->GetBinContent(11), hcsEG1_SSC33->GetBinContent(11), hcsEG1_SSC35->GetBinContent(11)};
+  Double_t yPt5_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(11), hcsEG1_SSC28->GetBinError(11), hcsEG1_StdPurity->GetBinError(11), hcsEG1_SSC33->GetBinError(11), hcsEG1_SSC35->GetBinError(11)};
+  Double_t yPt6_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(12), hcsEG1_SSC28->GetBinContent(12), hcsEG1_StdPurity->GetBinContent(12), hcsEG1_SSC33->GetBinContent(12), hcsEG1_SSC35->GetBinContent(12)};
+  Double_t yPt6_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(12), hcsEG1_SSC28->GetBinError(12), hcsEG1_StdPurity->GetBinError(12), hcsEG1_SSC33->GetBinError(12), hcsEG1_SSC35->GetBinError(12)};
+  Double_t yPt7_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(13), hcsEG1_SSC28->GetBinContent(13), hcsEG1_StdPurity->GetBinContent(13), hcsEG1_SSC33->GetBinContent(13), hcsEG1_SSC35->GetBinContent(13)};
+  Double_t yPt7_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(13), hcsEG1_SSC28->GetBinError(13), hcsEG1_StdPurity->GetBinError(13), hcsEG1_SSC33->GetBinError(13), hcsEG1_SSC35->GetBinError(13)};
+  Double_t yPt8_pp[nbinsSSC] = {hcsEG1_SSC26->GetBinContent(14), hcsEG1_SSC28->GetBinContent(14), hcsEG1_StdPurity->GetBinContent(14), hcsEG1_SSC33->GetBinContent(14), hcsEG1_SSC35->GetBinContent(14)};
+  Double_t yPt8_ppErr[nbinsSSC] = {hcsEG1_SSC26->GetBinError(14), hcsEG1_SSC28->GetBinError(14), hcsEG1_StdPurity->GetBinError(14), hcsEG1_SSC33->GetBinError(14), hcsEG1_SSC35->GetBinError(14)};//*/
   
   
   TGraphErrors* gPt1_pp = new TGraphErrors(nbinsSSC, xBins, yPt1_pp, xErr, yPt1_ppErr); gPt1_pp->SetLineColor(kRed); gPt1_pp->SetMarkerStyle(kOpenCircle); gPt1_pp->SetMarkerColor(kRed); gPt1_pp->SetTitle("12 GeV/c < p_{T} < 14 GeV/c; SSC ; #frac{d^{2}#sigma}{dE_{T}d#eta}");
@@ -264,14 +264,14 @@ void calcSystematicsEffPurity(){
   c5->cd(5);
   crossSection20GeVBin->Draw();
   
-  for(int i = 7; i < hcspp_StdPurity->GetNbinsX()+1; i++){
+  for(int i = 7; i < hcsEG1_StdPurity->GetNbinsX()+1; i++){
     cout
-      << hcspp_StdPurity->GetBinLowEdge(i) << "< E_{T} < "
-      << hcspp_StdPurity->GetBinLowEdge(i+1) << "\t" 
-      << hcspp_SSC26->GetBinContent(i) << ", "
-      << hcspp_SSC28->GetBinContent(i) << ", "
-      << hcspp_StdPurity->GetBinContent(i) << ", "
-      << hcspp_SSC33->GetBinContent(i) << ", "
-      << hcspp_SSC35->GetBinContent(i) << endl;//
+      << hcsEG1_StdPurity->GetBinLowEdge(i) << "< E_{T} < "
+      << hcsEG1_StdPurity->GetBinLowEdge(i+1) << "\t" 
+      << hcsEG1_SSC26->GetBinContent(i) << ", "
+      << hcsEG1_SSC28->GetBinContent(i) << ", "
+      << hcsEG1_StdPurity->GetBinContent(i) << ", "
+      << hcsEG1_SSC33->GetBinContent(i) << ", "
+      << hcsEG1_SSC35->GetBinContent(i) << endl;//
       }//*/
 }//end makeComparisons

@@ -1,6 +1,6 @@
 #include <fstream>
 #include <vector>
-void compareWithErwann(){
+void compareWithErwann(){{
 
   gStyle->SetOptStat(0);
   gStyle->SetLegendBorderSize(0);
@@ -36,8 +36,8 @@ void compareWithErwann(){
   csErwannSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
   TLegend* lCs = new TLegend(0.4, 0.6, 0.87, 0.87);
-  lCs->AddEntry(csErwannStat, "Erwann's cross-section results", "PF");
-  lCs->AddEntry(csErwannSys, "Sys Err on Erwann's cross-section results", "PF");
+  lCs->AddEntry(csErwannStat, "Preliminiary cross-section results", "PF");
+  lCs->AddEntry(csErwannSys, "Sys Err on Preliminiary cross-section results", "PF");
   lCs->AddEntry(csDhruvStat, "Dhruv's cross-section results", "PF");
   lCs->AddEntry(csDhruvSys, "Sys Err on Dhruv's cross-section results", "PF");
   TCanvas* c1 = new TCanvas("c1", "c1");
@@ -60,8 +60,8 @@ void compareWithErwann(){
 
   TGraphErrors* csRatioStat = new TGraphErrors(8, xBinCenters, ratioCSMean, xErr, ratioCSStat);
   TGraphErrors* csRatioSys = new TGraphErrors(8, xBinCenters, ratioCSMean, xErr, ratioCSSys);
-  csRatioStat->SetTitle(";E_{T} [GeV];#frac{cross section_{erwann}}{cross section_{dhruv}}");
-  csRatioSys->SetTitle(";E_{T} [GeV];#frac{cross section_{erwann}}{cross section_{dhruv}}");
+  csRatioStat->SetTitle(";E_{T} [GeV];#frac{cross section_{prelim}}{cross section_{dhruv}}");
+  csRatioSys->SetTitle(";E_{T} [GeV];#frac{cross section_{prelim}}{cross section_{dhruv}}");
   csRatioStat->GetXaxis()->SetRangeUser(12,60);
   csRatioSys->GetXaxis()->SetRangeUser(12,60);
   csRatioStat->GetYaxis()->SetRangeUser(0,2);
@@ -78,8 +78,8 @@ void compareWithErwann(){
   Double_t erwannEffMean[numBins] = {0.588658, 0.588779, 0.592832, 0.603951, 0.615985, 0.634618, 0.64918, 0.668659};
   Double_t erwannEffStat[numBins] = {0.000818115, 0.00086052, 0.000887487, 0.000912674, 0.000614389, 0.000638404, 0.000507488, 0.00038763};
   Double_t erwannEffSys[numBins] = {0.0950227, 0.0471217, 0.0383073, 0.0370981, 0.0328842, 0.027495, 0.0276957, 0.023399};
-  Double_t dhruvEffMean[numBins] = {0.499846, 0.499659, 0.50791, 0.514207, 0.522615, 0.531309, 0.546276, 0.557512};
-  Double_t dhruvEffStat[numBins] = {7.14348e-10, 4.66445e-10, 3.2191e-10, 2.38602e-10, 9.07987e-11, 4.409e-11, 1.37509e-11, 2.62252e-12};
+  Double_t dhruvEffMean[numBins] = {0.593997, 0.595344, 0.603961, 0.610833, 0.622483, 0.628033, 0.645673, 0.655699};
+  Double_t dhruvEffStat[numBins] = {0.00711286, 0.00769254, 0.00820661, 0.00807768, 0.00553489, 0.00586276, 0.00483549, 0.00399029};
   Double_t dhruvEffSys[numBins] = {0};
 
   TGraphErrors* effErwannStat = new TGraphErrors(8, xBinCenters, erwannEffMean, xErr, erwannEffStat);
@@ -97,10 +97,10 @@ void compareWithErwann(){
   effErwannSys->SetTitle(";E_{T} [GeV];#epsilon_{#gamma}^{iso}");
 
   TLegend* lEff = new TLegend(0.15, 0.1, 0.6, 0.4);
-  lEff->AddEntry(effErwannStat, "Erwann's cross-section results", "PF");
-  lEff->AddEntry(effErwannSys, "Sys Err on Erwann's cross-section results", "PF");
-  lEff->AddEntry(effDhruvStat, "Dhruv's cross-section results", "PF");
-  //lEff->AddEntry(effDhruvSys, "Sys Err on Dhruv's cross-section results", "PF");
+  lEff->AddEntry(effErwannStat, "Preliminiary efficiency results", "PF");
+  lEff->AddEntry(effErwannSys, "Sys Err on Preliminiary efficiency results", "PF");
+  lEff->AddEntry(effDhruvStat, "Dhruv's efficiency results", "PF");
+  //lEff->AddEntry(effDhruvSys, "Sys Err on Dhruv's efficiency results", "PF");
   TCanvas* cEff = new TCanvas("cEff", "cEff");
   cEff->DrawFrame(12, 0, 60, 2);
   effErwannSys->GetYaxis()->SetRangeUser(0,1);
@@ -121,8 +121,8 @@ void compareWithErwann(){
 
   TGraphErrors* effRatioStat = new TGraphErrors(8, xBinCenters, ratioEffMean, xErr, ratioEffStat);
   TGraphErrors* effRatioSys = new TGraphErrors(8, xBinCenters, ratioEffMean, xErr, ratioEffSys);
-  effRatioStat->SetTitle(";E_{T} [GeV];#frac{eff_{erwann}}{eff_{dhruv}}");
-  effRatioSys->SetTitle(";E_{T} [GeV];#frac{eff_{erwann}}{eff_{dhruv}}");
+  effRatioStat->SetTitle(";E_{T} [GeV];#frac{eff_{prelim}}{eff_{dhruv}}");
+  effRatioSys->SetTitle(";E_{T} [GeV];#frac{eff_{prelim}}{eff_{dhruv}}");
   effRatioStat->GetXaxis()->SetRangeUser(12,60);
   effRatioSys->GetXaxis()->SetRangeUser(12,60);
   effRatioStat->GetYaxis()->SetRangeUser(0,2);

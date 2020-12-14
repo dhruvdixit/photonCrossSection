@@ -19,6 +19,37 @@
 #include <chrono>
 #include <ctime> 
 
+double angular_range_reduce(const double x){
+  if (!std::isfinite(x)) {
+    return x;
+  }
+  
+  static const double cody_waite_x_max = 1608.4954386379741381;
+  static const double two_pi_0 = 6.2831853071795649157;
+  static const double two_pi_1 = 2.1561211432631314669e-14;
+  static const double two_pi_2 = 1.1615423895917441336e-27;
+  double ret;
+  
+  if(x >= -cody_waite_x_max && x <= cody_waite_x_max) {
+    static const double inverse_two_pi =
+      0.15915494309189534197;
+    const double k = rint(x * inverse_two_pi);
+    ret = ((x - (k * two_pi_0)) - k * two_pi_1) -
+      k * two_pi_2;
+  }
+  else {
+    long double sin_x;
+    long double cos_x;
+    
+    sincosl(x, &sin_x, &cos_x);
+    ret = (double)atan2l(sin_x, cos_x);
+  }
+  if(ret == -M_PI) {
+    ret = M_PI;
+  }
+  
+  return ret;
+}
 double SetPthatWeights(TString MCname, double Xsection, double ntrial)
 {
 
@@ -134,7 +165,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   Float_t mc_truth_phi[kMax];
   short mc_truth_pdg_code[kMax];
   short mc_truth_first_parent_pdg_code[kMax];
-  char mc_truth_charge[kMax];
+  Char_t mc_truth_charge[kMax];
   UChar_t mc_truth_status[kMax];
   
   Float_t mc_truth_first_parent_e[kMax];
@@ -183,7 +214,8 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   _tree_event->SetBranchAddress("mc_truth_pt", mc_truth_pt);
   _tree_event->SetBranchAddress("mc_truth_phi", mc_truth_phi);
   _tree_event->SetBranchAddress("mc_truth_eta", mc_truth_eta);
-  _tree_event->SetBranchAddress("mc_truth_status", mc_truth_status);        
+  _tree_event->SetBranchAddress("mc_truth_status", mc_truth_status);
+  _tree_event->SetBranchAddress("mc_truth_charge", mc_truth_charge);        
   _tree_event->SetBranchAddress("mc_truth_first_parent_pdg_code",mc_truth_first_parent_pdg_code);
     
   const int nbinseta = 10;
@@ -210,7 +242,14 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   //Results histograms
   TH1F* hRecoPure = new TH1F("hRecoPure", ";p_{T}^{rec} [GeV/c];dN^{rec}_{#gamma_{iso}}/dp_{T}^{rec}", nbinscluster, clusterbins);
   TH1F* hReco = new TH1F("hReco", ";p_{T}^{rec} [GeV/c];dN^{rec}_{#gamma_{iso}}/dp_{T}^{rec}", nbinscluster, clusterbins);
-  TH1F* hTruth = new TH1F("hTruth", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma_{iso}}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hRecoLess4Eta = new TH1F("hRecoLess4Eta", ";p_{T}^{rec} [GeV/c];dN^{rec}_{#gamma_{iso}}/dp_{T}^{rec}", nbinscluster, clusterbins);
+  TH1F* hRecoMore4Eta = new TH1F("hRecoMore4Eta", ";p_{T}^{rec} [GeV/c];dN^{rec}_{#gamma_{iso}}/dp_{T}^{rec}", nbinscluster, clusterbins);
+  TH1F* hTruth = new TH1F("hTruth", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hTruthLess4Eta = new TH1F("hTruthLess4Eta", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hTruthMore4Eta = new TH1F("hTruthMore4Eta", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hTruthIsolated = new TH1F("hTruthIsolated", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma_{iso}}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hTruthIsolatedLess4Eta = new TH1F("hTruthIsolatedLess4Eta", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma_{iso}}/dp_{T}^{tru}", nbinscluster, clusterbins);
+  TH1F* hTruthIsolatedMore4Eta = new TH1F("hTruthIsolatedMore4Eta", ";p_{T}^{tru} [GeV/c];dN^{gen}_{#gamma_{iso}}/dp_{T}^{tru}", nbinscluster, clusterbins);
   TH1F* hRecoTruth = new TH1F("hRecoTruth", ";p_{T}^{rectru} [GeV/c];dN^{rectru}_{#gamma_{iso}}/dp_{T}^{rectru}", nbinscluster, clusterbins);
   TH1F* hTotalEfficiency = new TH1F("hTotalEfficiency", ";p_{T}^{rec} [GeV/c];\epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
   TH1F* hEfficiency = new TH1F("hEfficiency", ";p_{T}^{tru} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
@@ -221,7 +260,24 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 
   //Variable distribution histograms
   TH1F* hZvertex = new TH1F("hZvertex", ";z_{v} [cm]; counts", 60, -30, -30);
-
+  TH1F* hGenIsoCuts = new TH1F("hGenIsoCuts", "; ; counts", 10, -0.5 , 9.5);
+  TH1F* hIsolationRecCharged = new TH1F("hIsolationRecCharged", ";Isolation (GeV/c);", 9000, -1500, 3000);
+  TH1F* hIsolationGenCharged = new TH1F("hIsolationGenCharged", ";Isolation (GeV/c);", 9000, -1500, 3000);
+  TH1F* hIsolationGenChargedNeutral = new TH1F("hIsolationGenChargedNeutral", ";Isolation (GeV/c);", 9000, -1500, 3000);
+  TH1F* hPDGCode = new TH1F("hPDGCode", ";PDG code; counts", 1000, -0.5, 999.5);
+  TH2F* hPDGCodeWParent = new TH2F("hPDGCodeWParent", ";PDG code; Parent PDG code; counts", 1000, -0.5, 999.5, 1000, -0.5, 999.5);
+  
+  //Tracking inside the cone
+  const int nbinstrack = 62;
+  Double_t trackbins[nbinstrack+1] = {
+    0.15,  0.20,  0.25,  0.30,  0.35,  0.40,  0.45,  0.50,  0.55,  0.60, 
+    0.65,  0.70,  0.75,  0.80,  0.85,  0.90,  0.95,  1.00,  1.10,  1.20,
+    1.30,  1.40,  1.50,  1.60,  1.70,  1.80,  1.90,  2.00,  2.20,  2.40,
+    2.60,  2.80,  3.00,  3.20,  3.40,  3.60,  3.80,  4.00,  4.50,  5.00,
+    5.50,  6.00,  6.50,  7.00,  8.00,  9.00,  10.00, 11.00, 12.00, 13.00,
+    14.00, 15.00, 16.00, 18.00, 20.00, 22.00, 24.00, 26.00, 30.00, 40.00,
+    60.00, 80.00, 100.00};//nbinsbstrack = 62*/
+  TH1F* hTrackInCone = new TH1F("hTrackInCone", ";p_{T} [GeV/c];dN/dp_{T}", nbinstrack, trackbins);
   //Counting varibales
   int numEvents = 0;
   int numEvents_tot = 0;
@@ -256,8 +312,9 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 
     for (ULong64_t n = 0; n < ncluster; n++) {
       //Photon Selection
-      double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
-      isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
+      double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];//remove UE subtraction
+      isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();//Use rhoxA subtraction
+      hIsolationRecCharged->Fill(isolation);
       bool isoPassed = false;
       
       //cluster cuts
@@ -268,7 +325,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       //if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
 
       //acceptance cuts
-      if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+      if(not (TMath::Abs(cluster_eta[n]) < 0.67)) continue;
       if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 
       //shower shape and isolation
@@ -286,9 +343,10 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 	unsigned short index = cluster_mc_truth_index[n][counter];                   
 	if(isTruePhoton) break;
 	if(index==65535) continue;
-	if(mc_truth_pdg_code[index]!=22) continue;
+	//if(mc_truth_pdg_code[index] != 22) continue;
+	if(mc_truth_pdg_code[index] != 11) continue;
 	if(mc_truth_first_parent_pdg_code[index]!=22) continue;
-	if( not (mc_truth_status[index] >0)) continue;        
+	if( not ((UInt_t)mc_truth_status[index] == 1)) continue;        
 	isTruePhoton = true;
 	truth_pt     = mc_truth_pt[index];
 	truth_phi    = mc_truth_phi[index];
@@ -297,6 +355,8 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       
       if(isTruePhoton){
 	hReco->Fill(cluster_pt[n], weight);
+	if(not (TMath::Abs(cluster_eta[n]) < 0.4)) hRecoLess4Eta->Fill(cluster_pt[n], weight);
+	if(not (TMath::Abs(cluster_eta[n]) > 0.4 && TMath::Abs(cluster_eta[n]) < 0.67)) hRecoMore4Eta->Fill(cluster_pt[n], weight);
 	hRecoTruth->Fill(truth_pt, weight);
 	hCorrelation->Fill(truth_pt, cluster_pt[n], weight);
       }//end isTruePhoton 
@@ -304,33 +364,124 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 
     //loop over truth particles for clusters
     for (ULong64_t nmc = 0; nmc < nmc_truth; nmc++) {
+      //cout << (Short_t)mc_truth_charge[nmc] << "\t" << (UInt_t)mc_truth_status[nmc] << endl;
 
+      hPDGCode->Fill(mc_truth_pdg_code[nmc]);
+      hPDGCodeWParent->Fill(mc_truth_pdg_code[nmc], mc_truth_first_parent_pdg_code[nmc]);
       //acceptance cuts
-      if(not (TMath::Abs(mc_truth_eta[nmc] < 0.67))) continue;
+      if(not (TMath::Abs(mc_truth_eta[nmc]) < 0.67)) continue;
       if(not (1.396 < mc_truth_phi[nmc] && mc_truth_phi[nmc] < 3.28)) continue;
 
       //real photon cuts
-      if(mc_truth_pdg_code[nmc]!=22) continue;
+      //if(mc_truth_pdg_code[nmc] != 22) continue;
+      if(mc_truth_pdg_code[nmc] != 11) continue;
       if(mc_truth_first_parent_pdg_code[nmc]!=22) continue;
-      if(not (mc_truth_status[nmc] >0)) continue; 
-      {
-	hTruth->Fill(mc_truth_pt[nmc],weight);		
-      }
+      if(not ((UInt_t)mc_truth_status[nmc]  == 1)) continue;
+      
+      hTruth->Fill(mc_truth_pt[nmc],weight);
+      if(not (TMath::Abs(mc_truth_eta[nmc]) < 0.4)) hTruthLess4Eta->Fill(mc_truth_pt[nmc], weight);
+      if(not (TMath::Abs(mc_truth_eta[nmc]) > 0.4 && TMath::Abs(mc_truth_eta[nmc]) < 0.67)) hTruthMore4Eta->Fill(mc_truth_pt[nmc], weight);
+      
+      
+      double promptGamma_pt = mc_truth_pt[nmc];
+      double promptGamma_eta = mc_truth_eta[nmc];
+      double promptGamma_phi = mc_truth_phi[nmc];
+      double radius_2 = 0.0;
+      double isoEnergyTruth = 0.0;
+      double isoEnergyTruthNeutralCharged = 0.0;
+      
+      for (ULong64_t nmcCone = 0; nmcCone < nmc_truth; nmcCone++) {
+
+	double track_pt = mc_truth_pt[nmcCone];
+	double track_eta = mc_truth_eta[nmcCone];
+	double track_phi = mc_truth_phi[nmcCone];
+      
+	const double dEta = track_eta - promptGamma_eta;
+	const double dPhi = angular_range_reduce(angular_range_reduce(track_phi) - angular_range_reduce(promptGamma_phi));
+	radius_2 = TMath::Power(dPhi, 2) + TMath::Power(dEta, 2);
+	
+	hGenIsoCuts->Fill(0);
+
+	//selecting charged particles within ITS acceptance and R = 0.4
+	if(not (TMath::Abs(mc_truth_eta[nmcCone] < 0.8))) {hGenIsoCuts->Fill(1); continue;} //ITS acceptance
+	if(not ((Short_t)mc_truth_charge[nmcCone] != 0)) {hGenIsoCuts->Fill(2); continue;} //charged particle only
+	if(not ((UInt_t)mc_truth_status[nmcCone] == 1)) {hGenIsoCuts->Fill(3); continue;} //final state particle
+	if(not (nmc != nmcCone)) {hGenIsoCuts->Fill(4); continue;} //remove prompt photon
+	if(not (radius_2 < (0.4*0.4))) {hGenIsoCuts->Fill(5); continue;} //Rcone < 0.4
+
+	hGenIsoCuts->Fill(6);
+	hTrackInCone->Fill(track_pt, weight);
+	isoEnergyTruth += track_pt;
+	
+	
+      }//end loop for gen isolation
+      
+      for (ULong64_t nmcCone = 0; nmcCone < nmc_truth; nmcCone++) {
+
+	double track_pt = mc_truth_pt[nmcCone];
+	double track_eta = mc_truth_eta[nmcCone];
+	double track_phi = mc_truth_phi[nmcCone];
+      
+	const double dEta = track_eta - promptGamma_eta;
+	const double dPhi = angular_range_reduce(angular_range_reduce(track_phi) - angular_range_reduce(promptGamma_phi));
+	radius_2 = TMath::Power(dPhi, 2) + TMath::Power(dEta, 2);
+	
+	//selecting charged particles within ITS acceptance and R = 0.4
+	if(not (TMath::Abs(mc_truth_eta[nmcCone] < 0.8))) continue;
+	if(not ((UInt_t)mc_truth_status[nmcCone] == 1)) continue;
+	if(not (nmc != nmcCone)) continue;
+	if(not (radius_2 < (0.4*0.4))) continue;
+	if(not (track_pt > 0.15)) continue;
+
+	isoEnergyTruthNeutralCharged += track_pt;
+	
+	
+      }//end loop for gen isolation
+      
+      hIsolationGenCharged->Fill(isoEnergyTruth);
+      hIsolationGenChargedNeutral->Fill(isoEnergyTruthNeutralCharged);
+      if(not (isoEnergyTruth < 1.5)) continue;
+      hTruthIsolated->Fill(mc_truth_pt[nmc],weight);
+      if(not (TMath::Abs(mc_truth_eta[nmc]) < 0.4)) hTruthIsolatedLess4Eta->Fill(mc_truth_pt[nmc], weight);
+      if(not (TMath::Abs(mc_truth_eta[nmc]) > 0.4 && TMath::Abs(mc_truth_eta[nmc]) < 0.67)) hTruthIsolatedMore4Eta->Fill(mc_truth_pt[nmc], weight);
+
+      
     }//end loop over mc truth particle
     
   }//loop over events
+
+  hGenIsoCuts->GetXaxis()->SetBinLabel(1, "All truth particles");
+  hGenIsoCuts->GetXaxis()->SetBinLabel(2, "ITS acceptance cut");
+  hGenIsoCuts->GetXaxis()->SetBinLabel(3, "charged particle only");
+  hGenIsoCuts->GetXaxis()->SetBinLabel(4, "final state particle");
+  hGenIsoCuts->GetXaxis()->SetBinLabel(5, "current photon");
+  hGenIsoCuts->GetXaxis()->SetBinLabel(6, "Rcone < 0.4");
+  hGenIsoCuts->GetXaxis()->SetBinLabel(7, "Passed truth particles");
   
   //Writing to file
-  filename += "SSC35_noNorm";
+  filename += "StdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_AddedElectron_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/fout_%ibins_firstEvent%lld_%s.root", nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
   hReco->Write("hReco");
+  hRecoLess4Eta->Write("hRecoLess4Eta");
+  hRecoMore4Eta->Write("hRecoMore4Eta");
   hRecoPure->Write("hRecoPure");
   hRecoTruth->Write("hRecoTruth");
   hTruth->Write("hTruth");
+  hTruthLess4Eta->Write("hTruthLess4Eta");
+  hTruthMore4Eta->Write("hTruthMore44Eta");
+  hTruthIsolated->Write("hTruthIsolated");
+  hTruthIsolatedLess4Eta->Write("hTruthIsolatedLess4Eta");
+  hTruthIsolatedMore4Eta->Write("hTruthIsolatedMore4Eta");
   hCorrelation->Write("hCorrelation");
-  
+  hGenIsoCuts->Write("hGenIsoCuts");
+  hIsolationRecCharged->Write("hIsolationRecCharged");
+  hIsolationGenCharged->Write("hIsolationGenCharged");
+  hIsolationGenChargedNeutral->Write("hIsolationGenChargedNeutral");
+  hTrackInCone->Write("hTrackInCone");
+  hPDGCode->Write("hPDGCode");
+  hPDGCodeWParent->Write("hPDGCodeWParent");
   //writing photon info
   
 
@@ -357,6 +508,21 @@ void isoPhotonAnalysisMC(){
   Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 1000000);
   Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 1000000);
   Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 1000000);//*/
+
+  /*Run("18g7a/18g7a_calo_pthat1_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat2_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat3_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat4_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat5_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat6_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat7_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat8_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat9_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat10_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat11_wNeutrals.root", 0, 1000000);
+  Run("18g7a/18g7a_calo_pthat12_wNeutrals.root", 0, 1000000);//*/
+  
+  
 
   /*Run("17g6a1/17g6a1_pthat1_wNeutrals.root");
   Run("17g6a1/17g6a1_pthat2_wNeutrals.root");

@@ -72,9 +72,10 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/fout_6_14bins_firstEvent0_13def_purityNewFitValues_halfWeightForwoPurity_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_CorrectPurityFit_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit_noNorm.root", path.Data()), "READ");
-  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/PlusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PlusPurityFit_noNorm.root", path.Data()), "READ");
-  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/MinusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0MinusPurityFit_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/PlusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PlusPurityFit_NoSigSys_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/MinusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0MinusPurityFit_NoSigSys_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/EfficiencySystematics/26/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFitSSC26_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/ISO133/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit_ISO1Point33_noNorm.root", path.Data()), "READ");
 
   if(!fin){
     cout << "Can't find file" << endl;

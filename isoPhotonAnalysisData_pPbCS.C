@@ -46,6 +46,30 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
     par[2] = 12.4;
   }
 
+  if (strcmp(deviation.data(),"PlusAntiIso")==0){
+    par[0] = 0.58;
+    par[1] = 8.67;
+    par[2] = 13.2;
+  }
+
+  if (strcmp(deviation.data(),"MinusAntiIso")==0){
+    par[0] = 0.53;
+    par[1] = 8.87;
+    par[2] = 12.7;
+  }
+
+    if (strcmp(deviation.data(),"PlusNoSig")==0){
+    par[0] = 0.58;
+    par[1] = 8.63;
+    par[2] = 12.9;
+  }
+
+  if (strcmp(deviation.data(),"MinusNoSig")==0){
+    par[0] = 0.52;
+    par[1] = 8.91;
+    par[2] = 12.9;
+  }
+
   if (strcmp(deviation.data(),"ssc0.26")==0){
     par[0] = 0.63;
     par[1] = 9.02;
@@ -68,6 +92,12 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
     par[0] = 0.49;
     par[1] = 8.32;
     par[2] = 12.5;
+  }
+
+  if (strcmp(deviation.data(),"iso1.33")==0){
+    par[0] = 0.56;
+    par[1] = 8.73;
+    par[2] = 13.1;
   }
 
   purity_val = par[0]*TMath::Erf((pT_GeV-par[1])/par[2]);
@@ -261,6 +291,12 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
   auto hEG1woPurity = new TH1F("hEG1woPurity", "", nbinscluster, clusterbins);
   auto hEG2woPurity = new TH1F("hEG2woPurity", "", nbinscluster, clusterbins);
+
+  auto hEG1Less4Eta = new TH1F("hEG1Less4Eta", "", nbinscluster, clusterbins);
+  auto hEG1More4Eta = new TH1F("hEG1More4Eta", "", nbinscluster, clusterbins);
+  auto hEG2Less4Eta = new TH1F("hEG2Less4Eta", "", nbinscluster, clusterbins);
+  auto hEG2More4Eta = new TH1F("hEG2More4Eta", "", nbinscluster, clusterbins);
+  
 
   auto hEventPerRun = new TH1F("hEventPerRun", "", numRuns, runListbins);
   auto hEG1woPvsRuns = new TH2F("hEG1woPvsRuns", "", nbinscluster, clusterbins, numRuns, runListbins);
@@ -605,14 +641,14 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
 	if(not (cluster_nlocal_maxima[n]<= 2)) continue;
 	if(not (cluster_distance_to_bad_channel[n]>=1))continue;
-	if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
+	if(not ((cluster_tof[n] > -30) && (cluster_tof[n] < 30))) continue;
 	
 	//acceptance cuts
-	if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+	if(not (TMath::Abs(cluster_eta[n]) < 0.67)) continue;
 	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 	
 	//shower shape and isolation
-	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.35 > cluster_lambda_square[n][0]))) continue;
+	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
 	if(not (isolation < 1.5)) continue;
 
 	if(ievent%1000==0){
@@ -624,19 +660,23 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	numClustersPost++;
 	
 	
-	double purity = Get_Purity_ErrFunction(clusterPt, "ssc0.35");
+	double purity = Get_Purity_ErrFunction(clusterPt, "iso1.33");
 	hReco_pt->Fill(clusterPt);
 	if(isEG2) {
 	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
-	  hEG2woPurity->Fill(clusterPt, 0.35);
+	  hEG2woPurity->Fill(clusterPt, 1.33);
 	  hEG2_E->Fill(clusterPt, purity);
+	  if(not (TMath::Abs(cluster_eta[n]) < 0.4)) hEG2Less4Eta->Fill(clusterPt, purity);
+	  if(not (TMath::Abs(cluster_eta[n]) > 0.4 && TMath::Abs(cluster_eta[n]) < 0.67)) hEG2More4Eta->Fill(clusterPt, purity);
 	}
 	if(isEG1){
 	  if(clusterPt > 5)
 	    numClusterMoreThan5GeV++;
 	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
-	  hEG1woPurity->Fill(clusterPt, 0.35);
+	  hEG1woPurity->Fill(clusterPt, 1.33);
 	  hEG1_E->Fill(clusterPt, purity);
+	  if(not (TMath::Abs(cluster_eta[n]) < 0.4)) hEG1Less4Eta->Fill(clusterPt, purity);
+	  if(not (TMath::Abs(cluster_eta[n]) > 0.4 && TMath::Abs(cluster_eta[n]) < 0.67)) hEG1More4Eta->Fill(clusterPt, purity);
 	  if(isolation < 1.5) hEG1woPvsRuns->Fill(clusterPt, run_number);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
@@ -753,7 +793,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
   
 //Writing to file
-  filename += "_StdCuts_EX0PurityFitSSC35_noNorm";
+  filename += "_StdCuts_EX0PurityFit_TOF30_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -763,6 +803,10 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hMB_E->Write("hMB_E");
   hEG1_E->Write("hEG1_E");
   hEG2_E->Write("hEG2_E");
+  hEG1Less4Eta->Write("hEG1Less4Eta");
+  hEG1More4Eta->Write("hEG1More4Eta");
+  hEG2Less4Eta->Write("hEG2Less4Eta");
+  hEG2More4Eta->Write("hEG2More4Eta");
   hEG1woPurity->Write("hEG1woPurity");
   hEG2woPurity->Write("hEG2woPurity");
   hEventPerRun->Write("hEventPerRun");
