@@ -524,7 +524,7 @@ void isoPhotonAnalysisMC(){
   
   
 
-  /*Run("17g6a1/17g6a1_pthat1_wNeutrals.root");
+  Run("17g6a1/17g6a1_pthat1_wNeutrals.root");
   Run("17g6a1/17g6a1_pthat2_wNeutrals.root");
   Run("17g6a1/17g6a1_pthat3_wNeutrals.root");
   Run("17g6a1/17g6a1_pthat4_wNeutrals.root");
