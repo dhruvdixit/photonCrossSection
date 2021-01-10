@@ -504,5 +504,41 @@ void calcSystematics(){
     cout << sscSysValsPercents_pPb[i] << ", ";
   }
   cout << "}" << endl;//*/
+
+  //Purity systematic
+  TFile* file_wCT = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_results.root","READ");
+  TH1F* rpa_wCT = (TH1F*)file_wCT->Get("h_RpA");rpa_wCT->SetLineColor(kRed);rpa_wCT->SetMarkerColor(kRed);
+  TH1F* hcsEG1_wCT = (TH1F*)file_wCT->Get("crossSection_EG1");hcsEG1_wCT->SetLineColor(kRed);hcsEG1_wCT->SetMarkerColor(kRed);
+  TH1F* hcspp_wCT = (TH1F*)file_wCT->Get("crossSection_pp");hcspp_wCT->SetLineColor(kRed);hcspp_wCT->SetMarkerColor(kRed);
+
+  TFile* file_woCT = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_woCrossTalk.root","READ");
+  TH1F* rpa_woCT = (TH1F*)file_woCT->Get("h_RpA");rpa_woCT->SetLineColor(kMagenta);rpa_woCT->SetMarkerColor(kMagenta);
+  TH1F* hcsEG1_woCT = (TH1F*)file_woCT->Get("crossSection_EG1");hcsEG1_woCT->SetLineColor(kMagenta);hcsEG1_woCT->SetMarkerColor(kMagenta);
+  TH1F* hcspp_woCT = (TH1F*)file_woCT->Get("crossSection_pp");hcspp_woCT->SetLineColor(kMagenta);hcspp_woCT->SetMarkerColor(kMagenta);
+
+  TCanvas* cCT = new TCanvas("cCT", "cCT");
+  cCT->SetLogy();
+  hcsEG1_wCT->GetYaxis()->SetRangeUser(1, 1e4);
+  hcsEG1_wCT->Draw();
+  hcsEG1_woCT->Draw("same");
+
+  TLegend* lCT = new TLegend(0.6, 0.6, 0.85, 0.85);
+  lCT->AddEntry(hcsEG1_wCT, "with cross talk");
+  lCT->AddEntry(hcsEG1_woCT, "without cross talk");
+  lCT->Draw("same");
+
+  TH1F* hSysCT = (TH1F*)hcsEG1_wCT->Clone("hSysCT");
+  hSysCT->SetTitle(";E_{T} [GeV]; Sys Error [%]");
+  hSysCT->GetYaxis()->SetRangeUser(0, 100);
+  for(int i = 1; i < hSysCT->GetNbinsX()+1; i++){
+    double content = TMath::Abs(hcsEG1_wCT->GetBinContent(i) - hcsEG1_woCT->GetBinContent(i));
+    double sysCT = content*0.5*100/hcsEG1_wCT->GetBinContent(i);
+    cout << sysCT << endl;
+    hSysCT->SetBinContent(i, sysCT);
+  }
+  
+  TCanvas* cSysCT = new TCanvas("cSysCT", "cSysCT");
+  hSysCT->Draw("hist");
+
   
 }//end makeComparisons

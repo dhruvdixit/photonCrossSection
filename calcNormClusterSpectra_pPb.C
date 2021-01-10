@@ -76,12 +76,15 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/CorrectPurity/MinusPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0MinusPurityFit_NoSigSys_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/EfficiencySystematics/26/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFitSSC26_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/ISO133/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit_ISO1Point33_noNorm.root", path.Data()), "READ");
+  TFile* fin = new TFile(Form("%scsOutput/pPbOutput/ARCComments/ConeAcceptanceCheck/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit_ConeAcceptanceCheck_noNorm.root", path.Data()), "READ");
 
   if(!fin){
     cout << "Can't find file" << endl;
     return;
   }
 
+  //TH1F* hEG1_E = (TH1F*)fin->Get("hEG1Less4Eta");
+  //TH1F* hEG2_E = (TH1F*)fin->Get("hEG2Less4Eta");
   TH1F* hEG1_E = (TH1F*)fin->Get("hEG1_E");
   TH1F* hEG2_E = (TH1F*)fin->Get("hEG2_E");
   TH1F* hEG1woPurity = (TH1F*)fin->Get("hEG1woPurity");
@@ -92,6 +95,7 @@ void calcNormClusterSpectra_pPb(){
   Double_t numEvents_EG2 = hNormalizer->GetBinContent(13);
   cout << "Number of EG1 events: " << numEvents_EG1 << endl;
   cout << "Number of EG2 events: " << numEvents_EG2 << endl;
+  //const double deltaEta = 0.8;
   const double deltaEta = 1.334;
   const double deltaPhi = 1.884;
   double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);

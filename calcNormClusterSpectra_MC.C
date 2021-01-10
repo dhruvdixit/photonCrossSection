@@ -52,6 +52,9 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s17g6a1/EfficiencySystematics/35/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsSSC35_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s17g6a1/ISO133/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsISO1Point33_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s17g6a1/GenISO/StdCuts/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals_woCrossTalkStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone_noNorm.root", path.Data()), "READ");
+  TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone_noNorm.root", path.Data()), "READ");
 
   //18b10a
   //TFile* fin = new TFile(Form("%s18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals_noNorm.root", path.Data()), "READ");
@@ -66,6 +69,8 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s18b10a/GenIso/StdCuts/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/GenIso/AddedLowpTCut/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/GenIso/AddedEelectron/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_AddedElectron_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s18b10a/ARCComments/PerpConeUE/fout_14bins_firstEvent0_18b10a_pthatAll_wNeutrals_woCrossTalkStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone_noNorm.root", path.Data()), "READ");
 
   //18g7a pp JJ
   //TFile* fin = new TFile(Form("%s18g7a/fout_14bins_firstEvent0_18g7a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
@@ -79,9 +84,9 @@ void calcNormClusterSpectra_MC(){
   TH1F* hReco = (TH1F*)fin->Get("hReco");
   TH1F* hRecoTruth = (TH1F*)fin->Get("hRecoTruth");
   TH1F* hTruth = (TH1F*)fin->Get("hTruth");
-  //TH1F* hTruth_pp = (TH1F*)fin->Get("hTruth");
   TH1F* hTruthIsolated_pp = (TH1F*)fin->Get("hTruthIsolated");
   TH2F* hCorrelation = (TH2F*)fin->Get("hCorrelation");
+  //TH1F* hTruth_pp = (TH1F*)fin->Get("hTruth");
   hReco->Sumw2();
   hRecoTruth->Sumw2();
   hTruth->Sumw2();

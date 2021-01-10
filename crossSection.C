@@ -633,11 +633,11 @@ void Run(TString pPbFile, TString ppFile,
   cout << "}" << endl;
 
   //Writing to file
-  /*int startingPoint = pPbFile.Index("bins_")+5;
+  int startingPoint = pPbFile.Index("bins_")+5;
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFit_ISO1Point33_check.root",outputName.Data()), "RECREATE");
+  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFit_results.root",outputName.Data()), "RECREATE");
   crossSection_EG1->Write("crossSection_EG1");
   crossSection_EG2->Write("crossSection_EG2");
   crossSection_pPb->Write("crossSection_pPb");
@@ -671,6 +671,12 @@ void crossSection(){
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/GenISO/StdCuts/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/GenIso/StdCuts/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8.root",
       6917, 245, 1739, 56, 1240, 28);//StdCuts EX0Purity NOTE RESULTS*/
+
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/CorrectPurity/StdPurity/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals_woCrossTalkStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/GenIso/StdCuts/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8.root",
+      6917, 245, 1739, 56, 1240, 28);//StdCuts EX0Purity NoCrossTalk*/
 
   /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/ISO133/fout_6_14bins_firstEvent0_13def_StdCuts_EX0PurityFit_ISO1Point33.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root",
