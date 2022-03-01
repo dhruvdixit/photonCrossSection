@@ -59,13 +59,33 @@ void calcNormClusterSpectra_pp(){
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/MinusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0MinusPurityFit_AntiIsoSysOnly_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17q_ITSonly_StdCuts_EX0PurityFit_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/EfficiencySystematics/26/fout_4_14bins_firstEvent0_17q_ITSonly_StdCuts_EX0PurityFitSSC26_noNorm.root", path.Data()), "READ");
-  TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/PlusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PlusPurityFit_NoSigSys_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/CorrectPurity/PlusPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PlusPurityFit_NoSigSys_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/SystemChecks/TOF30/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit_TOF30_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ARCComments/ConeAcceptanceCheck/fout_4_14bins_firstEvent0_17All_StdCuts_EX0PurityFit_ConeAcceptanceCheckLess4Eta_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/ARCComments/ConeAcceptanceCheck/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit_ConeAcceptanceCheckMore4Eta_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_r282440_noThresh_muoncalopass1_phySel_StdCuts_EX0PurityFit_onlyRun282440_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_part000_StdCuts_EX0PurityFit_onlyRun282440_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_1runs_part1_kCaloOnlykINTkAny_mannualAndGreen_split10_wNL_StdCuts_EX0PurityFit_onlyRun282440_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_1runs_part1_kMuonCalo_mannualAndGreen_split10_wNL_StdCuts_EX0PurityFit_onlyRun282440_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_1runs_part2_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_run282437_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_part001_StdCuts_EX0PurityFit_run282437_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_partAll_StdCuts_EX0PurityFit_ReCheck_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/fout_4_14bins_firstEvent0_17q_ITSonly_runAll_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_ReCheck_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_part007_StdCuts_EX0PurityFit_run282393_ReCheck_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_run282393_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_run282402_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/StdCutsNLPurity/fout_4_14bins_firstEvent0_17q_ITSonly_allRuns_kMuonCalo_mannualAndGreen_split10_wNL_StdCuts_EX0PurityFit_NonlinPurity_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/StdCutsNLMinusPurity/fout_4_14bins_firstEvent0_17q_ITSonly_runsAll_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_NonlinPurityMinusNL_noNorm.root", path.Data()), "READ");
+
+
   
   TH1F* hEG2_caloE = (TH1F*)fin->Get("hEG2_caloE");
+  TH1F* hEG2woPurity = (TH1F*)fin->Get("hEG2woPurity");  
   TH1F* hNormalizer = (TH1F*)fin->Get("hNormalizer");
 
   Double_t numEvents_EG2calo = hNormalizer->GetBinContent(11);
   cout << "Number of EG2 events: " << numEvents_EG2calo << endl;
+  //const double deltaEta = 0.8;//Less4Eta
+  //const double deltaEta = 0.54;//More4Eta
   const double deltaEta = 1.334;
   const double deltaPhi = 1.884;
   double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
@@ -84,10 +104,36 @@ void calcNormClusterSpectra_pp(){
       }
     
   }//*/  
+
+  for(int i = 1; i < hEG2woPurity->GetNbinsX()+1; i++){
+    double dE = hEG2woPurity->GetBinWidth(i);
+    
+    double contentEG2 = hEG2woPurity->GetBinContent(i);
+    double tempEG2 = (contentEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
+    double errorEG2 = hEG2woPurity->GetBinError(i);
+    double tempErrEG2 = (errorEG2*acceptanceNorm)/((double)numEvents_EG2calo*dE);
+    if(numEvents_EG2calo) 
+      {
+	hEG2woPurity->SetBinContent(i,tempEG2);
+	hEG2woPurity->SetBinError(i, tempErrEG2);
+      }
+    
+  }//*/  
+
+  hEG2_caloE->SetLineColor(kGreen);
+  hEG2_caloE->SetMarkerColor(kGreen);
+  hEG2_caloE->SetMarkerStyle(21);
+  hEG2_caloE->SetMarkerSize(2);
+
+  hEG2woPurity->SetLineColor(kCyan);
+  hEG2woPurity->SetMarkerColor(kCyan);
+  hEG2woPurity->SetMarkerStyle(21);
+  hEG2woPurity->SetMarkerSize(2);//*/
   
   TCanvas* c1 = new TCanvas();
   c1->SetLogy();
   hEG2_caloE->Draw("e1");
+  hEG2woPurity->Draw("same e1");
   TString filename = fin->GetName();
   Int_t index = filename.Index("_noNorm");
   filename.Replace(index, 7, "");
@@ -96,6 +142,7 @@ void calcNormClusterSpectra_pp(){
     cout << filename << endl;
     TFile* fout = new TFile(Form("%s", filename.Data()), "RECREATE");
     hEG2_caloE->Write("hEG2_caloE");
+    hEG2woPurity->Write("hEG2woPurity");    
     hNormalizer->Write("hNormalizer");
     fout->Close();
   }//end filename compare

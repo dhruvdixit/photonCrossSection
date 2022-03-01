@@ -28,6 +28,24 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 		    9.13,
 		    11.3};
 
+  if (strcmp(deviation.data(),"Nonlin")==0){
+    par[0] = 0.48;
+    par[1] = 6.07;
+    par[2] = 18.0;
+  }
+
+  if (strcmp(deviation.data(),"PlusNL")==0){
+    par[0] = 0.56;
+    par[1] = 5.45;
+    par[2] = 19.9;
+  }
+
+  if (strcmp(deviation.data(),"MinusNL")==0){
+    par[0] = 0.39;
+    par[1] = 7.00;
+    par[2] = 15.3;
+  }
+
   if (strcmp(deviation.data(),"Plus")==0){
     par[0] = 0.59;
     par[1] = 8.29;
@@ -352,7 +370,9 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   int numClusters_clusterpt = 0;
   int numClusters_EG2_caloE = 0;
   int numClusters_EG2_centE = 0;
- 
+
+  double maxEta = 0.4;
+  
   const ULong64_t one1 = 1;
   const int numTrigs = 5; 
   /*//////////////////////////////////////////////////////////////////////////////////
@@ -391,8 +411,6 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     
     bool isMBcent, isDG2calo, isEG2calo, isEG2cent;
     isMBcent = isDG2calo = isEG2calo = isEG2cent = false;
-    
-    
     
     hPileUpVertex->Fill(npileup_vertex_spd);
     hEventCut->Fill(0);
@@ -511,16 +529,9 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	  7    |eta| < 0.667
 	  8    1.396 < phi < 3.28
 	////////////////////////////////////////*/
-	hCluster_tof->Fill(cluster_tof[n]);
+
 	if(clusterPt > 20)
 	  hCluster_tof20GeV->Fill(cluster_tof[n]);
-	hExoticity->Fill(cluster_e_cross[n]/cluster_e_max[n]);
-	hCellEvClusterE->Fill(cluster_e_max[n]-clusterE);
-	hNcell->Fill(cluster_ncell[n]);
-	hNLM->Fill(cluster_nlocal_maxima[n]);
-	hD2BC->Fill(cluster_distance_to_bad_channel[n]);
-	hEta->Fill(clusterEta);
-	hPhi->Fill(clusterPhi);
 	
 	if((isolation < 1.5)) h_YesISO->Fill(clusterPt);
 	h_NoISO->Fill(clusterPt);
@@ -533,43 +544,16 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	numClustersPre++;	
 	hClusterCut->Fill(0);
 	hClusterCutFlow->Fill(0);
-	
-	/*if( not(clusterPt>8)) {continue;} //select pt of photons
-	if( (cluster_ncell[n]>=2)){                    
-	  clusterCutBits |= (1 << 0); hClusterCut->Fill(1); 
-	} clusterCutPassed |= (1 << 0); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(1); //removes clusters with 1 or 2 cells
-	if( ((cluster_e_cross[n]/cluster_e_max[n])>0.05)){
-	  clusterCutBits |= (1 << 1); hClusterCut->Fill(2);
-	} clusterCutPassed |= (1 << 1); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(2);//removes "spiky" clusters
-	if( (cluster_nlocal_maxima[n] <= 2)){
-	  clusterCutBits |= (1 << 2); hClusterCut->Fill(3);
-	} clusterCutPassed |= (1 << 2); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(3);//require to have at most 2 local maxima.
-	if( (cluster_distance_to_bad_channel[n] >= 1)){                          
-	  clusterCutBits |= (1 << 3); hClusterCut->Fill(4);
-	} clusterCutPassed |= (1 << 3); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(4);//distnace to bad channels
-	if( (cluster_tof[n] > -20) && (cluster_tof[n] < 20)){
-	  clusterCutBits |= (1 << 4); hClusterCut->Fill(5);
-	} clusterCutPassed |= (1 << 4); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(5);//time of flight
 
-	//Isolation and shower shape selection:
-	if( (isolation < 1.5)){
-	  clusterCutBits |= (1 << 5); hClusterCut->Fill(6);
-	  } clusterCutPassed |= (1 << 5); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(6);//isolation r = 0.4 and energy < 1.5
-	if((cluster_lambda_square[n][0] > 0.1) && (cluster_lambda_square[n][0] < 0.3)){
-	  clusterCutBits |= (1 << 6); hClusterCut->Fill(7);
-	} clusterCutPassed |= (1 << 6); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(7);//single-photon selection, not merged
-	
+	hNcell->Fill(cluster_ncell[n]);
+	hExoticity->Fill(cluster_e_cross[n]/cluster_e_max[n]);
+	hNLM->Fill(cluster_nlocal_maxima[n]);
+	hD2BC->Fill(cluster_distance_to_bad_channel[n]);
+	hCluster_tof->Fill(cluster_tof[n]);
+	hEta->Fill(clusterEta);
+	hPhi->Fill(clusterPhi);
+	hCellEvClusterE->Fill(cluster_e_max[n]-clusterE);
 
-	//fiducial cut
-	if((TMath::Abs(clusterEta)) < 0.67){
-	  clusterCutBits |= (1 << 7); hClusterCut->Fill(8);
-	} clusterCutPassed |= (1 << 7); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(8);//eta cut
-	if((clusterPhi > 1.396) && (clusterPhi <3.28)){
-	  clusterCutBits |= (1 << 8); hClusterCut->Fill(9);
-	} clusterCutPassed |= (1 << 8); if(clusterCutBits == clusterCutPassed) hClusterCutFlow->Fill(9);//phi cut
-
-	if((clusterCutBits != clusterCutPassed) || (clusterCutBits == 0))
-	continue;//*/
 	
 	if(not (cluster_ncell[n]>=2)) continue;
 	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
@@ -578,7 +562,8 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
 	
 	//acceptance cuts
-	if(not (TMath::Abs(cluster_eta[n] < 0.67))) continue;
+	//if(not (TMath::Abs(cluster_eta[n]) < 0.4)) continue;
+	if(not (TMath::Abs(cluster_eta[n]) < 0.67)) continue;
 	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 	
 	//shower shape and isolation
@@ -591,18 +576,19 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	    std::cout << "cluster accepted" << std::endl;
 	    
 	  }
+	
 
 	hClusterCut->Fill(10);
 	hClusterCutFlow->Fill(10);
 	numClustersPost++;
 
-	double purity = Get_Purity_ErrFunction(clusterPt, "MinusNoSig");
+	double purity = Get_Purity_ErrFunction(clusterPt, "MinusNL");
 	
 	hReco_pt->Fill(clusterPt);
 	if(isEG2calo) {
 	  numClusters_EG2_caloE++;
 	  hEG2_caloE->Fill(clusterPt, purity);
-	  hEG2woPurity->Fill(clusterPt, 0.5);
+	  hEG2woPurity->Fill(clusterPt, 1);
 	}
 	hCluster_pt->Fill(clusterPt,purity);
 	numClusters_clusterpt++;
@@ -622,9 +608,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
   const double deltaEta = 1.334;
   const double deltaPhi = 1.884;
-  double acceptanceNorm = 2*TMath::Pi()/(deltaEta*deltaPhi);
   
-
   auto normalizer = new TH1D("normalizer", "normalizer", 20, -0.5, 19.5);
   normalizer->SetBinContent(1, deltaEta);
   normalizer->SetBinContent(2, deltaPhi);
@@ -707,7 +691,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_StdCuts_EX0MinusPurityFit_NoSigSys_noNorm";
+  filename += "_StdCuts_EX0PurityFit_ReCheck_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -778,9 +762,9 @@ void isoPhotonAnalysisData_ppCS(){
     //1100 = 12 = EG2calo || EG2cent
     //1101 = 13 = MB || EG2calo || EG2cent
 
-  //pp data sets  
+  //pp data sets - without NL 
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282365_physel.root");
-  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel_copy.root");
+  //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282366_physel.root");
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh_r282367_physel.root");
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part000.root");//3.3
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part001.root");//25
@@ -788,10 +772,10 @@ void isoPhotonAnalysisData_ppCS(){
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part003.root");//2.9
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part004.root");//36
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part005.root");//17
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0
-  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part006.root");//5.6 282398
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part007.root");//2.5 282393
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part008.root");//5.0 282392
+  //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part009.root");//15 282391
   //Run(4, "pp/17q/17q_ITSonly_noThresh_muonCalo_phySel_part010.root");//15
 
   //4,035,922 --> starting of EMC good runs
@@ -799,6 +783,23 @@ void isoPhotonAnalysisData_ppCS(){
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false, 0, 1749493);
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false, 1749493, 2939338);
   //Run(4, "pp/17q/17q_CENT_wSDD_noThresh.root", false, false, 2939338, 4035922);
+
+  //new ntuplizer ITS only runs
+  //Run(4, "pp/17q/17q_12runs_kEMCEGA_kINT7_mannualMode.root");
+  //Run(4, "pp/17q/run_282440/17q_r282440_noThresh_muoncalopass1_phySel.root");
+  //Run(4, "pp/17q/run_282440/17q_ITSonly_1runs_part1_kCaloOnlykINTkAny_mannualAndGreen_split10_wNL.root");
+  
+  //With NL dataset
+  //Run(4, "pp/17q/run_282440/17q_ITSonly_1runs_part1_kMuonCalo_mannualAndGreen_split10_wNL.root");
+  //Run(4, "pp/17q/17q_ITSonly_1runs_part2_kMuonCalo_mannualAndGreen_split5_wNL.root");
+  //Run(4, "pp/17q/17q_ITSonly_run282402_kMuonCalo_mannualAndGreen_split5_wNL_part1.root");//1362718
+  //Run(4, "pp/17q/17q_ITSonly_run282402_kMuonCalo_mannualAndGreen_split5_wNL_part2.root");//1808838
+  //Run(4, "pp/17q/17q_ITSonly_run282402_kMuonCalo_mannualAndGreen_split5_wNL_part3.root");//1210443
+  //Run(4, "pp/17q/17q_ITSonly_run282399_kMuonCalo_mannualAndGreen_split5_wNL.root");//1288632
+  //Run(4, "pp/17q/17q_ITSonly_run282398_kMuonCalo_mannualAndGreen_split5_wNL.root");//526946
+  //Run(4, "pp/17q/17q_ITSonly_run282393_kMuonCalo_mannualAndGreen_split5_wNL.root");//310278
+  //Run(4, "pp/17q/17q_ITSonly_run282392_kMuonCalo_mannualAndGreen_split5_wNL.root");//490340
+  //Run(4, "pp/17q/17q_ITSonly_run282391_kMuonCalo_mannualAndGreen_split5_wNL.root");//
   
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end-start;
