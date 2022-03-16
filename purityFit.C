@@ -13,13 +13,16 @@ void purityFit(){
   //Double_t statErr_pp[nbins] = {0.0151, 0.0190, 0.0245, 0.0322, 0.0322};//ssc < 0.33
   //Double_t purity_pp[nbins] = {0.2061, 0.3149, 0.4112, 0.4415, 0.4415};//ssc < 0.35
   //Double_t statErr_pp[nbins] = {0.0150, 0.0187, 0.0247, 0.0319, 0.0319};//ssc < 0.35
+  Double_t purity_pp[nbins] = {0.205, 0.289, 0.361, 0.468, 0.468};//wNL
+  Double_t statErr_pp[nbins] = {0.020, 0.017, 0.042, 0.032, 0.032};//wNL
 
-  Double_t purity_pp[nbins] = {0.201, 0.317, 0.473, 0.485, 0.485};
-  Double_t statErr_pp[nbins] = {0.017, 0.020, 0.029, 0.035, 0.035};
-  Double_t systErr_pp[nbins] = {0.034, 0.036, 0.040, 0.078, 0.078};
-  Double_t sigErr_pp[nbins] = {0.020, 0.025, 0.008, 0.058, 0.058};
-  Double_t antiErr_pp[nbins] = {0.012, 0.015, 0.030, 0.040, 0.040};
-  Double_t bkgErr_pp[nbins] = {0.025, 0.021, 0.026, 0.032, 0.032};
+  
+  //Double_t purity_pp[nbins] = {0.201, 0.317, 0.473, 0.485, 0.485};//jan results
+  //Double_t statErr_pp[nbins] = {0.017, 0.020, 0.029, 0.035, 0.035};//jan results
+  Double_t systErr_pp[nbins] = {0.034, 0.036, 0.040, 0.078, 0.078};//jan results
+  Double_t sigErr_pp[nbins] = {0.020, 0.025, 0.008, 0.058, 0.058};//jan results
+  Double_t antiErr_pp[nbins] = {0.012, 0.015, 0.030, 0.040, 0.040};//jan results
+  Double_t bkgErr_pp[nbins] = {0.025, 0.021, 0.026, 0.032, 0.032};//jan results
   Double_t totsErr_pp[nbins] = {0.0};
   Double_t PlusErr_pp[nbins] = {0.0};
   Double_t MinusErr_pp[nbins] = {0.0};
@@ -32,29 +35,40 @@ void purityFit(){
   //Double_t statErr_pPb[nbins] = {0.0083, 0.0124, 0.0197, 0.0263, 0.0263};//ssc < 0.33
   //Double_t purity_pPb[nbins]= {0.2028, 0.3282, 0.4182, 0.4852, 0.4852};//ssc < 0.35
   //Double_t statErr_pPb[nbins] = {0.0083, 0.0122, 0.0193, 0.0263, 0.0263};//ssc < 0.35
-  Double_t purity_pPb[nbins] = {0.210, 0.349, 0.477, 0.557, 0.557};//iso < 1.33
-  Double_t statErr_pPb[nbins] = {0.018, 0.010, 0.012, 0.015, 0.015};//iso < 1.33
-  //Double_t purity_pPb[nbins] = {0.207, 0.342, 0.476, 0.546, 0.546};
-  //Double_t statErr_pPb[nbins] = {0.011, 0.012, 0.017, 0.018, 0.018};
-  Double_t sigErr_pPb[nbins] = {0.011, 0.020, 0.019, 0.023, 0.023};
-  Double_t antiErr_pPb[nbins] = {0.008, 0.016, 0.011, 0.024, 0.024};
-  Double_t bkgErr_pPb[nbins] = {0.015, 0.012, 0.027, 0.011, 0.011};
-  Double_t systErr_pPb[nbins] = {0.020, 0.028, 0.027, 0.039, 0.039};
+  //Double_t purity_pPb[nbins] = {0.210, 0.349, 0.477, 0.557, 0.557};//iso < 1.33
+  //Double_t statErr_pPb[nbins] = {0.018, 0.010, 0.012, 0.015, 0.015};//iso < 1.33
+  Double_t purity_pPb[nbins] = {0.209, 0.332, 0.442, 0.549, 0.549};//wNL
+  Double_t statErr_pPb[nbins] = {0.005, 0.011, 0.006, 0.007, 0.007};//wNL
+
+  //Double_t purity_pPb[nbins] = {0.207, 0.342, 0.476, 0.546, 0.546};//jan results
+  //Double_t statErr_pPb[nbins] = {0.011, 0.012, 0.017, 0.018, 0.018};//jan results
+  Double_t systErr_pPb[nbins] = {0.020, 0.028, 0.027, 0.039, 0.039};//jan results
+  Double_t sigErr_pPb[nbins] = {0.011, 0.020, 0.019, 0.023, 0.023};//jan results
+  Double_t antiErr_pPb[nbins] = {0.008, 0.016, 0.011, 0.024, 0.024};//jan results
+  Double_t bkgErr_pPb[nbins] = {0.015, 0.012, 0.027, 0.011, 0.011};//jan results
   Double_t totsErr_pPb[nbins] = {0.0};
   Double_t PlusErr_pPb[nbins] = {0.0};
   Double_t MinusErr_pPb[nbins] = {0.0};
 
+  Double_t ratio_pp[nbins] = {0.0};
+  Double_t ratio_pPb[nbins] = {0.0};
+  
   for(int i = 0; i < nbins; i++){
-    totsErr_pp[i] = TMath::Sqrt(TMath::Power(antiErr_pp[i], 2) + TMath::Power(bkgErr_pp[i], 2));
-    totsErr_pPb[i] = TMath::Sqrt(TMath::Power(antiErr_pPb[i], 2) + TMath::Power(bkgErr_pPb[i], 2));
-    //totsErr_pp[i] = systErr_pp[i];
-    //totsErr_pPb[i] = systErr_pPb[i];
+    //totsErr_pp[i] = TMath::Sqrt(TMath::Power(antiErr_pp[i], 2) + TMath::Power(bkgErr_pp[i], 2));
+    //totsErr_pPb[i] = TMath::Sqrt(TMath::Power(antiErr_pPb[i], 2) + TMath::Power(bkgErr_pPb[i], 2));
+    totsErr_pp[i] = systErr_pp[i];
+    totsErr_pPb[i] = systErr_pPb[i];
+    //totsErr_pp[i] = statErr_pp[i];
+    //totsErr_pPb[i] = statErr_pPb[i];
+    
     
     PlusErr_pp[i] = purity_pp[i]+totsErr_pp[i];
     MinusErr_pp[i] = purity_pp[i]-totsErr_pp[i];
     PlusErr_pPb[i] = purity_pPb[i]+totsErr_pPb[i];
     MinusErr_pPb[i] = purity_pPb[i]-totsErr_pPb[i];
 
+    //ratio_pp[i] = purity_pp_wNL[i]/purity_pp[i];
+    //ratio_pPb[i] = purity_pPb_wNL[i]/purity_pPb[i];
   }
   
   Double_t xBinCenters[nbins] = {13.198656, 16.903571, 22.064577, 30.107411, 45.0};
@@ -220,5 +234,32 @@ void purityFit(){
        << "\tp1: " << erfMinus_pPb->GetParameter(1) << "+/-" << erfMinus_pPb->GetParError(1)
        << "\tp2: " << erfMinus_pPb->GetParameter(2) << "+/-" << erfMinus_pPb->GetParError(2) << endl;//*/
 
-  
+  /*auto grPurityRatio_pPb = new TGraphAsymmErrors(nbins, xBinCenters, ratio_pPb, xBinLeftErr, xBinRightErr, statErr_pPb_wNL, statErr_pPb_wNL);
+  grPurityRatio_pPb->SetTitle(";p_{T} [GeV/c]; purity");
+  grPurityRatio_pPb->SetLineColor(kRed);
+  grPurityRatio_pPb->SetMarkerColor(kRed);
+  grPurityRatio_pPb->SetMarkerStyle(kFullCircle);
+
+  auto grPurityRatio_pp = new TGraphAsymmErrors(nbins, xBinCenters, ratio_pp, xBinLeftErr, xBinRightErr, statErr_pp_wNL, statErr_pp_wNL);
+  grPurityRatio_pp->SetTitle(";p_{T} [GeV/c]; purity");
+  grPurityRatio_pp->SetLineColor(kBlue);
+  grPurityRatio_pp->SetMarkerColor(kBlue);
+  grPurityRatio_pp->SetMarkerStyle(kFullCircle);
+
+
+  TCanvas* c3 = new TCanvas("c3", "c3");
+  c3->DrawFrame(12, 0.0, 40, 2.0);
+  grPurityRatio_pPb->Draw("p");
+  grPurityRatio_pp->Draw("psame");
+  grPurityRatio_pPb->GetXaxis()->SetRangeUser(12,40);
+  grPurityRatio_pp->GetXaxis()->SetRangeUser(12,40);
+  c3->Update();
+
+  TLegend* l3 = new TLegend(0.5, 0.2, 0.85, 0.5);
+  l3->AddEntry(grPurityRatio_pp, "pp ratio");
+  l3->AddEntry(grPurityRatio_pPb, "p-Pb ratio");
+  l3->Draw("same");
+  c3->SaveAs("purityFits_pPb.pdf");//*/
+
+
 }//end function

@@ -1,6 +1,6 @@
 #include <fstream>
 #include <vector>
-void compareWithErwann(){{
+void compareWithErwann(){
 
   gStyle->SetOptStat(0);
   gStyle->SetLegendBorderSize(0);
@@ -17,8 +17,10 @@ void compareWithErwann(){{
   Double_t erwannCSStat[numBins] = {337.901, 71.0714, 51.475, 35.3468, 15.5412, 10.4705, 4.64552, 1.38719};
   Double_t erwannCSSys[numBins] = {308.501, 167.064, 96.1471, 58.8658, 29.4243, 12.7484, 4.7213, 1.11858};
   
-  Double_t dhruvCSMean[numBins] = {1924.31, 1286.57, 823.076, 525.652, 284.654, 128.145, 49.117, 8.77088};
-  Double_t dhruvCSStat[numBins] = {12.091, 11.79, 10.4942, 9.00236, 4.47992, 3.15132, 1.38649, 0.411638};
+  Double_t dhruvCSMean[numBins] = {1924.31, 1286.57, 823.076, 525.652, 284.654, 128.145, 49.117, 8.77088};//without nonlin
+  Double_t dhruvCSStat[numBins] = {12.091, 11.79, 10.4942, 9.00236, 4.47992, 3.15132, 1.38649, 0.411638};//without nonlin
+  //Double_t dhruvCSMean[numBins] = {1945.6, 1217.8, 775.414, 489.758, 253.291, 119.494, 46.5479, 8.74711};//With nonlin
+  //Double_t dhruvCSStat[numBins] = {25.942, 21.281, 17.6124, 14.5384, 6.87522, 4.91365, 2.17788, 0.663041};//With nonlin
   Double_t dhruvCSSys[numBins] = {244.3, 135.641, 78.439, 47.7364, 25.2224, 11.4663, 4.48855, 0.811153};
   
   TGraphErrors* csErwannStat = new TGraphErrors(8, xBinCenters, erwannCSMean, xErr, erwannCSStat);
@@ -26,25 +28,54 @@ void compareWithErwann(){{
   TGraphErrors* csDhruvStat = new TGraphErrors(8, xBinCenters, dhruvCSMean, xErr, dhruvCSStat);
   TGraphErrors* csDhruvSys = new TGraphErrors(8, xBinCenters, dhruvCSMean, xErr, dhruvCSSys);
 
-  csErwannStat->SetMarkerStyle(20); csErwannStat->SetMarkerColor(kBlack);
-  csErwannSys->SetFillColor(kBlack); csErwannSys->SetFillStyle(3004);
+  csErwannStat->SetMarkerStyle(20); csErwannStat->SetMarkerColor(kBlue);
+  csErwannSys->SetLineColor(kBlue);
+  csErwannSys->SetLineWidth(2);
+  csErwannSys->SetFillStyle(3004);
+  csErwannSys->SetFillColor(kBlue);
   csDhruvStat->SetMarkerStyle(20); csDhruvStat->SetMarkerColor(kRed); csDhruvStat->SetLineColor(kRed);
-  csDhruvSys->SetFillColor(kOrange);
+  csDhruvSys->SetLineColor(kRed);
+  csDhruvSys->SetLineWidth(2);
+  csDhruvSys->SetFillStyle(3001);
+  csDhruvSys->SetFillColor(kRed);
+  csDhruvSys->GetXaxis()->SetRangeUser(12, 60);
+  //csDhruvSys->SetFillColor(kOrange);
   csDhruvStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csErwannStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csDhruvSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csErwannSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
+  
+  TLegend* lDhruvCSTitle = new TLegend(0.52, 0.709, 0.87, 0.88);
+  lDhruvCSTitle->AddEntry((TObject*)0, "ALICE Preliminary", "");
+  lDhruvCSTitle->AddEntry((TObject*)0, "p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
+  lDhruvCSTitle->AddEntry((TObject*)0, "#it{L}_{int} = 4.96 nb^{-1}, |#it{#eta}_{#gamma}| < 0.67", "");
+  TLegend* lDhruvCS = new TLegend(0.6, 0.59, 0.87, 0.698);
+  //lDhruvCS->AddEntry((TObject*)0, "ALICE Preliminary", "");
+  //lDhruvCS->AddEntry((TObject*)0, "p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
+  //lDhruvCS->AddEntry((TObject*)0, "#it{L}_{int} = 4.96 nb^{-1}, |#it{#eta}_{#gamma}| < 0.67", "");
+  lDhruvCS->AddEntry(csDhruvStat, "Data and stat. unc.", "PF");
+  lDhruvCS->AddEntry(csDhruvSys, "Systematic unc.", "PF");
+  TCanvas* cDhruvCS = new TCanvas("cDhruvCS", "cDhruvCS", 500, 800);
+  cDhruvCS->DrawFrame(12, 1, 60, 3000);
+  cDhruvCS->SetLogy();
+  csDhruvSys->Draw("E3A");
+  csDhruvStat->Draw("PESame");
+  lDhruvCSTitle->Draw("same");
+  lDhruvCS->Draw("same");
+
+
   TLegend* lCs = new TLegend(0.4, 0.6, 0.87, 0.87);
-  lCs->AddEntry(csErwannStat, "Preliminiary cross-section results", "PF");
-  lCs->AddEntry(csErwannSys, "Sys Err on Preliminiary cross-section results", "PF");
+  lCs->AddEntry(csErwannStat, "Erwann cross-section results", "PF");
+  lCs->AddEntry(csErwannSys, "Sys Err on Erwann cross-section results", "PF");
   lCs->AddEntry(csDhruvStat, "Dhruv's cross-section results", "PF");
   lCs->AddEntry(csDhruvSys, "Sys Err on Dhruv's cross-section results", "PF");
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->DrawFrame(12, 1, 60, 3000);
   c1->SetLogy();
-  csErwannSys->Draw("E3AL");
-  csDhruvSys->Draw("E3 same");
+  csDhruvSys->Draw("E3A");
+  csErwannSys->Draw("E3 same");
+  //csDhruvSys->Draw("E3 same");
   csErwannStat->Draw("PESame");
   csDhruvStat->Draw("PESame");
   lCs->Draw("same");
@@ -54,14 +85,15 @@ void compareWithErwann(){{
   Double_t ratioCSSys[numBins] = {0};
   for(int i = 0; i < numBins; i++){
     ratioCSMean[i] = erwannCSMean[i]/dhruvCSMean[i];
-    ratioCSStat[i] = ratioCSMean[i]*(erwannCSStat[i]/erwannCSMean[i]);//ratioCSMean[i]*TMath::Sqrt(TMath::Power(erwannCSStat[i]/erwannCSMean[i], 2) + TMath::Power(dhruvStat[i]/dhruvCSMean[i], 2));
+    //ratioCSStat[i] = ratioCSMean[i]*(erwannCSStat[i]/erwannCSMean[i]);//
+    ratioCSStat[i] = ratioCSMean[i]*TMath::Sqrt(TMath::Power(erwannCSStat[i]/erwannCSMean[i], 2) + TMath::Power(dhruvCSStat[i]/dhruvCSMean[i], 2));
     ratioCSSys[i] = ratioCSMean[i]*TMath::Sqrt(TMath::Power(erwannCSSys[i]/erwannCSMean[i], 2) + TMath::Power(dhruvCSSys[i]/dhruvCSMean[i], 2));
   }
 
   TGraphErrors* csRatioStat = new TGraphErrors(8, xBinCenters, ratioCSMean, xErr, ratioCSStat);
   TGraphErrors* csRatioSys = new TGraphErrors(8, xBinCenters, ratioCSMean, xErr, ratioCSSys);
-  csRatioStat->SetTitle(";E_{T} [GeV];#frac{cross section_{prelim}}{cross section_{dhruv}}");
-  csRatioSys->SetTitle(";E_{T} [GeV];#frac{cross section_{prelim}}{cross section_{dhruv}}");
+  csRatioStat->SetTitle(";E_{T} [GeV];#frac{cross section_{Erwann}}{cross section_{dhruv}}");
+  csRatioSys->SetTitle(";E_{T} [GeV];#frac{cross section_{Erwann}}{cross section_{dhruv}}");
   csRatioStat->GetXaxis()->SetRangeUser(12,60);
   csRatioSys->GetXaxis()->SetRangeUser(12,60);
   csRatioStat->GetYaxis()->SetRangeUser(0,2);
@@ -75,7 +107,7 @@ void compareWithErwann(){{
   line->Draw("Same");
 
   //Efficiency comparison
-  Double_t erwannEffMean[numBins] = {0.588658, 0.588779, 0.592832, 0.603951, 0.615985, 0.634618, 0.64918, 0.668659};
+  /*Double_t erwannEffMean[numBins] = {0.588658, 0.588779, 0.592832, 0.603951, 0.615985, 0.634618, 0.64918, 0.668659};
   Double_t erwannEffStat[numBins] = {0.000818115, 0.00086052, 0.000887487, 0.000912674, 0.000614389, 0.000638404, 0.000507488, 0.00038763};
   Double_t erwannEffSys[numBins] = {0.0950227, 0.0471217, 0.0383073, 0.0370981, 0.0328842, 0.027495, 0.0276957, 0.023399};
   Double_t dhruvEffMean[numBins] = {0.593997, 0.595344, 0.603961, 0.610833, 0.622483, 0.628033, 0.645673, 0.655699};
@@ -97,8 +129,8 @@ void compareWithErwann(){{
   effErwannSys->SetTitle(";E_{T} [GeV];#epsilon_{#gamma}^{iso}");
 
   TLegend* lEff = new TLegend(0.15, 0.1, 0.6, 0.4);
-  lEff->AddEntry(effErwannStat, "Preliminiary efficiency results", "PF");
-  lEff->AddEntry(effErwannSys, "Sys Err on Preliminiary efficiency results", "PF");
+  lEff->AddEntry(effErwannStat, "Erwann efficiency results", "PF");
+  lEff->AddEntry(effErwannSys, "Sys Err on Erwann efficiency results", "PF");
   lEff->AddEntry(effDhruvStat, "Dhruv's efficiency results", "PF");
   //lEff->AddEntry(effDhruvSys, "Sys Err on Dhruv's efficiency results", "PF");
   TCanvas* cEff = new TCanvas("cEff", "cEff");
@@ -121,8 +153,8 @@ void compareWithErwann(){{
 
   TGraphErrors* effRatioStat = new TGraphErrors(8, xBinCenters, ratioEffMean, xErr, ratioEffStat);
   TGraphErrors* effRatioSys = new TGraphErrors(8, xBinCenters, ratioEffMean, xErr, ratioEffSys);
-  effRatioStat->SetTitle(";E_{T} [GeV];#frac{eff_{prelim}}{eff_{dhruv}}");
-  effRatioSys->SetTitle(";E_{T} [GeV];#frac{eff_{prelim}}{eff_{dhruv}}");
+  effRatioStat->SetTitle(";E_{T} [GeV];#frac{eff_{Erwann}}{eff_{dhruv}}");
+  effRatioSys->SetTitle(";E_{T} [GeV];#frac{eff_{Erwann}}{eff_{dhruv}}");
   effRatioStat->GetXaxis()->SetRangeUser(12,60);
   effRatioSys->GetXaxis()->SetRangeUser(12,60);
   effRatioStat->GetYaxis()->SetRangeUser(0,2);
@@ -136,7 +168,7 @@ void compareWithErwann(){{
   line->Draw("Same");//*/
 
   //Purity
-  Double_t erwannPrtyMean[numBins] = {0.330486, 0.427572, 0.502339, 0.590244, 0.627706, 0.653977, 0.65251, 0.673619};
+  /*Double_t erwannPrtyMean[numBins] = {0.330486, 0.427572, 0.502339, 0.590244, 0.627706, 0.653977, 0.65251, 0.673619};
   Double_t erwannPrtyStat[numBins] = {0.0308763, 0.0130233, 0.0171051, 0.018815, 0.016112, 0.0255705, 0.0324564, 0.0514761};
   Double_t erwannPrtySys[numBins] = {0.0389282, 0.0620852, 0.0736194, 0.0793521, 0.079274, 0.0984856, 0.0948469, 0.0736746};
   Double_t purity_pPb[5] = {0.207, 0.342, 0.476, 0.546, 0.546};

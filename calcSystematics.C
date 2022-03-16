@@ -13,16 +13,19 @@ void calcSystematics(){
   
   //Purity systematic
   TFile* file_StdPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit.root","READ");
+  //TFile* file_StdPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_nonLinPurity.root","READ");
   TH1F* rpa_StdPurity = (TH1F*)file_StdPurity->Get("h_RpA");rpa_StdPurity->SetLineColor(kRed);rpa_StdPurity->SetMarkerColor(kRed);
   TH1F* hcsEG1_StdPurity = (TH1F*)file_StdPurity->Get("crossSection_pPb");hcsEG1_StdPurity->SetLineColor(kRed);hcsEG1_StdPurity->SetMarkerColor(kRed);
   TH1F* hcspp_StdPurity = (TH1F*)file_StdPurity->Get("crossSection_pp");hcspp_StdPurity->SetLineColor(kRed);hcspp_StdPurity->SetMarkerColor(kRed);
 
   TFile* file_PlusPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PlusPurityFit_NoSigSysAllData.root","READ");
+  //TFile* file_PlusPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_nonLinPurityPlus.root","READ");
   TH1F* rpa_PlusPurity = (TH1F*)file_PlusPurity->Get("h_RpA");rpa_PlusPurity->SetLineColor(kMagenta);rpa_PlusPurity->SetMarkerColor(kMagenta);
   TH1F* hcsEG1_PlusPurity = (TH1F*)file_PlusPurity->Get("crossSection_pPb");hcsEG1_PlusPurity->SetLineColor(kMagenta);hcsEG1_PlusPurity->SetMarkerColor(kMagenta);
   TH1F* hcspp_PlusPurity = (TH1F*)file_PlusPurity->Get("crossSection_pp");hcspp_PlusPurity->SetLineColor(kMagenta);hcspp_PlusPurity->SetMarkerColor(kMagenta);
 
   TFile* file_MinusPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0MinusPurityFit_NoSigSysAllData.root","READ");
+  //TFile* file_MinusPurity = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_nonLinPurityMinus.root","READ");
   TH1F* rpa_MinusPurity = (TH1F*)file_MinusPurity->Get("h_RpA");rpa_MinusPurity->SetLineColor(kBlue);rpa_MinusPurity->SetMarkerColor(kBlue);
   TH1F* hcsEG1_MinusPurity = (TH1F*)file_MinusPurity->Get("crossSection_pPb");hcsEG1_MinusPurity->SetLineColor(kBlue);hcsEG1_MinusPurity->SetMarkerColor(kBlue);
   TH1F* hcspp_MinusPurity = (TH1F*)file_MinusPurity->Get("crossSection_pp");hcspp_MinusPurity->SetLineColor(kBlue);hcspp_MinusPurity->SetMarkerColor(kBlue);
@@ -35,12 +38,16 @@ void calcSystematics(){
   lRpA_Purity->AddEntry(rpa_PlusPurity, "+#sigma purity");
   lRpA_Purity->AddEntry(rpa_MinusPurity, "-#sigma purity");
   
+  rpa_StdPurity->Fit("pol0", "", "", 12, 60);
+  rpa_PlusPurity->Fit("pol0", "", "", 12, 60);
+  rpa_MinusPurity->Fit("pol0", "", "", 12, 60);
 
+  
   TCanvas* cRpA_Purity = new TCanvas();
   rpa_StdPurity->Draw("e1");
   rpa_PlusPurity->Draw("same e1");
   rpa_MinusPurity->Draw("same e1");
-  line->Draw("same");
+  //line->Draw("same");
   lRpA_Purity->Draw("same");
 
 
@@ -190,7 +197,7 @@ void calcSystematics(){
   TCanvas* cdiff_pp_Lumi = new TCanvas("cdiff_pp_Lumi", "pp systematic from lumi");
   diff_pp_Lumi->GetXaxis()->SetRangeUser(12, 60);
   diff_pp_Lumi->GetYaxis()->SetRangeUser(0, 0.05);
-  //diff_pp_Lumi->Draw("hist");
+  diff_pp_Lumi->Draw("hist");
   
   /***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
@@ -234,14 +241,14 @@ void calcSystematics(){
   lHcsEG1_SSCEff->AddEntry(hcsEG1_PlusSSCEff, "+#sigma ssc eff");
   lHcsEG1_SSCEff->AddEntry(hcsEG1_MinusSSCEff, "-#sigma ssc eff");
 
-  /*TCanvas* cHcsEG1_SSCEff = new TCanvas();
+  TCanvas* cHcsEG1_SSCEff = new TCanvas();
   cHcsEG1_SSCEff->SetLogy();
   hcsEG1_StdSSCEff->GetXaxis()->SetRangeUser(12, 60);
   hcsEG1_StdSSCEff->GetYaxis()->SetRangeUser(1, 5e3);
   hcsEG1_StdSSCEff->Draw("e1");
   hcsEG1_PlusSSCEff->Draw("samee1");
   hcsEG1_MinusSSCEff->Draw("samee1");
-  lHcsEG1_SSCEff->Draw("same");//*/
+  lHcsEG1_SSCEff->Draw("same");//
 
   //Hcspp
   TLegend* lHcspp_SSCEff = new TLegend(0.6,0.7,0.85,0.85);
@@ -250,13 +257,13 @@ void calcSystematics(){
   lHcspp_SSCEff->AddEntry(hcspp_PlusSSCEff, "+#sigma ssc eff");
   lHcspp_SSCEff->AddEntry(hcspp_MinusSSCEff, "-#sigma ssc eff");
 
-  /*TCanvas* cHcspp_SSCEff = new TCanvas();
+  TCanvas* cHcspp_SSCEff = new TCanvas();
   cHcspp_SSCEff->SetLogy();
   hcspp_StdSSCEff->GetXaxis()->SetRangeUser(12, 60);
   hcspp_StdSSCEff->Draw("e1");
   hcspp_PlusSSCEff->Draw("samee1");
   hcspp_MinusSSCEff->Draw("samee1");
-  lHcspp_SSCEff->Draw("same");//*/
+  lHcspp_SSCEff->Draw("same");//
 
 
   TH1F* diff_pPb_SSCEff = (TH1F*)hcsEG1_MinusSSCEff->Clone("diffPlus_pPb_SSCEff");
@@ -268,11 +275,11 @@ void calcSystematics(){
     diff_pPb_SSCEff->SetBinContent(i, sscSysValsPercents_pPb[i-7]);
   }
   //diff_pPb_SSCEff->Divide(hcsEG1_StdLumi);
-  /*TCanvas* cdiff_pPb_SSCEff = new TCanvas("cdiff_pPb_SSCEff", "p-Pb systematic from shower shape variation in efficiency");
+  TCanvas* cdiff_pPb_SSCEff = new TCanvas("cdiff_pPb_SSCEff", "p-Pb systematic from shower shape variation in efficiency");
   diff_pPb_SSCEff->GetXaxis()->SetRangeUser(12, 60);
   //diff_pPb_SSCEff->GetYaxis()->SetRangeUser(0, 0.15);
   diff_pPb_SSCEff->Draw("hist");
-  diff_pPb_SSCEff->Fit("pol1", "", "", 12, 30);//*/
+  diff_pPb_SSCEff->Fit("pol1", "", "", 12, 30);//
 
   
   //pp
@@ -285,10 +292,10 @@ void calcSystematics(){
   for(int i = 7; i < diff_pPb_SSCEff->GetNbinsX()+1; i++){
     diff_pp_SSCEff->SetBinContent(i, sscSysValsPercents_pp[i-7]);
   }
-  diff_pp_SSCEff->Fit("pol1", "", "", 16, 40);
-  /*TCanvas* cdiff_pp_SSCEff = new TCanvas("cdiff_pp_SSCEff", "pp systematic from shower shape variation in efficiency");
+  //diff_pp_SSCEff->Fit("pol1", "", "", 16, 40);
+  TCanvas* cdiff_pp_SSCEff = new TCanvas("cdiff_pp_SSCEff", "pp systematic from shower shape variation in efficiency");
   diff_pp_SSCEff->GetXaxis()->SetRangeUser(12, 60);
-  //diff_pp_SSCEff->GetYaxis()->SetRangeUser(0, 0.15);
+  diff_pp_SSCEff->GetYaxis()->SetRangeUser(0, 0.15);
   diff_pp_SSCEff->Draw("hist");//*/
 
   /***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
@@ -318,12 +325,12 @@ void calcSystematics(){
   lRpA_ISOEff->AddEntry(rpa_MinusISOEff, "-#sigma eff");
   
 
-  /*TCanvas* cRpA_ISOEff = new TCanvas();
+  TCanvas* cRpA_ISOEff = new TCanvas();
   rpa_StdISOEff->Draw("e1");
   rpa_PlusISOEff->Draw("same e1");
   rpa_MinusISOEff->Draw("same e1");
   line->Draw("same");
-  lRpA_ISOEff->Draw("same");//*/
+  lRpA_ISOEff->Draw("same");//
 
 
   //HcsEG1
@@ -340,7 +347,7 @@ void calcSystematics(){
   hcsEG1_StdISOEff->Draw("e1");
   hcsEG1_PlusISOEff->Draw("samee1");
   hcsEG1_MinusISOEff->Draw("samee1");
-  lHcsEG1_ISOEff->Draw("same");//*/
+  lHcsEG1_ISOEff->Draw("same");//
 
   //for(int i = 1; i < 
   //Hcspp
@@ -356,7 +363,7 @@ void calcSystematics(){
   hcspp_StdISOEff->Draw("e1");
   hcspp_PlusISOEff->Draw("samee1");
   hcspp_MinusISOEff->Draw("samee1");
-  lHcspp_ISOEff->Draw("same");//*/
+  lHcspp_ISOEff->Draw("same");//
 
 
   TH1F* diff_pPb_ISOEff = (TH1F*)hcsEG1_MinusISOEff->Clone("diffPlus_pPb_ISOEff");
@@ -368,7 +375,7 @@ void calcSystematics(){
   TCanvas* cdiff_pPb_ISOEff = new TCanvas("cdiff_pPb_ISOEff", "p-Pb systematic from isolation variation in efficiency");
   diff_pPb_ISOEff->GetXaxis()->SetRangeUser(12, 60);
   diff_pPb_ISOEff->GetYaxis()->SetRangeUser(0, 0.15);
-  diff_pPb_ISOEff->Draw("hist");//*/
+  diff_pPb_ISOEff->Draw("hist");//
 
   
   //pp
@@ -384,7 +391,7 @@ void calcSystematics(){
   diff_pp_ISOEff->Draw("hist");//*/
 
   //Double_t sscSysValues_pp[8] = {0.309172, 0.0947462, 0.0774654, 0.0482269, 0.0306748, 0.0345691, 0.00637156, 0.00134366};
-  /*Double_t sscSysValues_pp[8] = {0.309172, 0.0947462, 0.0774654, 0.0482269, 0.0306748, 0.0345691, 0.00637156, 0.00134366};
+  Double_t sscSysValues_pp[8] = {0.309172, 0.0947462, 0.0774654, 0.0482269, 0.0306748, 0.0345691, 0.00637156, 0.00134366};
   Double_t isoSysVals_pp[8] = {0};
   Double_t sscSysVals_pp[8] = {0};
   Double_t purSysVals_pp[8] = {0};
@@ -428,11 +435,11 @@ void calcSystematics(){
   lSys_pp->AddEntry(purSysGraph_pp, "Purity");
 
   TCanvas* cSys_pp = new TCanvas("cSys_pp", "", 600, 600);
-  //isoSysGraph_pp->Draw("apl");
-  sscSysGraph_pp->Draw("apl");
-  //purSysGraph_pp->Draw("plsame");
-  //lumSysGraph_pp->Draw("plpsame");
-  //lSys_pp->Draw("same");
+  isoSysGraph_pp->Draw("apl");
+  sscSysGraph_pp->Draw("plsame");
+  purSysGraph_pp->Draw("plsame");
+  lumSysGraph_pp->Draw("plpsame");
+  lSys_pp->Draw("same");
   //cSys_pp->SaveAs("sysUnc_pp.pdf");
   
   Double_t sscSysValues_pPb[8] = {20.8317, 15.958, 11.8504, 7.1064, 3.99393, 2.80683, 0.252268, 0.605229};
@@ -506,7 +513,7 @@ void calcSystematics(){
   cout << "}" << endl;//*/
 
   //Purity systematic
-  TFile* file_wCT = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_results.root","READ");
+  /*TFile* file_wCT = new TFile("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_results.root","READ");
   TH1F* rpa_wCT = (TH1F*)file_wCT->Get("h_RpA");rpa_wCT->SetLineColor(kRed);rpa_wCT->SetMarkerColor(kRed);
   TH1F* hcsEG1_wCT = (TH1F*)file_wCT->Get("crossSection_EG1");hcsEG1_wCT->SetLineColor(kRed);hcsEG1_wCT->SetMarkerColor(kRed);
   TH1F* hcspp_wCT = (TH1F*)file_wCT->Get("crossSection_pp");hcspp_wCT->SetLineColor(kRed);hcspp_wCT->SetMarkerColor(kRed);
@@ -516,29 +523,53 @@ void calcSystematics(){
   TH1F* hcsEG1_woCT = (TH1F*)file_woCT->Get("crossSection_EG1");hcsEG1_woCT->SetLineColor(kMagenta);hcsEG1_woCT->SetMarkerColor(kMagenta);
   TH1F* hcspp_woCT = (TH1F*)file_woCT->Get("crossSection_pp");hcspp_woCT->SetLineColor(kMagenta);hcspp_woCT->SetMarkerColor(kMagenta);
 
-  TCanvas* cCT = new TCanvas("cCT", "cCT");
-  cCT->SetLogy();
+  TCanvas* cCT_pPb = new TCanvas("cCT_pPb", "cCT_pPb");
+  cCT_pPb->SetLogy();
   hcsEG1_wCT->GetYaxis()->SetRangeUser(1, 1e4);
   hcsEG1_wCT->Draw();
   hcsEG1_woCT->Draw("same");
 
-  TLegend* lCT = new TLegend(0.6, 0.6, 0.85, 0.85);
-  lCT->AddEntry(hcsEG1_wCT, "with cross talk");
-  lCT->AddEntry(hcsEG1_woCT, "without cross talk");
-  lCT->Draw("same");
+  TLegend* lCT_pPb = new TLegend(0.6, 0.6, 0.85, 0.85);
+  lCT_pPb->AddEntry(hcsEG1_wCT, "with cross talk");
+  lCT_pPb->AddEntry(hcsEG1_woCT, "without cross talk");
+  lCT_pPb->Draw("same");
 
-  TH1F* hSysCT = (TH1F*)hcsEG1_wCT->Clone("hSysCT");
-  hSysCT->SetTitle(";E_{T} [GeV]; Sys Error [%]");
-  hSysCT->GetYaxis()->SetRangeUser(0, 100);
-  for(int i = 1; i < hSysCT->GetNbinsX()+1; i++){
+  TH1F* hSysCT_pPb = (TH1F*)hcsEG1_wCT->Clone("hSysCT_pPb");
+  hSysCT_pPb->SetTitle(";E_{T} [GeV]; Sys Error [%]");
+  hSysCT_pPb->GetYaxis()->SetRangeUser(0, 100);
+  for(int i = 1; i < hSysCT_pPb->GetNbinsX()+1; i++){
     double content = TMath::Abs(hcsEG1_wCT->GetBinContent(i) - hcsEG1_woCT->GetBinContent(i));
     double sysCT = content*0.5*100/hcsEG1_wCT->GetBinContent(i);
-    cout << sysCT << endl;
-    hSysCT->SetBinContent(i, sysCT);
+    //cout << sysCT << endl;
+    hSysCT_pPb->SetBinContent(i, sysCT);
   }
   
-  TCanvas* cSysCT = new TCanvas("cSysCT", "cSysCT");
-  hSysCT->Draw("hist");
+  TCanvas* cSysCT_pPb = new TCanvas("cSysCT_pPb", "cSysCT_pPb");
+  hSysCT_pPb->Draw("hist");
+
+  TCanvas* cCT_pp = new TCanvas("cCT_pp", "cCT_pp");
+  cCT_pp->SetLogy();
+  hcspp_wCT->GetYaxis()->SetRangeUser(1, 1e4);
+  hcspp_wCT->Draw();
+  hcspp_woCT->Draw("same");
+
+  TLegend* lCT_pp = new TLegend(0.6, 0.6, 0.85, 0.85);
+  lCT_pp->AddEntry(hcspp_wCT, "with cross talk");
+  lCT_pp->AddEntry(hcspp_woCT, "without cross talk");
+  lCT_pp->Draw("same");
+
+  TH1F* hSysCT_pp = (TH1F*)hcspp_wCT->Clone("hSysCT_pp");
+  hSysCT_pp->SetTitle(";E_{T} [GeV]; Sys Error [%]");
+  hSysCT_pp->GetYaxis()->SetRangeUser(0, 100);
+  for(int i = 1; i < hSysCT_pp->GetNbinsX()+1; i++){
+    double content = TMath::Abs(hcspp_wCT->GetBinContent(i) - hcspp_woCT->GetBinContent(i));
+    double sysCT = content*0.5*100/hcspp_wCT->GetBinContent(i);
+    //cout << sysCT << endl;
+    hSysCT_pp->SetBinContent(i, sysCT);
+  }
+  
+  TCanvas* cSysCT_pp = new TCanvas("cSysCT_pp", "cSysCT_pp");
+  hSysCT_pp->Draw("hist");//*/
 
   
 }//end makeComparisons

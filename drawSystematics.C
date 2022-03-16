@@ -5,7 +5,7 @@ void drawSystematics(){
   gStyle->SetOptStat(0);
   gStyle->SetLegendBorderSize(0);
   gStyle->SetEndErrorSize(5);
-  
+  gStyle->SetCanvasPreferGL(kTRUE);
   
   TLine *line = new TLine(12, 1, 54, 1);
   line->SetLineColor(kBlack);
@@ -58,8 +58,20 @@ void drawSystematics(){
 
   csErwannStat->SetMarkerStyle(20); csErwannStat->SetMarkerColor(kBlack);
   csErwannSys->SetFillColor(kBlack); csErwannSys->SetFillStyle(3004);
-  csDhruvStat->SetMarkerStyle(20); csDhruvStat->SetMarkerColor(kRed); csDhruvStat->SetLineColor(kRed);
-  csDhruvSys->SetFillColor(kOrange);
+  //csDhruvStat->SetMarkerStyle(20); csDhruvStat->SetMarkerColor(kRed); csDhruvStat->SetLineColor(kRed);
+  //csDhruvSys->SetFillColor(kOrange);
+  csDhruvStat->SetMarkerSize(1.5);
+  csDhruvStat->SetMarkerStyle(20);
+  csDhruvStat->SetMarkerColor(kRed);
+  csDhruvStat->SetLineStyle(1);
+  csDhruvStat->SetLineWidth(2);
+  csDhruvStat->SetLineColor(kRed);
+    
+  csDhruvSys->SetLineColor(0);
+  csDhruvSys->SetFillColor(kRed);
+  csDhruvSys->SetFillColorAlpha(kRed, 0.3);
+  csDhruvSys->SetFillStyle(1001);
+  csDhruvSys->SetLineWidth(0);
   csDhruvStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csErwannStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csDhruvSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
@@ -107,29 +119,47 @@ void drawSystematics(){
   line->Draw("Same");
   //c2->SaveAs("erwannCompareRatio_ISO133.png");
   //c2->SaveAs("erwannCompareRatio_ISO133.png");
-  
-  csDhruvStat_pp->SetMarkerStyle(20); csDhruvStat_pp->SetMarkerColor(kBlue);
-  csDhruvSys_pp->SetFillColor(kMagenta); //csDhruvSys_pp->SetFillStyle(3004);
-  csDhruvStat->SetMarkerStyle(20); csDhruvStat->SetMarkerColor(kRed); csDhruvStat->SetLineColor(kRed);
-  csDhruvSys->SetFillColor(kOrange);
+
+  csDhruvStat_pp->SetMarkerSize(1.5);
+  csDhruvStat_pp->SetMarkerStyle(20);
+  csDhruvStat_pp->SetMarkerColor(kBlue);
+  csDhruvStat_pp->SetLineStyle(1);
+  csDhruvStat_pp->SetLineWidth(2);
+  csDhruvStat_pp->SetLineColor(kBlue);
+    
+  csDhruvSys_pp->SetLineColor(0);
+  csDhruvSys_pp->SetFillColor(kBlue);
+  csDhruvSys_pp->SetFillColorAlpha(kBlue, 0.3);
+  csDhruvSys_pp->SetFillStyle(1001);
+  csDhruvSys_pp->SetLineWidth(0);
+  //csDhruvStat_pp->SetMarkerStyle(20); csDhruvStat_pp->SetMarkerColor(kBlue);
+  //csDhruvSys_pp->SetFillColor(kMagenta); //csDhruvSys_pp->SetFillStyle(3004);
+  //csDhruvStat->SetMarkerStyle(20); csDhruvStat->SetMarkerColor(kRed); csDhruvStat->SetLineColor(kRed);
+  //csDhruvSys->SetFillColor(kOrange);
   csDhruvStat_pp->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csDhruvStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csDhruvSys_pp->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csDhruvSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
 
-  TLegend* leg2 = new TLegend(0.65, 0.6, 0.9, 0.87);
-  leg2->AddEntry(csDhruvStat_pp, "pp", "PF");
-  leg2->AddEntry(csDhruvSys_pp, "Sys Err on pp", "PF");
-  leg2->AddEntry(csDhruvStat, "p-Pb", "PF");
-  leg2->AddEntry(csDhruvSys, "Sys Err on p-Pb", "PF");
-  TCanvas* c3 = new TCanvas("c3", "c3");
+  TLegend* leg2 = new TLegend(0.65, 0.7, 0.9, 0.9);
+  leg2->SetHeader("ALICE");
+  leg2->AddEntry(csDhruvStat_pp, "pp #sqrt{s_{NN}} = 5.02 TeV", "PE");
+  leg2->AddEntry(csDhruvSys_pp, "Sys. Unc. pp", "F");
+  leg2->AddEntry(csDhruvStat, "p-Pb #sqrt{s_{NN}} = 5.02 TeV", "PE");
+  leg2->AddEntry(csDhruvSys, "Sys. Unc. p-Pb", "F");
+  
+  TCanvas* c3 = new TCanvas("c3", "c3", 1000, 800);
+  c3->SetLeftMargin(0.13);
+  c3->SetTopMargin(0.07);
+  c3->SetRightMargin(0.04);
+  c3->SetBottomMargin(0.13);
   c3->DrawFrame(12, 1e-100, 60, 3000);
   c3->SetLogy();
   csDhruvSys_pp->GetYaxis()->SetRangeUser(1e-2, 5e3);
-  csDhruvSys_pp->Draw("E3AL");
-  csDhruvSys->Draw("E3 same");
-  csDhruvStat_pp->Draw("PESame");
-  csDhruvStat->Draw("PESame");
+  csDhruvSys_pp->Draw("E3 AL");//Draw("E3AL");
+  csDhruvSys->Draw("E3 same");//Draw("E3 same");
+  csDhruvStat_pp->Draw("PE X0 same");//Draw("PESame");
+  csDhruvStat->Draw("PE X0 same");//Draw("PESame");
   leg2->Draw("same");
   //c3->SaveAs("crossSection_pPbpp.pdf");
 
@@ -140,13 +170,13 @@ void drawSystematics(){
   Double_t rpaStat[numBins] = {0};
   Double_t rpaSys[numBins] = {0};
   Double_t A = 208;
-  cout << "bin center \t mean \t statErr \t sysErr"<< endl;
+  cout << "bin center \t mean \t statErr \t statErr/mean \t sysErr \t sysErr/mean"<< endl;
   for(int i = 0; i < numBins; i++){
     rpaMean[i] = dhruvMean_pPb[i]/(A*dhruvMean_pp[i]);
     rpaStat[i] = rpaMean[i]*TMath::Sqrt(TMath::Power(dhruvStat_pp[i]/dhruvMean_pp[i], 2) + TMath::Power(dhruvStat_pPb[i]/dhruvMean_pPb[i], 2));
     rpaSys[i] = rpaMean[i]*TMath::Sqrt(TMath::Power(dhruvSys_noSig_pp[i]/dhruvMean_pp[i], 2) + TMath::Power(dhruvSys_noSig_pPb[i]/dhruvMean_pPb[i], 2));
 
-    cout << xBinCenters[i] << "\t" <<  rpaMean[i] << "\t" << rpaStat[i] << "\t" << rpaSys[i] << "\t" << rpaSys[i]/rpaMean[i] << endl;
+    cout << xBinCenters[i] << "\t" <<  rpaMean[i] << "\t" << rpaStat[i] << "\t" << rpaStat[i]/rpaMean[i] << "\t" << rpaSys[i] <<  "\t" << rpaSys[i]/rpaMean[i] << endl;
   }
   TGraphErrors* csRpaStat = new TGraphErrors(8, xBinCenters, rpaMean, xErr, rpaStat);
   TGraphErrors* csRpaSys = new TGraphErrors(8, xBinCenters, rpaMean, xErr, rpaSys);
@@ -156,12 +186,28 @@ void drawSystematics(){
   csRpaSys->GetXaxis()->SetRangeUser(12,60);
   csRpaStat->GetYaxis()->SetRangeUser(0,2);
   csRpaSys->GetYaxis()->SetRangeUser(0,2);
-  csRpaStat->SetMarkerStyle(20); csRpaStat->SetMarkerColor(kBlack);
-  csRpaSys->SetFillColor(kBlack); csRpaSys->SetFillStyle(3004);
-  TCanvas* c4 = new TCanvas("c4", "c4");
+  //csRpaStat->SetMarkerStyle(20); csRpaStat->SetMarkerColor(kBlack);
+  //csRpaSys->SetFillColor(kBlack); csRpaSys->SetFillStyle(3004);
+  csRpaStat->SetMarkerSize(1.5);
+  csRpaStat->SetMarkerStyle(20);
+  csRpaStat->SetMarkerColor(kRed);
+  csRpaStat->SetLineStyle(1);
+  csRpaStat->SetLineWidth(2);
+  csRpaStat->SetLineColor(kRed);
+    
+  csRpaSys->SetLineColor(0);
+  csRpaSys->SetFillColor(kRed);
+  csRpaSys->SetFillColorAlpha(kRed, 0.3);
+  csRpaSys->SetFillStyle(1001);
+  csRpaSys->SetLineWidth(0);
+  TCanvas* c4 = new TCanvas("c4", "c4", 1000, 800);
+  c4->SetLeftMargin(0.13);
+  c4->SetTopMargin(0.07);
+  c4->SetRightMargin(0.04);
+  c4->SetBottomMargin(0.13);
   c4->DrawFrame(12, 0, 60, 2);
-  csRpaSys->Draw("E3AL");
-  csRpaStat->Draw("PESame");
+  csRpaSys->Draw("PE2");
+  csRpaStat->Draw("PE1 Same");
   line->Draw("Same");
   csRpaStat->Fit("pol0", "", "", 12, 60);
 
@@ -171,16 +217,28 @@ void drawSystematics(){
   EPPS16->SetLineColor(kBlue);
   EPPS16->SetLineWidth(6);
   EPPS16->SetLineStyle(9);
-  EPPS16->Draw("L same");
+  //EPPS16->Draw("L same");
     
-  TLegend* lRpA = new TLegend(0.13, 0.13, 0.8, 0.35);
+  TLegend* lRpA = new TLegend(0.13, 0.13, 0.8, 0.25);
   lRpA->SetFillStyle(0);
   lRpA->AddEntry(csRpaStat->GetFunction("pol0"), Form("Constant Fit: %f #pm %f", csRpaStat->GetFunction("pol0")->GetParameter(0), csRpaStat->GetFunction("pol0")->GetParError(0)), "l");
   lRpA->AddEntry((TObject*)0, Form("#chi^{2} = %f", csRpaStat->GetFunction("pol0")->GetChisquare()), "");
   lRpA->AddEntry((TObject*)0, Form("NDF = %i", csRpaStat->GetFunction("pol0")->GetNDF()), "");
-  lRpA->AddEntry(EPPS16, "5.02 TeV, p-Pb-->direct photon", "l");
-  lRpA->AddEntry((TObject*)0, "NLO pQCD parton model, PDFs: CT14, EPPS16", "");
+  //lRpA->AddEntry(EPPS16, "5.02 TeV, p-Pb-->direct photon", "l");
+  //lRpA->AddEntry((TObject*)0, "NLO pQCD parton model, PDFs: CT14, EPPS16", "");
   lRpA->Draw("same");
+  
+  TLegend* lRpA2 = new TLegend(0.1, 0.75, 0.8, 0.9);
+  lRpA2->SetNColumns(2);
+  lRpA2->SetFillStyle(0);
+  lRpA2->AddEntry((TObject*)0, "ALICE pp & p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
+  lRpA2->AddEntry((TObject*)0, "", "");
+  lRpA2->AddEntry((TObject*)0, "isolated photons, |#eta| < 0.67", "");
+  lRpA2->AddEntry(csRpaStat, "Data, stat. unc.","PL");
+  lRpA2->AddEntry((TObject*)0, "R = 0.4, p^{iso}_{T} < 1.5 GeV/c", "");
+  lRpA2->AddEntry(csRpaSys, "Data, sys. unc.","F");
+
+  lRpA2->Draw("same");
   //c4->SaveAs("RpPb_pPbDhruvAndppDhruv_noSig.pdf");
   //c4->SaveAs("RpPb_pPbDhruvAndppDhruv_noSig.png");
 
@@ -209,6 +267,8 @@ void drawSystematics(){
 
   TCanvas* cDiffISO = new TCanvas("cDiffISO", "cDiffISO", 600, 600);
   gDiffISO->Draw("APL");//*/
+
+  //TH1F*
 
 
 }//end makeComparisons
