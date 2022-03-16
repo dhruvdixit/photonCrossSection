@@ -76,7 +76,7 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/fout_6_14bins_firstEvent0_13f_10runs_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/fout_6_14bins_firstEvent0_13f_10runs_noSkim_part1_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
 
-  TFile* fin = new TFile(Form("%sfout_7_26bins_firstEvent0_13fnew_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_RFbinning_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%sfout_7_26bins_firstEvent0_13fnew_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_RFbinning_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%sfout_7_26bins_firstEvent0_13f_new_9runs_noSkim_StdCuts_EX0PurityFit_NoISO_RFCheck_RFbinning_noNorm.root", path.Data()), "READ");
 
   //13def
@@ -104,7 +104,10 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurity_noNorm.root", path.Data()), "READ");//with std cuts and nonlinPurity
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLPlusPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurityPlusNL_noNorm.root", path.Data()), "READ");//with std cuts and nonlinPurity
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/woNL/fout_7_14bins_firstEvent0_13def_noSkim_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso, and nonlinPurity
-  //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/wNL/fout_7_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso, and nonlinPurity 
+  //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/wNL/fout_7_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso, and nonlinPurity
+
+
+  //13c
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/woNL/fout_1_14bins_firstEvent0_13c_14runs_noThresh_phySel_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso and nonlinPurity
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/wNL/fout_1_14bins_firstEvent0_13c_2runs_part1_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso and nonlinPurity
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/woNL/13c/fout_1_14bins_firstEvent0_13c_14runs_noThresh_phySel_run195677__StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//Run 195677 with std cuts, no iso, woNL
@@ -237,7 +240,7 @@ void calcNormClusterSpectra_pPb(){
   hEG1_E->SetMarkerColor(kRed);
   hEG1_E->SetMarkerStyle(21);
   hEG1_E->SetMarkerSize(2);
-
+  
   hEG2_E->SetLineColor(kGreen);
   hEG2_E->SetMarkerColor(kGreen);
   hEG2_E->SetMarkerStyle(21);

@@ -290,7 +290,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   trigMask_13f_trigs3[2] = (one1 << 14);
 
   
-  /*//////////////////////////////////////////////////////////////////////////////////
+   /*//////////////////////////////////////////////////////////////////////////////////
     13c triggers
  //////////////////////////////////////////////////////////////////////////////////*/
 
@@ -374,21 +374,21 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     if(run_number == 197189) continue;
 
 
-    ULong64_t localTrigBit = 0;
+    /*ULong64_t localTrigBit = 0;
     if(not ((trigMask[0] & trigger_mask[0]) == 0))  {
       localTrigBit |= (1 << 0);
       
     }//*/
 
-    if(run_number > 195677){
+    /*if(run_number > 195677){
       if(not ((trigMask[1] & trigger_mask[0]) == 0))  {
 	localTrigBit |= (1 << 1);
-      }//*/
+      }//
       if(not ((trigMask[2] & trigger_mask[0]) == 0))  {
 	localTrigBit |= (1 << 2);
 	
-      }//*/
-    }
+      }//
+    }//*/
     //cout << localTrigBit << endl;
     //001 = 1 = MB
     //010 = 2 = EG1
@@ -400,8 +400,17 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
     //default trigSelection set to 6;
     //if(forRTrig) then trigSelection set to 7;
 
-    if((localTrigBit == 3) || (localTrigBit >= 5)) continue;
-      
+    //if((localTrigBit == 3) || (localTrigBit >= 5)) continue;
+
+    ULong64_t localTrigBit = 0;
+    if(not ((trigMask[0] & trigger_mask[0]) == 0))
+      localTrigBit |= (1 << 0);
+    if(not ((trigMask[1] & trigger_mask[0]) == 0))
+      localTrigBit |= (1 << 1);
+    if(not ((trigMask[2] & trigger_mask[0]) == 0))
+      localTrigBit |= (1 << 2);
+
+    
     if((localTrigBit & 1) != 0) {isMB = true; hEventCut_MB->Fill(0);numEvents_MB_before++;}
     if(((localTrigBit & 4) != 0) && (!isMB) ) {isEG2 = true;hEventCut_EG2->Fill(0);numEvents_EG2_before++;}
     if(((localTrigBit & 2) != 0) && (!isMB) && (!isEG2) ) {isEG1 = true;hEventCut_EG1->Fill(0);numEvents_EG1_before++;}
@@ -689,7 +698,7 @@ void Run(ULong64_t TriggerBit, TString address,  Long64_t firstEvent = 0, Long64
   hEventCounts->GetXaxis()->SetBinLabel(2, "Passing Track Selection");
 
   //Writing to file
-  filename += "_noNorm";
+  filename += "nonlin_fixedEventCount_noNorm";
   cout << filename.Data() << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_forRTrig_%s.root",TriggerBit, nbinscluster, filename.Data()), "RECREATE");  
   
@@ -801,6 +810,27 @@ void isoPhotonAnalysisData_pPbRF(){
   //Run(7, "pPb/13f/13f_new_9runs_noSkim_part1.root");
   //Run(7, "pPb/13f/13f_new_9runs_noSkim_part2.root");
   //Run(7, "pPb/13f/13f_new_9runs_noSkim_part3.root");
+  
+
+  //with nonlin
+  //Run(7, "pPb/13d/13d_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13e/13e_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13e/13e_part2_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13f_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13f_part2_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13f_part3_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13f_part4_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13f_part5_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13fnew_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13fnew_part2_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(7, "pPb/13f/13fnew_part3_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+
+  //Run(1, "pPb/13c/13c_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(1, "pPb/13c/13c_2runs_part1_kINT7_mannualMode_greenlight_nonLinCorr_part1.root");
+  //Run(1, "pPb/13c/13c_2runs_part1_kINT7_mannualMode_greenlight_nonLinCorr_part2.root");
+  //Run(1, "pPb/13c/13c_2runs_part1_kINT7_mannualMode_greenlight_nonLinCorr_part3.root");
+  //Run(1, "pPb/13c/13c_2runs_part1_kINT7_mannualMode_greenlight_nonLinCorr_part4.root");
+  //Run(1, "pPb/13c/13c_2runs_part1_kINT7_mannualMode_greenlight_nonLinCorr_part5.root");
   
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end-start;

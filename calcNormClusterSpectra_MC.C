@@ -54,8 +54,12 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s17g6a1/GenISO/StdCuts/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals_woCrossTalkStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone_noNorm.root", path.Data()), "READ");
-  TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone_noNorm.root", path.Data()), "READ");
-
+  //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckLess4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckLess4Eta_PerpUECone_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s17g6a1/fout_14bins_firstEvent0_18b10a_calo_pthat2_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
+  
   //18b10a
   //TFile* fin = new TFile(Form("%s18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/SystematicCheck/CutVariation/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsLooseCuts_noNorm.root", path.Data()), "READ");
@@ -71,7 +75,12 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s18b10a/GenIso/AddedEelectron/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_AddedElectron_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/ARCComments/PerpConeUE/fout_14bins_firstEvent0_18b10a_pthatAll_wNeutrals_woCrossTalkStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone_noNorm.root", path.Data()), "READ");
-
+  //TFile* fin = new TFile(Form("%s18b10a/ARCComments/PerpConeUE/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckLess4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
+  TFile* fin = new TFile(Form("%s18b10a/Nonlin/fout_14bins_firstEvent0_18b10a_pthatAll_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNLStdCuts_GenIsoFixed_PerpUECone_noNorm.root", path.Data()), "READ");
+  
   //18g7a pp JJ
   //TFile* fin = new TFile(Form("%s18g7a/fout_14bins_firstEvent0_18g7a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
 
@@ -81,17 +90,24 @@ void calcNormClusterSpectra_MC(){
     return;
   }
 
-  TH1F* hReco = (TH1F*)fin->Get("hReco");
   TH1F* hRecoTruth = (TH1F*)fin->Get("hRecoTruth");
-  TH1F* hTruth = (TH1F*)fin->Get("hTruth");
-  TH1F* hTruthIsolated_pp = (TH1F*)fin->Get("hTruthIsolated");
   TH2F* hCorrelation = (TH2F*)fin->Get("hCorrelation");
   //TH1F* hTruth_pp = (TH1F*)fin->Get("hTruth");
+
+  TH1F* hReco = (TH1F*)fin->Get("hReco");
+  TH1F* hTruth = (TH1F*)fin->Get("hTruth");
+  TH1F* hTruthIsolated = (TH1F*)fin->Get("hTruthIsolated");//*/
+  /*TH1F* hReco = (TH1F*)fin->Get("hRecoLess4Eta");
+  TH1F* hTruth = (TH1F*)fin->Get("hTruthLess4Eta");
+  TH1F* hTruthIsolated = (TH1F*)fin->Get("hTruthIsolatedLess4Eta");//*/
+  /*TH1F* hReco = (TH1F*)fin->Get("hRecoMore4Eta");
+  TH1F* hTruth = (TH1F*)fin->Get("hTruthMore44Eta");
+  TH1F* hTruthIsolated = (TH1F*)fin->Get("hTruthIsolatedMore4Eta");//*/
   hReco->Sumw2();
   hRecoTruth->Sumw2();
   hTruth->Sumw2();
   //hTruth_pp->Sumw2();
-  hTruthIsolated_pp->Sumw2();
+  hTruthIsolated->Sumw2();
   hCorrelation->Sumw2();
 
   const int nbinscluster = 14;
@@ -174,12 +190,12 @@ void calcNormClusterSpectra_MC(){
   for(int i = 1; i < hIsoEfficiency->GetNbinsX()+1; i++){
     double dE = hIsoEfficiency->GetBinWidth(i);
     
-    double dNdE_TruthIsolated = (hTruthIsolated_pp->GetBinContent(i))/(dE);
+    double dNdE_TruthIsolated = (hTruthIsolated->GetBinContent(i))/(dE);
     double dNdE_Truth = (hTruth->GetBinContent(i))/(dE);
     double totEff = (dNdE_TruthIsolated/dNdE_Truth);
     hIsoEfficiency->SetBinContent(i, totEff);
     
-    double error_TruthIsolated = (hTruthIsolated_pp->GetBinError(i))/(dE);
+    double error_TruthIsolated = (hTruthIsolated->GetBinError(i))/(dE);
     double error_Truth = (hTruth->GetBinError(i))/(dE);
     double totEffError = totEff*(TMath::Sqrt(TMath::Power(error_TruthIsolated/dNdE_TruthIsolated,2) + TMath::Power(error_Truth/dNdE_Truth,2)));
     hIsoEfficiency->SetBinError(i, totEffError);
@@ -216,7 +232,8 @@ void calcNormClusterSpectra_MC(){
 
   TLegend* lEff = new TLegend(0.13, 0.2, 0.87, 0.4);
   lEff->SetNColumns(3);
-  lEff->SetHeader("ALICE Simluation, 18b10a, pp GJ, 5.02 TeV, p_{T}^{min} = 0.15 GeV/c");
+  lEff->SetHeader("ALICE Simluation, 18b10a, pp GJ, 5.02 TeV, p_{T}^{min} = 0.15 GeV/c, 0.4 < |#eta| < 0.67");
+  //lEff->SetHeader("ALICE Simluation, 17g6a1, p-Pb GJ, 5.02 TeV, p_{T}^{min} = 0.15 GeV/c, 0.4 < |#eta| < 0.67");
   lEff->AddEntry(hIsoEfficiency, "Iso eff = #frac{dN_{iso}(p^{gen}_{T}) }{dN_{all}(p^{gen}_{T})}");
   lEff->AddEntry(hEfficiency, "Reco eff = #frac{dN_{iso}(p^{rec}_{T}) }{dN_{all}(p^{gen}_{T})}");
   lEff->AddEntry(hTotalEfficiency, "Total eff = #frac{dN_{iso}(p^{rec}_{T}) }{dN_{iso}(p^{gen}_{T})}");

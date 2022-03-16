@@ -218,7 +218,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   _tree_event->SetBranchAddress("mc_truth_charge", mc_truth_charge);        
   _tree_event->SetBranchAddress("mc_truth_first_parent_pdg_code",mc_truth_first_parent_pdg_code);
     
-  const int nbinseta = 10;
+  const int nbinseta = 18;
   Double_t etabins[nbinseta+1] = {};
   double etamin = -0.9;
   double etamax = 0.9;
@@ -265,8 +265,15 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   TH1F* hIsolationGenCharged = new TH1F("hIsolationGenCharged", ";Isolation (GeV/c);", 9000, -1500, 3000);
   TH1F* hIsolationGenChargedNeutral = new TH1F("hIsolationGenChargedNeutral", ";Isolation (GeV/c);", 9000, -1500, 3000);
   TH1F* hTruthUE = new TH1F("hTruthUE", ";#rho_{gen};counts", 200, -10, 10);
+  TH1F* hEtaReco = new TH1F("hEtaReco", "", nbinseta, etabins);
+  TH1F* hPhiReco = new TH1F("hPhiReco", "", nbinsphi, phibins);
+  TH1F* hEtaRecoTruth = new TH1F("hEtaRecoTruth", "", nbinseta, etabins);
+  TH1F* hPhiRecoTruth = new TH1F("hPhiRecoTruth", "", nbinsphi, phibins);
+  TH1F* hEtaTruth = new TH1F("hEtaTruth", "", nbinseta, etabins);
+  TH1F* hPhiTruth = new TH1F("hPhiTruth", "", nbinsphi, phibins);
   TH1F* hPDGCode = new TH1F("hPDGCode", ";PDG code; counts", 1000, -0.5, 999.5);
-  TH2F* hPDGCodeWParent = new TH2F("hPDGCodeWParent", ";PDG code; Parent PDG code; counts", 1000, -0.5, 999.5, 1000, -0.5, 999.5);
+  TH2F* hPDGCodeWParentBefore = new TH2F("hPDGCodeWParentBefore", ";PDG code; Parent PDG code; counts", 1000, -0.5, 999.5, 1000, -0.5, 999.5);
+  TH2F* hPDGCodeWParentAfter = new TH2F("hPDGCodeWParentAfter", ";PDG code; Parent PDG code; counts", 1000, -0.5, 999.5, 1000, -0.5, 999.5);
   
   //Tracking inside the cone
   const int nbinstrack = 62;
@@ -282,6 +289,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   //Counting varibales
   int numEvents = 0;
   int numEvents_tot = 0;
+  double maxEta = 0.4;
   
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
@@ -326,11 +334,13 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       //if(not ((cluster_tof[n] > -20) && (cluster_tof[n] < 20))) continue;
 
       //acceptance cuts
+      //if(not (TMath::Abs(cluster_eta[n]) > 0.4)) continue;
       if(not (TMath::Abs(cluster_eta[n]) < 0.67)) continue;
+      //if(not (0.4 < TMath::Abs(cluster_eta[n]) && TMath::Abs(cluster_eta[n]) < 0.67)) continue;
       if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 
       //shower shape and isolation
-      if(not ((0.1 < cluster_lambda_square[n][0]) &&  ( 0.35 > cluster_lambda_square[n][0]))) continue;
+      if(not ((0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
       if(not (isolation < 1.5)) continue;
 
       hRecoPure->Fill(cluster_pt[n], weight);
@@ -343,7 +353,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       for(int counter = 0 ; counter<32; counter++){
 	unsigned short index = cluster_mc_truth_index[n][counter];
 	hPDGCode->Fill(mc_truth_pdg_code[index]);
-	hPDGCodeWParent->Fill(mc_truth_pdg_code[index], mc_truth_first_parent_pdg_code[index]);
+	hPDGCodeWParentAfter->Fill(mc_truth_pdg_code[index], mc_truth_first_parent_pdg_code[index]);
 	if(isTruePhoton) break;
 	if(index==65535) continue;
 	if(mc_truth_pdg_code[index] != 22) continue;
@@ -358,9 +368,11 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       
       if(isTruePhoton){
 	hReco->Fill(cluster_pt[n], weight);
-	if(not (TMath::Abs(cluster_eta[n]) < 0.4)) hRecoLess4Eta->Fill(cluster_pt[n], weight);
-	if(not (TMath::Abs(cluster_eta[n]) > 0.4 && TMath::Abs(cluster_eta[n]) < 0.67)) hRecoMore4Eta->Fill(cluster_pt[n], weight);
 	hRecoTruth->Fill(truth_pt, weight);
+	hEtaReco->Fill(cluster_eta[n]);
+	hEtaRecoTruth->Fill(truth_eta);
+	hPhiReco->Fill(cluster_phi[n]);
+	hPhiRecoTruth->Fill(truth_phi);
 	hCorrelation->Fill(truth_pt, cluster_pt[n], weight);
       }//end isTruePhoton 
     }//end loop on clusters
@@ -371,7 +383,9 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 
 
       //acceptance cuts
+      //if(not (TMath::Abs(mc_truth_eta[nmc]) > 0.4)) continue;
       if(not (TMath::Abs(mc_truth_eta[nmc]) < 0.67)) continue;
+      //if(not (0.4 < TMath::Abs(mc_truth_eta[nmc]) && TMath::Abs(mc_truth_eta[nmc]) < 0.67)) continue;
       if(not (1.396 < mc_truth_phi[nmc] && mc_truth_phi[nmc] < 3.28)) continue;
 
       //real photon cuts
@@ -381,8 +395,8 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       if(not ((UInt_t)mc_truth_status[nmc]  == 1)) continue;
       
       hTruth->Fill(mc_truth_pt[nmc],weight);
-      if(not (TMath::Abs(mc_truth_eta[nmc]) < 0.4)) hTruthLess4Eta->Fill(mc_truth_pt[nmc], weight);
-      if(not (TMath::Abs(mc_truth_eta[nmc]) > 0.4 && TMath::Abs(mc_truth_eta[nmc]) < 0.67)) hTruthMore4Eta->Fill(mc_truth_pt[nmc], weight);
+      hEtaTruth->Fill(mc_truth_eta[nmc]);
+      hPhiTruth->Fill(mc_truth_phi[nmc]);
       
       
       double promptGamma_pt = mc_truth_pt[nmc];
@@ -412,7 +426,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 	hGenIsoCuts->Fill(0);
 	
 	//selecting charged particles within ITS acceptance and R = 0.4
-	if(not (TMath::Abs(mc_truth_eta[nmcUE] < 0.8))) {continue;} //ITS acceptance
+	if(not (TMath::Abs(mc_truth_eta[nmcUE]) < 0.8)) {continue;} //ITS acceptance
 	if(not ((Short_t)mc_truth_charge[nmcUE] != 0)) {continue;} //charged particle only
 	if(not ((UInt_t)mc_truth_status[nmcUE] == 1)) { continue;} //final state particle
 	//if((radius_2Plus > (0.4*0.4)) || (radius_2Minus > (0.4*0.4))) {continue;} //Rcone < 0.4
@@ -442,7 +456,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 	hGenIsoCuts->Fill(0);
 	
 	//selecting charged particles within ITS acceptance and R = 0.4
-	if(not (TMath::Abs(mc_truth_eta[nmcCone] < 0.8))) {hGenIsoCuts->Fill(1); continue;} //ITS acceptance
+	if(not (TMath::Abs(mc_truth_eta[nmcCone]) < 0.8)) {hGenIsoCuts->Fill(1); continue;} //ITS acceptance
 	if(not ((Short_t)mc_truth_charge[nmcCone] != 0)) {hGenIsoCuts->Fill(2); continue;} //charged particle only
 	if(not ((UInt_t)mc_truth_status[nmcCone] == 1)) {hGenIsoCuts->Fill(3); continue;} //final state particle
 	if(not (nmc != nmcCone)) {hGenIsoCuts->Fill(4); continue;} //remove prompt photon
@@ -466,7 +480,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
 	radius_2 = TMath::Power(dPhi, 2) + TMath::Power(dEta, 2);
 	
 	//selecting charged particles within ITS acceptance and R = 0.4
-	if(not (TMath::Abs(mc_truth_eta[nmcCone] < 0.8))) continue;
+	if(not (TMath::Abs(mc_truth_eta[nmcCone]) < 0.8)) continue;
 	if(not ((UInt_t)mc_truth_status[nmcCone] == 1)) continue;
 	if(not (nmc != nmcCone)) continue;
 	if(not (radius_2 < (0.4*0.4))) continue;
@@ -482,8 +496,6 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       isoEnergyTruth = isoEnergyTruth - ue_estimate*0.4*0.4*TMath::Pi();
       if(not (isoEnergyTruth < 1.5)) continue;
       hTruthIsolated->Fill(mc_truth_pt[nmc],weight);
-      if(not (TMath::Abs(mc_truth_eta[nmc]) < 0.4)) hTruthIsolatedLess4Eta->Fill(mc_truth_pt[nmc], weight);
-      if(not (TMath::Abs(mc_truth_eta[nmc]) > 0.4 && TMath::Abs(mc_truth_eta[nmc]) < 0.67)) hTruthIsolatedMore4Eta->Fill(mc_truth_pt[nmc], weight);
 
       
     }//end loop over mc truth particle
@@ -499,7 +511,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   hGenIsoCuts->GetXaxis()->SetBinLabel(7, "Passed truth particles");
   
   //Writing to file
-  filename += "StdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone_noNorm";
+  filename += "StdCuts_OldNewReCheck100KEvents_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/fout_%ibins_firstEvent%lld_%s.root", nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -522,7 +534,13 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   hTrackInCone->Write("hTrackInCone");
   hTruthUE->Write("hTruthUE");
   hPDGCode->Write("hPDGCode");
-  hPDGCodeWParent->Write("hPDGCodeWParent");
+  hEtaReco->Write("hEtaReco");
+  hEtaRecoTruth->Write("hEtaRecoTruth");
+  hEtaTruth->Write("hEtaTruth");
+  hPhiReco->Write("hPhiReco");
+  hPhiRecoTruth->Write("hPhiRecoTruth");
+  hPhiTruth->Write("hPhiTruth");
+  hPDGCodeWParentAfter->Write("hPDGCodeWParentAfter");
   //writing photon info
   
 
@@ -537,19 +555,37 @@ void isoPhotonAnalysisMC(){
   //Input to Run is as follow: Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 1000000000000000)
 
   //pPb
-  /*Run("17g6a1/17g6a1_pthat1_wNeutrals.root", 0, 1000000);
-  Run("17g6a1/17g6a1_pthat2_wNeutrals.root", 0, 1000000);
-  Run("17g6a1/17g6a1_pthat3_wNeutrals.root", 0, 1000000);
-  Run("17g6a1/17g6a1_pthat4_wNeutrals.root", 0, 1000000);
-  Run("17g6a1/17g6a1_pthat5_wNeutrals.root", 0, 1000000);//*/
+  //Run("17g6a1/17g6a1_pthat1_wNeutrals.root", 0, 1000000);
+  //Run("17g6a1/17g6a1_pthat2_wNeutrals.root", 0, 1000000);
+  //Run("17g6a1/17g6a1_pthat3_wNeutrals.root", 0, 1000000);
+  //Run("17g6a1/17g6a1_pthat4_wNeutrals.root", 0, 1000000);
+  //Run("17g6a1/17g6a1_pthat5_wNeutrals.root", 0, 1000000);//*/
 
-  /*Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 1000000);
-  Run("18b10a/18b10a_calo_pthat2_wNeutrals.root", 0, 1000000);
-  Run("18b10a/18b10a_calo_pthat3_wNeutrals.root", 0, 1000000);
-  Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 1000000);
-  Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 1000000);
-  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 1000000);//*/
+  //non lin corr with emcal framework
+  //Run("17g6a1/17g6a1_pthat1_1runs_mannualMode_greenlight_isMCTrue_AddedAliEmcalMCTrackSelector_loadMCUpdatedWithAliMCEvent.root", 0, 1000000);//pthat1
+  
+  Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 100000);
+  Run("18b10a/18b10a_calo_pthat2_wNeutrals.root", 0, 100000);
+  Run("18b10a/18b10a_calo_pthat3_wNeutrals.root", 0, 100000);
+  Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 100000);
+  Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 100000);
+  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 100000);//*/
 
+  //non lin corr
+  Run("18b10a/18b10a_pthat1_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part000.root", 0, 100000);
+  //Run("18b10a/18b10a_pthat1_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part001.root", 0, 1000000);
+  //Run("18b10a/18b10a_pthat1_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part002.root", 0, 1000000);
+  Run("18b10a/18b10a_pthat2_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part000.root", 0, 100000);
+  //Run("18b10a/18b10a_pthat2_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part001.root", 0, 1000000);
+  //Run("18b10a/18b10a_pthat2_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part002.root", 0, 1000000);
+  Run("18b10a/18b10a_pthat3_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL.root", 0, 100000);
+  Run("18b10a/18b10a_pthat4_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL.root", 0, 100000);
+  Run("18b10a/18b10a_pthat5_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL.root", 0, 100000);
+  Run("18b10a/18b10a_pthat6_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL.root", 0, 100000);
+  
+
+  
+  
   /*Run("18g7a/18g7a_calo_pthat1_wNeutrals.root", 0, 1000000);
   Run("18g7a/18g7a_calo_pthat2_wNeutrals.root", 0, 1000000);
   Run("18g7a/18g7a_calo_pthat3_wNeutrals.root", 0, 1000000);
@@ -582,14 +618,13 @@ void isoPhotonAnalysisMC(){
   Run("17g6a1/17g6a1_pthat3_wNeutrals.root");
   Run("17g6a1/17g6a1_pthat4_wNeutrals.root");
   Run("17g6a1/17g6a1_pthat5_wNeutrals.root");//*/
-
+  
   /*Run("18b10a/18b10a_calo_pthat1_wNeutrals.root");
   Run("18b10a/18b10a_calo_pthat2_wNeutrals.root");
   Run("18b10a/18b10a_calo_pthat3_wNeutrals.root");
   Run("18b10a/18b10a_calo_pthat4_wNeutrals.root");
   Run("18b10a/18b10a_calo_pthat5_wNeutrals.root");
   Run("18b10a/18b10a_calo_pthat6_wNeutrals.root");//*/
-
   
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end-start;
