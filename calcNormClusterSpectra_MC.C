@@ -7,7 +7,7 @@
 #include "TDatabasePDG.h"
 #include "TEfficiency.h"
 
-#include <algorithm>
+/*#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <iostream>
@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <bitset>
 #include <bits/stdc++.h>
-#include <cstring>
+#include <cstring>//*/
 
 void calcNormClusterSpectra_MC(){
 
@@ -79,7 +79,10 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckLess4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s18b10a/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
-  TFile* fin = new TFile(Form("%s18b10a/Nonlin/fout_14bins_firstEvent0_18b10a_pthatAll_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNLStdCuts_GenIsoFixed_PerpUECone_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%s18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents_noNorm.root", path.Data()), "READ");//wNL first look 100k events compare
+  //TFile* fin = new TFile(Form("%s18b10a/Nonlin/OldNewCompare/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_OldNewReCheck100KEvents_noNorm.root", path.Data()), "READ");//old woNL 100k events compare
+  //TFile* fin = new TFile(Form("%s18b10a/Nonlin/With_ElecPositron/woNL/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_AddedElectronPositron_100KEvents_noNorm.root", path.Data()), "READ");//woNL we+e-
+  TFile* fin = new TFile(Form("%s18b10a/Nonlin/With_ElecPositron/wNL/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_AddedElectronPositron_100KEvents_noNorm.root", path.Data()), "READ");//wNL we+e-
   
   //18g7a pp JJ
   //TFile* fin = new TFile(Form("%s18g7a/fout_14bins_firstEvent0_18g7a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
@@ -160,7 +163,7 @@ void calcNormClusterSpectra_MC(){
   truth->Draw("samee1");
   lBM->Draw("same");
   cBM->cd(3);
-  hBinMigration->GetYaxis()->SetRangeUser(0,1);
+  hBinMigration->GetYaxis()->SetRangeUser(0,1.5);
   hBinMigration->GetXaxis()->SetRangeUser(12,60);
   hBinMigration->Draw("e1");
   //cBM->SaveAs("binMigration_pp.pdf");
