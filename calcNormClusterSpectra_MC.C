@@ -34,6 +34,8 @@ void calcNormClusterSpectra_MC(){
   gStyle->SetStatBorderSize(0);
   gStyle->SetTitleBorderSize(0);
   gStyle->SetOptStat(0);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);  
   
 
   TString path = "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/";
@@ -59,6 +61,7 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckLess4Eta_PerpUECone_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s17g6a1/ARCComments/ConeAcceptanceCheck/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckLess4Eta_PerpUECone_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%s17g6a1/fout_14bins_firstEvent0_18b10a_calo_pthat2_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheckMore4Eta_PerpUECone_ClusterCutHistAfterCuts_noNorm.root", path.Data()), "READ");
+  TFile* fin = new TFile(Form("%s17g6a1/Nonlin/With_ElecPositron/fout_14bins_firstEvent0_17g6a1_pthatAll_1run_wNL_GeMomentumFixedStdCuts_AddedElectronPositron_100KEvents_noNorm.root", path.Data()), "READ");
   
   //18b10a
   //TFile* fin = new TFile(Form("%s18b10a/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutrals_noNorm.root", path.Data()), "READ");
@@ -82,7 +85,7 @@ void calcNormClusterSpectra_MC(){
   //TFile* fin = new TFile(Form("%s18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents_noNorm.root", path.Data()), "READ");//wNL first look 100k events compare
   //TFile* fin = new TFile(Form("%s18b10a/Nonlin/OldNewCompare/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_OldNewReCheck100KEvents_noNorm.root", path.Data()), "READ");//old woNL 100k events compare
   //TFile* fin = new TFile(Form("%s18b10a/Nonlin/With_ElecPositron/woNL/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_AddedElectronPositron_100KEvents_noNorm.root", path.Data()), "READ");//woNL we+e-
-  TFile* fin = new TFile(Form("%s18b10a/Nonlin/With_ElecPositron/wNL/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_AddedElectronPositron_100KEvents_noNorm.root", path.Data()), "READ");//wNL we+e-
+  //TFile* fin = new TFile(Form("%s18b10a/Nonlin/With_ElecPositron/wNL/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_AddedElectronPositron_100KEvents_noNorm.root", path.Data()), "READ");//wNL we+e-
   
   //18g7a pp JJ
   //TFile* fin = new TFile(Form("%s18g7a/fout_14bins_firstEvent0_18g7a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_noNorm.root", path.Data()), "READ");
@@ -115,9 +118,9 @@ void calcNormClusterSpectra_MC(){
 
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
-  TH1F* hTotalEfficiency = new TH1F("hTotalEfficiency", ";p_{T}^{rec} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
-  TH1F* hEfficiency = new TH1F("hEfficiency", ";p_{T}^{tru} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
-  TH1F* hIsoEfficiency = new TH1F("hIsoEfficiency", ";p_{T}^{tru} [GeV/c];#epsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
+  TH1F* hTotalEfficiency = new TH1F("hTotalEfficiency", ";p_{T}^{rec} [GeV/c];#varepsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
+  TH1F* hEfficiency = new TH1F("hEfficiency", ";p_{T}^{tru} [GeV/c];#varepsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
+  TH1F* hIsoEfficiency = new TH1F("hIsoEfficiency", ";p_{T}^{tru} [GeV/c];#varepsilon^{iso}_{#gamma}", nbinscluster, clusterbins);
   TH1F* hBinMigration = new TH1F("hBinMigration", ";p_{T}^{rec} [GeV/c]; truth/reco", nbinscluster, clusterbins);
 
   TH1F* truth = (TH1F*)hCorrelation->ProjectionX("truth");
@@ -168,7 +171,8 @@ void calcNormClusterSpectra_MC(){
   hBinMigration->Draw("e1");
   //cBM->SaveAs("binMigration_pp.pdf");
 
-    //Efficiency
+  //Reco Efficiency
+  cout << "Reco Efficiency" << endl; 
   for(int i = 1; i < hEfficiency->GetNbinsX()+1; i++){
     double dE = hEfficiency->GetBinWidth(i);
     
@@ -181,15 +185,18 @@ void calcNormClusterSpectra_MC(){
     double error_Truth = (hTruth->GetBinError(i))/(dE);
     double totEffError = totEff*(TMath::Sqrt(TMath::Power(error_Reco/dNdE_Reco,2) + TMath::Power(error_Truth/dNdE_Truth,2)));
     hEfficiency->SetBinError(i, totEffError);
-
     
+    //cout << hEfficiency->GetBinCenter(i) << "\t" << totEff << "\t" << totEffError << endl;
+
   }//*/  
 
-  hEfficiency->SetLineColor(kBlue);
-  hEfficiency->SetMarkerColor(kBlue);
-  hEfficiency->SetMarkerStyle(kFullCircle);
-  
+  hEfficiency->SetLineColor(kRed+1);
+  hEfficiency->SetMarkerColor(kRed+1);
+  hEfficiency->SetMarkerStyle(kFullCross);
+  hEfficiency->SetMarkerSize(2);
+    
   //Iso Efficiency
+  cout << "Iso Efficiency" << endl;
   for(int i = 1; i < hIsoEfficiency->GetNbinsX()+1; i++){
     double dE = hIsoEfficiency->GetBinWidth(i);
     
@@ -203,14 +210,16 @@ void calcNormClusterSpectra_MC(){
     double totEffError = totEff*(TMath::Sqrt(TMath::Power(error_TruthIsolated/dNdE_TruthIsolated,2) + TMath::Power(error_Truth/dNdE_Truth,2)));
     hIsoEfficiency->SetBinError(i, totEffError);
 
-    
+    //cout << hIsoEfficiency->GetBinCenter(i) << "\t" << totEff << "\t" << totEffError << endl;
   }//*/  
 
-  hIsoEfficiency->SetLineColor(kGreen);
-  hIsoEfficiency->SetMarkerColor(kGreen);
+  hIsoEfficiency->SetLineColor(kBlack);
+  hIsoEfficiency->SetMarkerColor(kBlack);
   hIsoEfficiency->SetMarkerStyle(kFullCircle);
-  
+  hIsoEfficiency->SetMarkerSize(2);
+    
   //Total Efficiency
+  cout << "Total Efficiency" << endl;
   for(int i = 1; i < hTotalEfficiency->GetNbinsX()+1; i++){
     
     double effContent = hEfficiency->GetBinContent(i);
@@ -223,32 +232,47 @@ void calcNormClusterSpectra_MC(){
     double totEffError = totEff*(TMath::Sqrt(TMath::Power(effError/effContent,2) + TMath::Power(isoError/isoContent,2)));
     hTotalEfficiency->SetBinError(i, totEffError);
 
-    
+    //cout << hTotalEfficiency->GetBinCenter(i) << "\t" << totEff << "\t" << totEffError << endl;
   }//*/  
 
-  hTotalEfficiency->SetLineColor(kRed+2);
-  hTotalEfficiency->SetMarkerColor(kRed+2);
-  hTotalEfficiency->SetMarkerStyle(kFullCircle);
+  hTotalEfficiency->SetLineColor(kBlue+1);
+  hTotalEfficiency->SetMarkerColor(kBlue+1);
+  hTotalEfficiency->SetMarkerStyle(kFullDiamond);
+  hTotalEfficiency->SetMarkerSize(2);
 
   TLine *line = new TLine(12, 0.5, 60, 0.5);
   line->SetLineColor(kBlack);
 
-  TLegend* lEff = new TLegend(0.13, 0.2, 0.87, 0.4);
-  lEff->SetNColumns(3);
-  lEff->SetHeader("ALICE Simluation, 18b10a, pp GJ, 5.02 TeV, p_{T}^{min} = 0.15 GeV/c, 0.4 < |#eta| < 0.67");
+  TLegend* lEff = new TLegend(0.13, 0.2, 0.5, 0.4);
+  //lEff->SetNColumns(3);
+  lEff->SetTextSize(0.037);
+  lEff->SetFillStyle(0);
+  lEff->SetMargin(0.3); 
+  //lEff->SetHeader("ALICE Simluation, 18b10a, pp GJ, 5.02 TeV, p_{T}^{min} = 0.15 GeV/c, 0.4 < |#eta| < 0.67");
   //lEff->SetHeader("ALICE Simluation, 17g6a1, p-Pb GJ, 5.02 TeV, p_{T}^{min} = 0.15 GeV/c, 0.4 < |#eta| < 0.67");
-  lEff->AddEntry(hIsoEfficiency, "Iso eff = #frac{dN_{iso}(p^{gen}_{T}) }{dN_{all}(p^{gen}_{T})}");
-  lEff->AddEntry(hEfficiency, "Reco eff = #frac{dN_{iso}(p^{rec}_{T}) }{dN_{all}(p^{gen}_{T})}");
-  lEff->AddEntry(hTotalEfficiency, "Total eff = #frac{dN_{iso}(p^{rec}_{T}) }{dN_{iso}(p^{gen}_{T})}");
+  //lEff->AddEntry(hIsoEfficiency, "Iso eff = #frac{dN_{iso}(p^{gen}_{T}) }{dN_{all}(p^{gen}_{T})}");
+  //lEff->AddEntry(hEfficiency, "Reco eff = #frac{dN_{iso}(p^{rec}_{T}) }{dN_{all}(p^{gen}_{T})}");
+  //lEff->AddEntry(hTotalEfficiency, "Total eff = #frac{dN_{iso}(p^{rec}_{T}) }{dN_{iso}(p^{gen}_{T})}");
+  lEff->SetHeader("ALICE Simluation, p-Pb #sqrt{s} = 5.02 TeV");
+  lEff->AddEntry(hIsoEfficiency, "Isolated generated photon fraction (#kappa^{iso})", "lpf");
+  lEff->AddEntry(hEfficiency, "Reconstruction + Identification (#varepsilon^{rec} #bullet #varepsilon^{id})");
+  lEff->AddEntry(hTotalEfficiency, "Reconstruction + Identification + Isolation (#varepsilon^{rec} #bullet #varepsilon^{id} #bullet #varepsilon^{iso})");
   
-  TCanvas* cEff = new TCanvas();
+  TCanvas* cEff = new TCanvas("cEFf", "cEff", 900, 700);
+  cEff->SetLeftMargin(0.1);
+  cEff->SetRightMargin(0.07);
+  cEff->SetBottomMargin(0.15);
+  hTotalEfficiency->SetTitle(";#it{p}_{T} [GeV/#it{c}];#varepsilon_{#gamma}^{iso} contributions");
   hTotalEfficiency->GetYaxis()->SetRangeUser(0,1);
   hTotalEfficiency->GetXaxis()->SetRangeUser(12,60);
+  hTotalEfficiency->GetYaxis()->SetTitleOffset(1.3);
+  hTotalEfficiency->GetXaxis()->SetTitleOffset(1.2);
   hTotalEfficiency->Draw("e1");
   hEfficiency->Draw("same e1");
   hIsoEfficiency->Draw("same e1");
   line->Draw("same");
   lEff->Draw("same");
+  cEff->Print("QM2022_figures/efficiency_components_5020GeV_pPb.pdf");
   //cEff->SaveAs("IsoPhotonEff_pPb.pdf");
   //cEff->SaveAs("IsoPhotonEff_pPb.png");
   

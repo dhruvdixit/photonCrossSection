@@ -15,7 +15,7 @@
 #include "TDatabasePDG.h"
 #include "TEfficiency.h"
 
-#include <algorithm>
+/*#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <iostream>
@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <bitset>
 #include <bits/stdc++.h>
-#include <cstring>
+#include <cstring>//*/
 
 void calcNormClusterSpectra_pPb(){
 
@@ -53,6 +53,13 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13d/RunListCheck/fout_7_14bins_firstEvent0_13d_all10runs_noSkim_checkEventCounts_noRun195829_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13d/ntuplizerCheck/fout_6_14bins_firstEvent0_13d_all10Runs_noNonLin_kEMCEGA_isoFixTry1_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13d/ntuplizerCheck/fout_6_14bins_firstEvent0_13d_all10runs_noSkim_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_13d_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_wRunByRunHists_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_6_14bins_firstEvent0_13d_kEMCEGA_kINT7_mannualMode_greenlight_AddedRawAndNonlinE_kNonLinCor_noNLTemp_StdCuts_EX0PurityFit_rawNonlinE_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_6_14bins_firstEvent0_13d_kEMCEGA_kINT7_mannualMode_greenlight_AddedRawAndNonlinE_kNonLinCor_noNLOnly_StdCuts_EX0PurityFit_rawNonlinE_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_6_14bins_firstEvent0_13d_kEMCEGA_kINT7_mannualMode_greenlight_AddedRawAndNonlinE_kNonLinCorr_StdCuts_EX0PurityFit_rawNonlinE_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_6_14bins_firstEvent0_13d_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_rawNonlinE_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_6_14bins_firstEvent0_13d_kEMCEGA_kINT7_mannualMode_greenlight_noGetMomentumPar3_StdCuts_EX0PurityFit_rawNonlinE_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13d/fout_6_14bins_firstEvent0_13d_all10runs_noSkim_StdCuts_EX0PurityFit_rawNonlinE_noNorm.root", path.Data()), "READ");
   
   //13e
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13e_noSkim_noNorm.root", path.Data()), "READ");
@@ -75,10 +82,16 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/ESD/fout_6_14bins_firstEvent0_13f_1runs_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorrR197302_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/fout_6_14bins_firstEvent0_13f_10runs_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/fout_6_14bins_firstEvent0_13f_10runs_noSkim_part1_StdCuts_EX0PurityFit_ClusterCutHistBeforeCuts_noNorm.root", path.Data()), "READ");
-
   //TFile* fin = new TFile(Form("%sfout_7_26bins_firstEvent0_13fnew_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_RFbinning_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%sfout_7_26bins_firstEvent0_13f_new_9runs_noSkim_StdCuts_EX0PurityFit_NoISO_RFCheck_RFbinning_noNorm.root", path.Data()), "READ");
-
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_run197302_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_1runsFeb22AliPhysics_kEMCEGA_kINT7_EMCalCorrNonlinpPb_StdCuts_EX0PurityFit_run197302_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_1runs_kEMCEGA_kINT7_latestEMCalCorr_StdCuts_EX0PurityFit_run197302_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_10runs_noSkim_part1_StdCuts_EX0PurityFit_run197302_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_noNorm.root", path.Data()), "READ");//Using latest EMCal Corr, AliPhysics Feb 20, 2022
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_noNorm.root", path.Data()), "READ");//QM nutple with same run list the one above
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13f/ntuplizerComparison/Feb20AliPhysics/fout_6_14bins_firstEvent0_13f_10runs_noSkim_part1_StdCuts_EX0PurityFit_noNorm.root", path.Data()), "READ");//gh nutple with same run list the one above
+  
   //13def
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/13def/IsoStd/fout_6_14bins_firstEvent0_13def_allruns_noSkim_CALOonly_tof20_newPurity_eCross5_newExoticity_iso_noNorm.root", path.Data()), "READ");//iso < 1.5
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/StdEventsAndClusterCuts/fout_6_14bins_firstEvent0_13def_noSkim_noNorm.root", path.Data()), "READ");
@@ -105,6 +118,11 @@ void calcNormClusterSpectra_pPb(){
   //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLPlusPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurityPlusNL_noNorm.root", path.Data()), "READ");//with std cuts and nonlinPurity
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/woNL/fout_7_14bins_firstEvent0_13def_noSkim_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso, and nonlinPurity
   //TFile* fin = new TFile(Form("%srfOutput/pPOutput/Nonlin/UsingCScode/wNL/fout_7_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NoISO_RFCheck_noNorm.root", path.Data()), "READ");//with std cuts, no iso, and nonlinPurity
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/NonLinCorr/ESD/Iso133/fout_6_14bins_firstEvent0_13def_noNonLin_kEMCEGA_StdCuts_EX0PurityFit_ReCheck_ISO133_noNorm.root", path.Data()), "READ");//with std cuts, iso < 1.33, and nonlinPurity
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/Feb20AliPhysics/ghNtuplpes/fout_6_14bins_firstEvent0_13def_noSkim_StdCuts_EX0PurityFit_postQM_noNorm.root", path.Data()), "READ");//with std cuts, gh ntuples, pre QM ntuple purity
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_postQM_noNorm.root", path.Data()), "READ");//with std cuts, Feb 20,2022 aliphysics, latest EMCal corr, pre QM ntuple purity
+  //TFile* fin = new TFile(Form("%scsOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/wEtaCorr/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wEtaCorr_noNorm.root", path.Data()), "READ");//with std cuts, Feb 20,2022 aliphysics, latest EMCal corr, pre QM ntuple purity, etaCorr
+  /*TFile* fin = new TFile(Form("%scsOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/wPhiCorr/fout_7_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wPhiCorr_noNorm.root", path.Data()), "READ");//with std cuts, Feb 20,2022 aliphysics, latest EMCal corr, pre QM ntuple purity, etaCorr
 
 
   //13c
@@ -133,8 +151,8 @@ void calcNormClusterSpectra_pPb(){
   TH1F* hMB_E = (TH1F*)fin->Get("hMB_E");
   TH1F* hEG1_E = (TH1F*)fin->Get("hEG1_E");
   TH1F* hEG2_E = (TH1F*)fin->Get("hEG2_E");
-  //TH1F* hEG1woPurity = (TH1F*)fin->Get("hEG1woPurity");
-  //TH1F* hEG2woPurity = (TH1F*)fin->Get("hEG2woPurity");
+  TH1F* hEG1woPurity = (TH1F*)fin->Get("hEG1woPurity");
+  TH1F* hEG2woPurity = (TH1F*)fin->Get("hEG2woPurity");
   TH1F* hNormalizer = (TH1F*)fin->Get("hNormalizer");
 
   Double_t numEvents_MB, numEvents_EG1, numEvents_EG2;
@@ -200,7 +218,7 @@ void calcNormClusterSpectra_pPb(){
   }//*/
 
   //EG1 cluster spectra woPurity
-  /*for(int i = 1; i < hEG1woPurity->GetNbinsX()+1; i++){
+  for(int i = 1; i < hEG1woPurity->GetNbinsX()+1; i++){
     double dE = hEG1woPurity->GetBinWidth(i);
     
     double contentEG1 = hEG1woPurity->GetBinContent(i);
@@ -216,7 +234,7 @@ void calcNormClusterSpectra_pPb(){
   }//*/  
 
   //EG2 cluster spectra woPurity
-  /*for(int i = 1; i < hEG2woPurity->GetNbinsX()+1; i++){
+  for(int i = 1; i < hEG2woPurity->GetNbinsX()+1; i++){
     double dE = hEG2woPurity->GetBinWidth(i);
     
     double contentEG2 = hEG2woPurity->GetBinContent(i);
@@ -246,7 +264,7 @@ void calcNormClusterSpectra_pPb(){
   hEG2_E->SetMarkerStyle(21);
   hEG2_E->SetMarkerSize(2);
 
-  /*hEG1woPurity->SetLineColor(kMagenta);
+  hEG1woPurity->SetLineColor(kMagenta);
   hEG1woPurity->SetMarkerColor(kMagenta);
   hEG1woPurity->SetMarkerStyle(21);
   hEG1woPurity->SetMarkerSize(2);
@@ -261,16 +279,16 @@ void calcNormClusterSpectra_pPb(){
   legYield->AddEntry(hMB_E,"pPb MB");
   legYield->AddEntry(hEG1_E,"pPb EG1");
   legYield->AddEntry(hEG2_E,"pPb EG2");
-  //legYield->AddEntry(hEG1woPurity,"pPb EG1");
-  //legYield->AddEntry(hEG2woPurity,"pPb EG2");
+  legYield->AddEntry(hEG1woPurity,"pPb EG1");
+  legYield->AddEntry(hEG2woPurity,"pPb EG2");
 
   TCanvas* c1 = new TCanvas();
   c1->SetLogy();
   hMB_E->Draw("e1");
   hEG1_E->Draw("samee1");
   hEG2_E->Draw("samee1");
-  //hEG1woPurity->Draw("samee1");
-  //hEG2woPurity->Draw("samee1");
+  hEG1woPurity->Draw("samee1");
+  hEG2woPurity->Draw("samee1");
   TString filename = fin->GetName();
   Int_t index = filename.Index("_noNorm");
   filename.Replace(index, 7, "");
@@ -281,8 +299,8 @@ void calcNormClusterSpectra_pPb(){
     hMB_E->Write("hMB_E");
     hEG1_E->Write("hEG1_E");
     hEG2_E->Write("hEG2_E");
-    //hEG1woPurity->Write("hEG1woPurity");
-    //hEG2woPurity->Write("hEG2woPurity");
+    hEG1woPurity->Write("hEG1woPurity");
+    hEG2woPurity->Write("hEG2woPurity");
     hNormalizer->Write("hNormalizer");
     fout->Close();
   }//end filename compare

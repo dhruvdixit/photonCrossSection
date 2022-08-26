@@ -227,10 +227,10 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
     etabins[i] = etamin + i*etastep;
   }
 
-  const int nbinsphi = 80;
+  const int nbinsphi = 76;
   Double_t phibins[nbinsphi+1] = {};
-  double phimin = -1.0*TMath::Pi();
-  double phimax = 1.0*TMath::Pi();
+  double phimin = -2.0*TMath::Pi();
+  double phimax = 2.0*TMath::Pi();
   double phistep = (phimax-phimin)/nbinsphi;
   for(int i=0; i<nbinsphi+1; i++){
     phibins[i] = phimin + i*phistep;
@@ -268,6 +268,12 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   TH1F* hIsolationGenCharged = new TH1F("hIsolationGenCharged", ";Isolation (GeV/c);", 9000, -1500, 3000);
   TH1F* hIsolationGenChargedNeutral = new TH1F("hIsolationGenChargedNeutral", ";Isolation (GeV/c);", 9000, -1500, 3000);
   TH1F* hTruthUE = new TH1F("hTruthUE", ";#rho_{gen};counts", 200, -10, 10);
+  TH1F* hEta = new TH1F("hEta", "", nbinseta, etabins);
+  TH1F* hPhi = new TH1F("hPhi", "", nbinsphi, phibins);
+  TH2F* hEtaPhi = new TH2F("hEtaPhi", ";#eta; #varphi", nbinseta, etabins, nbinsphi, phibins); 
+  TH1F* hEtaW = new TH1F("hEtaW", "", nbinseta, etabins);
+  TH1F* hPhiW = new TH1F("hPhiW", "", nbinsphi, phibins);
+  TH2F* hEtaPhiW = new TH2F("hEtaPhiW", ";#eta; #varphi", nbinseta, etabins, nbinsphi, phibins); 
   TH1F* hEtaReco = new TH1F("hEtaReco", "", nbinseta, etabins);
   TH1F* hPhiReco = new TH1F("hPhiReco", "", nbinsphi, phibins);
   TH1F* hEtaRecoTruth = new TH1F("hEtaRecoTruth", "", nbinseta, etabins);
@@ -277,7 +283,9 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   TH1F* hPDGCode = new TH1F("hPDGCode", ";PDG code; counts", 1000, -500, 500);
   TH2F* hPDGCodeWParentBefore = new TH2F("hPDGCodeWParentBefore", ";PDG code; Parent PDG code; counts", 1000, -500, 500, 1000, -500, 500);
   TH2F* hPDGCodeWParentAfter = new TH2F("hPDGCodeWParentAfter", ";PDG code; Parent PDG code; counts", 1000, -500, 500, 1000, -500, 500);
-  
+
+  auto normalizer = new TH1D("normalizer", "normalizer", 20, -0.5, 19.5);  
+
   //Tracking inside the cone
   const int nbinstrack = 62;
   Double_t trackbins[nbinstrack+1] = {
@@ -292,7 +300,9 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   //Counting varibales
   int numEvents = 0;
   int numEvents_tot = 0;
-  double maxEta = 0.4;
+  int numEvents_passZ = 0;
+  int numEvents_passPileUp = 0;
+  double maxEta = 0.67;
   
   Long64_t totEvents = _tree_event->GetEntries();
   numEvents_tot = totEvents;
@@ -301,20 +311,27 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   std::cout << numEntries << std::endl;
   for (Long64_t ievent = firstEvent; ievent< numEntries ;ievent++) {
     _tree_event->GetEntry(ievent);
-      if(ievent%100000==0)
-      {
-	std::cout << ievent << std::endl;
-	cout << run_number << endl;
-      }
-
-    //Event selection
-    if(not(TMath::Abs(primary_vertex[2])<10.0)) continue; //vertex z position
-    if(primary_vertex[2] == 0.000000) continue;
-    hZvertex->Fill(primary_vertex[2]);
-    numEvents++;
+    if(ievent%100000==0){
+      std::cout << ievent << std::endl;
+      cout << run_number << endl;
+    }
+    Long64_t currentEvent = -1;
     
     //Obtainging pthat bin weights
     double weight = SetPthatWeights(ntupleName, (double)eg_cross_section, (double)eg_ntrial);
+    
+    //Event selection
+    if(not(TMath::Abs(primary_vertex[2])<10.0)) continue; //vertex z position
+    if(primary_vertex[2] == 0.000000) continue;
+    numEvents_passZ++;
+    if(is_pileup_from_spd_5_08) continue; //pile up cut
+    numEvents_passPileUp++;
+    
+    hZvertex->Fill(primary_vertex[2]);
+    numEvents++;//Add the weight to the event counts
+    normalizer->Fill(3);
+    normalizer->Fill(5, weight);
+    
     if(ievent%10000 == 0)
       {
 	cout << weight << endl;
@@ -328,6 +345,13 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();//Use rhoxA subtraction
       hIsolationRecCharged->Fill(isolation);
       bool isoPassed = false;
+
+      if(cluster_pt[n] >= 12 && currentEvent == -1){
+	currentEvent = ievent;
+	normalizer->Fill(6);
+	normalizer->Fill(7, weight);
+      }
+
       
       //cluster cuts
       if(not (cluster_ncell[n]>=2)) continue;
@@ -342,11 +366,21 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
       //if(not (0.4 < TMath::Abs(cluster_eta[n]) && TMath::Abs(cluster_eta[n]) < 0.67)) continue;
       if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
 
+
       //shower shape and isolation
       if(not ((0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
       if(not (isolation < 1.5)) continue;
 
       hRecoPure->Fill(cluster_pt[n], weight);
+      if(cluster_pt[n] >= 12){
+	hEta->Fill(cluster_eta[n]);
+	hPhi->Fill(cluster_phi[n]);
+	hEtaPhi->Fill(cluster_eta[n], cluster_phi[n]);
+	hEtaW->Fill(cluster_eta[n], weight);
+	hPhiW->Fill(cluster_phi[n], weight);
+	hEtaPhiW->Fill(cluster_eta[n], cluster_phi[n], weight);
+      }
+
       // Access the corresonding mc_truth particle; skip if index is 65535, which is invalid, or the truth particle pT is less than 10, or the mc_truth_pdg_code is not 22 (it's not a photon)
       Bool_t isTruePhoton = false;
       Float_t truth_pt = -999.0;
@@ -514,6 +548,26 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
     
   }//loop over events
 
+  //Normalizing the bins and getting yaxsis to be 1/Nevt*dN/dptdeta
+  const double deltaEta = 1.334;
+  const double deltaPhi = 1.884;
+  
+
+  normalizer->SetBinContent(1, deltaEta);
+  normalizer->SetBinContent(2, deltaPhi);
+  normalizer->SetBinContent(3, numEvents_tot);
+  //normalizer->SetBinContent(4, numEvents);
+  normalizer->SetBinContent(5, numEvents_passZ);
+
+  normalizer->GetXaxis()->SetBinLabel(1,"deltaEta");
+  normalizer->GetXaxis()->SetBinLabel(2,"deltaPhi");
+  normalizer->GetXaxis()->SetBinLabel(3,"numEvents_tot");
+  normalizer->GetXaxis()->SetBinLabel(4,"numEvents_pass");
+  normalizer->GetXaxis()->SetBinLabel(5,"numEvents_passZ");
+  normalizer->GetXaxis()->SetBinLabel(6,"numEvents_passWeight");
+  normalizer->GetXaxis()->SetBinLabel(7,"numEvents_pass12GeVPhoton");
+  normalizer->GetXaxis()->SetBinLabel(8,"numEvents_pass12GeVPhotonWeight");
+  
   hGenIsoCuts->GetXaxis()->SetBinLabel(1, "All truth particles");
   hGenIsoCuts->GetXaxis()->SetBinLabel(2, "ITS acceptance cut");
   hGenIsoCuts->GetXaxis()->SetBinLabel(3, "charged particle only");
@@ -523,7 +577,7 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   hGenIsoCuts->GetXaxis()->SetBinLabel(7, "Passed truth particles");
   
   //Writing to file
-  filename += "StdCuts_AddedElectronPositron_100KEvents_noNorm";
+  filename += "StdCuts_etaPhiPlots_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/fout_%ibins_firstEvent%lld_%s.root", nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -535,6 +589,8 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   hRecoTruth->Write("hRecoTruth");
   hTruth->Write("hTruth");
   hTruth22->Write("hTruth22");
+  normalizer->Write("hNormalizer");
+  
   hTruthLess4Eta->Write("hTruthLess4Eta");
   hTruthMore4Eta->Write("hTruthMore44Eta");
   hTruthIsolated->Write("hTruthIsolated");
@@ -549,6 +605,13 @@ void Run(TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 10000000
   hTrackInCone->Write("hTrackInCone");
   hTruthUE->Write("hTruthUE");
   hPDGCode->Write("hPDGCode");
+
+  hEta->Write("hEta");
+  hPhi->Write("hPhi");
+  hEtaPhi->Write("hEtaPhi");
+  hEtaW->Write("hEtaW");
+  hPhiW->Write("hPhiW");
+  hEtaPhiW->Write("hEtaPhiW");
   hEtaReco->Write("hEtaReco");
   hEtaRecoTruth->Write("hEtaRecoTruth");
   hEtaTruth->Write("hEtaTruth");
@@ -578,22 +641,28 @@ void isoPhotonAnalysisMC(){
 
   //non lin corr with emcal framework
   //Run("17g6a1/17g6a1_pthat1_1runs_mannualMode_greenlight_isMCTrue_AddedAliEmcalMCTrackSelector_loadMCUpdatedWithAliMCEvent.root", 0, 1000000);//pthat1
+  Run("17g6a1/17g6a1_pthat1_1run_wNL_GeMomentumFixed.root", 0, 10000000);//pthat1
+  Run("17g6a1/17g6a1_pthat2_1run_wNL_GeMomentumFixed.root", 0, 10000000);//pthat2
+  Run("17g6a1/17g6a1_pthat3_1run_wNL_GeMomentumFixed.root", 0, 10000000);//pthat3
+  Run("17g6a1/17g6a1_pthat4_1run_wNL_GeMomentumFixed.root", 0, 10000000);//pthat4
+  Run("17g6a1/17g6a1_pthat5_1run_wNL_GeMomentumFixed.root", 0, 10000000);//pthat5
+  Run("17g6a1/17g6a1_pthat6_1run_wNL_GeMomentumFixed.root", 0, 10000000);//pthat6*/
   
-  /*Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 100000);
-  Run("18b10a/18b10a_calo_pthat2_wNeutrals.root", 0, 100000);
-  Run("18b10a/18b10a_calo_pthat3_wNeutrals.root", 0, 100000);
-  Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 100000);
-  Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 100000);
-  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 100000);//*/
+  /*Run("18b10a/18b10a_calo_pthat1_wNeutrals.root", 0, 10000000);
+  Run("18b10a/18b10a_calo_pthat2_wNeutrals.root", 0, 10000000);
+  Run("18b10a/18b10a_calo_pthat3_wNeutrals.root", 0, 10000000);
+  Run("18b10a/18b10a_calo_pthat4_wNeutrals.root", 0, 10000000);
+  Run("18b10a/18b10a_calo_pthat5_wNeutrals.root", 0, 10000000);
+  Run("18b10a/18b10a_calo_pthat6_wNeutrals.root", 0, 10000000);//*/
 
   //non lin corr
   //Corrected MC Ntuples with NL from EMCal framework
-  /*Run("18b10a/18b10a_pthat1_2runs_wNL_GeMomentumFixed.root", 0, 100000);
-  Run("18b10a/18b10a_pthat2_2runs_wNL_GeMomentumFixed.root", 0, 100000);
-  Run("18b10a/18b10a_pthat3_2runs_wNL_GeMomentumFixed.root", 0, 100000);
-  Run("18b10a/18b10a_pthat4_2runs_wNL_GeMomentumFixed.root", 0, 100000);
-  Run("18b10a/18b10a_pthat5_2runs_wNL_GeMomentumFixed.root", 0, 100000);
-  Run("18b10a/18b10a_pthat6_2runs_wNL_GeMomentumFixed.root", 0, 100000);//*/
+  /*Run("18b10a/18b10a_pthat1_2runs_wNL_GeMomentumFixed.root", 0, 10000000);
+  Run("18b10a/18b10a_pthat2_2runs_wNL_GeMomentumFixed.root", 0, 10000000);
+  Run("18b10a/18b10a_pthat3_2runs_wNL_GeMomentumFixed.root", 0, 10000000);
+  Run("18b10a/18b10a_pthat4_2runs_wNL_GeMomentumFixed.root", 0, 10000000);
+  Run("18b10a/18b10a_pthat5_2runs_wNL_GeMomentumFixed.root", 0, 10000000);
+  Run("18b10a/18b10a_pthat6_2runs_wNL_GeMomentumFixed.root", 0, 10000000);//*/
 
 
   /*Run("18b10a/18b10a_pthat1_10runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNL_part000.root", 0, 100000);

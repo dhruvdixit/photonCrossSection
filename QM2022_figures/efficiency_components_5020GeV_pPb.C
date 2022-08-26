@@ -1,0 +1,234 @@
+#ifdef __CLING__
+#pragma cling optimize(0)
+#endif
+void efficiency_components_5020GeV_pPb()
+{
+//=========Macro generated from canvas: cEFf/cEff
+//=========  (Wed Mar 30 11:19:01 2022) by ROOT version 6.26/00
+   TCanvas *cEFf = new TCanvas("cEFf", "cEff",342,147,900,700);
+   gStyle->SetOptStat(0);
+   cEFf->Range(6.216867,-0.2,64.04819,1.133333);
+   cEFf->SetFillColor(0);
+   cEFf->SetBorderMode(0);
+   cEFf->SetBorderSize(0);
+   cEFf->SetRightMargin(0.07);
+   cEFf->SetBottomMargin(0.15);
+   cEFf->SetFrameBorderMode(0);
+   cEFf->SetFrameBorderSize(0);
+   cEFf->SetFrameBorderMode(0);
+   cEFf->SetFrameBorderSize(0);
+   Double_t xAxis1[15] = {5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 60}; 
+   
+   TH1F *hTotalEfficiency__1 = new TH1F("hTotalEfficiency__1","",14, xAxis1);
+   hTotalEfficiency__1->SetBinContent(1,0.6465523);
+   hTotalEfficiency__1->SetBinContent(2,0.5913606);
+   hTotalEfficiency__1->SetBinContent(3,0.5864131);
+   hTotalEfficiency__1->SetBinContent(4,0.5834481);
+   hTotalEfficiency__1->SetBinContent(5,0.6047193);
+   hTotalEfficiency__1->SetBinContent(6,0.6122921);
+   hTotalEfficiency__1->SetBinContent(7,0.6254501);
+   hTotalEfficiency__1->SetBinContent(8,0.625894);
+   hTotalEfficiency__1->SetBinContent(9,0.6329615);
+   hTotalEfficiency__1->SetBinContent(10,0.6366361);
+   hTotalEfficiency__1->SetBinContent(11,0.6493691);
+   hTotalEfficiency__1->SetBinContent(12,0.6573445);
+   hTotalEfficiency__1->SetBinContent(13,0.6746019);
+   hTotalEfficiency__1->SetBinContent(14,0.6830171);
+   hTotalEfficiency__1->SetBinError(1,0.003890069);
+   hTotalEfficiency__1->SetBinError(2,0.003596965);
+   hTotalEfficiency__1->SetBinError(3,0.004014177);
+   hTotalEfficiency__1->SetBinError(4,0.004622456);
+   hTotalEfficiency__1->SetBinError(5,0.005486328);
+   hTotalEfficiency__1->SetBinError(6,0.00435846);
+   hTotalEfficiency__1->SetBinError(7,0.004539241);
+   hTotalEfficiency__1->SetBinError(8,0.004717936);
+   hTotalEfficiency__1->SetBinError(9,0.00508831);
+   hTotalEfficiency__1->SetBinError(10,0.005577114);
+   hTotalEfficiency__1->SetBinError(11,0.004050532);
+   hTotalEfficiency__1->SetBinError(12,0.004510842);
+   hTotalEfficiency__1->SetBinError(13,0.003565334);
+   hTotalEfficiency__1->SetBinError(14,0.002556239);
+   hTotalEfficiency__1->SetMinimum(0);
+   hTotalEfficiency__1->SetMaximum(1);
+   hTotalEfficiency__1->SetEntries(14);
+   hTotalEfficiency__1->SetStats(0);
+
+   Int_t ci;      // for color index setting
+   TColor *color; // for color definition with alpha
+   ci = TColor::GetColor("#0000cc");
+   hTotalEfficiency__1->SetLineColor(ci);
+
+   ci = TColor::GetColor("#0000cc");
+   hTotalEfficiency__1->SetMarkerColor(ci);
+   hTotalEfficiency__1->SetMarkerStyle(33);
+   hTotalEfficiency__1->SetMarkerSize(2);
+   hTotalEfficiency__1->GetXaxis()->SetTitle("#it{p}_{T} [GeV/#it{c}]");
+   hTotalEfficiency__1->GetXaxis()->SetRange(7,14);
+   hTotalEfficiency__1->GetXaxis()->SetLabelFont(42);
+   hTotalEfficiency__1->GetXaxis()->SetTitleOffset(1.2);
+   hTotalEfficiency__1->GetXaxis()->SetTitleFont(42);
+   hTotalEfficiency__1->GetYaxis()->SetTitle("#varepsilon_{#gamma}^{iso} contributions");
+   hTotalEfficiency__1->GetYaxis()->SetLabelFont(42);
+   hTotalEfficiency__1->GetYaxis()->SetTitleOffset(1.3);
+   hTotalEfficiency__1->GetYaxis()->SetTitleFont(42);
+   hTotalEfficiency__1->GetZaxis()->SetLabelFont(42);
+   hTotalEfficiency__1->GetZaxis()->SetTitleOffset(1);
+   hTotalEfficiency__1->GetZaxis()->SetTitleFont(42);
+   hTotalEfficiency__1->Draw("e1");
+   Double_t xAxis2[15] = {5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 60}; 
+   
+   TH1F *hEfficiency__2 = new TH1F("hEfficiency__2","",14, xAxis2);
+   hEfficiency__2->SetBinContent(1,0.5842793);
+   hEfficiency__2->SetBinContent(2,0.5341364);
+   hEfficiency__2->SetBinContent(3,0.5275535);
+   hEfficiency__2->SetBinContent(4,0.524764);
+   hEfficiency__2->SetBinContent(5,0.5424595);
+   hEfficiency__2->SetBinContent(6,0.5492653);
+   hEfficiency__2->SetBinContent(7,0.5607543);
+   hEfficiency__2->SetBinContent(8,0.5590999);
+   hEfficiency__2->SetBinContent(9,0.5654304);
+   hEfficiency__2->SetBinContent(10,0.5703096);
+   hEfficiency__2->SetBinContent(11,0.5800046);
+   hEfficiency__2->SetBinContent(12,0.5859281);
+   hEfficiency__2->SetBinContent(13,0.5992161);
+   hEfficiency__2->SetBinContent(14,0.6068488);
+   hEfficiency__2->SetBinError(1,0.00263435);
+   hEfficiency__2->SetBinError(2,0.00246439);
+   hEfficiency__2->SetBinError(3,0.002741101);
+   hEfficiency__2->SetBinError(4,0.003153023);
+   hEfficiency__2->SetBinError(5,0.003703855);
+   hEfficiency__2->SetBinError(6,0.002923902);
+   hEfficiency__2->SetBinError(7,0.003034955);
+   hEfficiency__2->SetBinError(8,0.003149908);
+   hEfficiency__2->SetBinError(9,0.003391777);
+   hEfficiency__2->SetBinError(10,0.003730851);
+   hEfficiency__2->SetBinError(11,0.002682367);
+   hEfficiency__2->SetBinError(12,0.002977637);
+   hEfficiency__2->SetBinError(13,0.002333384);
+   hEfficiency__2->SetBinError(14,0.00167203);
+   hEfficiency__2->SetEntries(14);
+   hEfficiency__2->SetStats(0);
+
+   ci = TColor::GetColor("#cc0000");
+   hEfficiency__2->SetLineColor(ci);
+
+   ci = TColor::GetColor("#cc0000");
+   hEfficiency__2->SetMarkerColor(ci);
+   hEfficiency__2->SetMarkerStyle(34);
+   hEfficiency__2->SetMarkerSize(2);
+   hEfficiency__2->GetXaxis()->SetTitle("p_{T}^{tru} [GeV/c]");
+   hEfficiency__2->GetXaxis()->SetLabelFont(42);
+   hEfficiency__2->GetXaxis()->SetTitleOffset(1);
+   hEfficiency__2->GetXaxis()->SetTitleFont(42);
+   hEfficiency__2->GetYaxis()->SetTitle("#varepsilon^{iso}_{#gamma}");
+   hEfficiency__2->GetYaxis()->SetLabelFont(42);
+   hEfficiency__2->GetYaxis()->SetTitleFont(42);
+   hEfficiency__2->GetZaxis()->SetLabelFont(42);
+   hEfficiency__2->GetZaxis()->SetTitleOffset(1);
+   hEfficiency__2->GetZaxis()->SetTitleFont(42);
+   hEfficiency__2->Draw("same e1");
+   Double_t xAxis3[15] = {5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30, 40, 60}; 
+   
+   TH1F *hIsoEfficiency__3 = new TH1F("hIsoEfficiency__3","",14, xAxis3);
+   hIsoEfficiency__3->SetBinContent(1,0.9036844);
+   hIsoEfficiency__3->SetBinContent(2,0.9032329);
+   hIsoEfficiency__3->SetBinContent(3,0.8996277);
+   hIsoEfficiency__3->SetBinContent(4,0.8994184);
+   hIsoEfficiency__3->SetBinContent(5,0.8970436);
+   hIsoEfficiency__3->SetBinContent(6,0.8970641);
+   hIsoEfficiency__3->SetBinContent(7,0.8965613);
+   hIsoEfficiency__3->SetBinContent(8,0.8932822);
+   hIsoEfficiency__3->SetBinContent(9,0.8933094);
+   hIsoEfficiency__3->SetBinContent(10,0.8958172);
+   hIsoEfficiency__3->SetBinContent(11,0.8931816);
+   hIsoEfficiency__3->SetBinContent(12,0.8913562);
+   hIsoEfficiency__3->SetBinContent(13,0.8882514);
+   hIsoEfficiency__3->SetBinContent(14,0.8884826);
+   hIsoEfficiency__3->SetBinError(1,0.003600178);
+   hIsoEfficiency__3->SetBinError(2,0.00358005);
+   hIsoEfficiency__3->SetBinError(3,0.004009262);
+   hIsoEfficiency__3->SetBinError(4,0.004644589);
+   hIsoEfficiency__3->SetBinError(5,0.005359076);
+   hIsoEfficiency__3->SetBinError(6,0.00423926);
+   hIsoEfficiency__3->SetBinError(7,0.004335082);
+   hIsoEfficiency__3->SetBinError(8,0.004473502);
+   hIsoEfficiency__3->SetBinError(9,0.004780744);
+   hIsoEfficiency__3->SetBinError(10,0.00521943);
+   hIsoEfficiency__3->SetBinError(11,0.003738582);
+   hIsoEfficiency__3->SetBinError(12,0.004110319);
+   hIsoEfficiency__3->SetBinError(13,0.003173992);
+   hIsoEfficiency__3->SetBinError(14,0.002250393);
+   hIsoEfficiency__3->SetEntries(14);
+   hIsoEfficiency__3->SetStats(0);
+   hIsoEfficiency__3->SetMarkerStyle(20);
+   hIsoEfficiency__3->SetMarkerSize(2);
+   hIsoEfficiency__3->GetXaxis()->SetTitle("p_{T}^{tru} [GeV/c]");
+   hIsoEfficiency__3->GetXaxis()->SetLabelFont(42);
+   hIsoEfficiency__3->GetXaxis()->SetTitleOffset(1);
+   hIsoEfficiency__3->GetXaxis()->SetTitleFont(42);
+   hIsoEfficiency__3->GetYaxis()->SetTitle("#varepsilon^{iso}_{#gamma}");
+   hIsoEfficiency__3->GetYaxis()->SetLabelFont(42);
+   hIsoEfficiency__3->GetYaxis()->SetTitleFont(42);
+   hIsoEfficiency__3->GetZaxis()->SetLabelFont(42);
+   hIsoEfficiency__3->GetZaxis()->SetTitleOffset(1);
+   hIsoEfficiency__3->GetZaxis()->SetTitleFont(42);
+   hIsoEfficiency__3->Draw("same e1");
+   TLine *line = new TLine(12,0.5,60,0.5);
+   line->Draw();
+   
+   TLegend *leg = new TLegend(0.13,0.2,0.5,0.4,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextSize(0.037);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(0);
+   TLegendEntry *entry=leg->AddEntry("NULL","ALICE Simluation, p-Pb #sqrt{s} = 5.02 TeV","h");
+   entry->SetLineColor(1);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+   entry->SetMarkerColor(1);
+   entry->SetMarkerStyle(21);
+   entry->SetMarkerSize(1);
+   entry->SetTextFont(42);
+   entry=leg->AddEntry("hIsoEfficiency","Isolated photon generated photon fraction (#kappa^{iso})","lpf");
+   entry->SetFillStyle(1001);
+   entry->SetLineColor(1);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+   entry->SetMarkerColor(1);
+   entry->SetMarkerStyle(20);
+   entry->SetMarkerSize(2);
+   entry->SetTextFont(42);
+   entry=leg->AddEntry("hEfficiency","Reconstruction + Identification (#varepsilon^{rec} #bullet #varepsilon^{id})","lpf");
+   entry->SetFillStyle(1001);
+
+   ci = TColor::GetColor("#cc0000");
+   entry->SetLineColor(ci);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+
+   ci = TColor::GetColor("#cc0000");
+   entry->SetMarkerColor(ci);
+   entry->SetMarkerStyle(34);
+   entry->SetMarkerSize(2);
+   entry->SetTextFont(42);
+   entry=leg->AddEntry("hTotalEfficiency","Reconsturction + Identification + Isolation (#varepsilon^{rec} #bullet #varepsilon^{id} #bullet #varepsilon^{iso})","lpf");
+   entry->SetFillStyle(1001);
+
+   ci = TColor::GetColor("#0000cc");
+   entry->SetLineColor(ci);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+
+   ci = TColor::GetColor("#0000cc");
+   entry->SetMarkerColor(ci);
+   entry->SetMarkerStyle(33);
+   entry->SetMarkerSize(2);
+   entry->SetTextFont(42);
+   leg->Draw();
+   cEFf->Modified();
+   cEFf->cd();
+   cEFf->SetSelected(cEFf);
+}

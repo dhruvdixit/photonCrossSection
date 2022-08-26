@@ -21,10 +21,14 @@ void drawSystematics(){
   //Double_t dhruvMean_EG2_AN[numBins] = {1959.68, 1279.23, 834.874, 538.797, 273.551, 120.628, 50.2552, 7.14272};
   //Double_t dhruvStat_EG2_AN[numBins] = {35.2533, 34.1327, 30.6301, 26.4676, 12.7417, 8.86998, 4.06296, 1.07681};
 
-  Double_t dhruvMean_EG1_AN[numBins] = {1619.3, 1079.79, 692.178, 442.5, 238.985, 108.409, 41.5557, 7.4575};//fixed eff
-  Double_t dhruvStat_EG1_AN[numBins] = {21.8978, 17.1048, 12.8975, 9.57457, 4.31995, 2.85161, 1.21363, 0.352928};//fixed eff
-  Double_t dhruvMean_EG2_AN[numBins] = {1649.06, 1073.63, 702.1, 453.566, 229.664, 102.05, 42.5187, 6.07314};//fixed eff
-  Double_t dhruvStat_EG2_AN[numBins] = {35.6368, 31.829, 27.4688, 23.074, 10.8907, 7.56413, 3.45221, 0.916306};//fixed eff
+  //Double_t dhruvMean_EG1_AN[numBins] = {1619.3, 1079.79, 692.178, 442.5, 238.985, 108.409, 41.5557, 7.4575};//fixed eff
+  //Double_t dhruvStat_EG1_AN[numBins] = {21.8978, 17.1048, 12.8975, 9.57457, 4.31995, 2.85161, 1.21363, 0.352928};//fixed eff
+  //Double_t dhruvMean_EG2_AN[numBins] = {1649.06, 1073.63, 702.1, 453.566, 229.664, 102.05, 42.5187, 6.07314};//fixed eff
+  //Double_t dhruvStat_EG2_AN[numBins] = {35.6368, 31.829, 27.4688, 23.074, 10.8907, 7.56413, 3.45221, 0.916306};//fixed eff
+  Double_t dhruvMean_EG1_AN[numBins] = {1692.55, 1061.36, 662.843, 427.047, 226.446, 107.452, 40.9216, 7.88297};//post QM
+  Double_t dhruvStat_EG1_AN[numBins] = {16.7649, 13.1978, 10.5944, 8.73983, 4.14647, 2.94798, 1.28672, 0.39623};//post QM
+  Double_t dhruvMean_EG2_AN[numBins] = {1781.35, 1121.49, 712.64, 424.797, 230.706, 106.69, 43.2809, 6.63078};//post QM
+  Double_t dhruvStat_EG2_AN[numBins] = {36.1763, 32.3901, 28.0746, 23.088, 11.4462, 8.26608, 3.77433, 1.04871};//post QM
   
   Double_t dhruvSys_pPb[numBins] = {245.187, 136.576, 79.3291, 48.2625, 25.5367, 11.8048, 4.49563, 0.386485};//no cancellation in purity
   //Double_t dhruvSys_pPb[numBins] = {244.3, 135.641, 78.439, 47.7364, 25.2224, 11.4663, 4.48855, 0.811153};//missing ssc
@@ -39,8 +43,10 @@ void drawSystematics(){
 
     dhruvStat_pPb[i] = TMath::Sqrt(TMath::Power(dhruvStat_EG1_AN[i],2) + TMath::Power(dhruvStat_EG2_AN[i],2));
   }
-  Double_t dhruvMean_pp[numBins] = {7.87918, 5.47635, 3.40843, 1.97586, 1.02774, 0.466082, 0.15491, 0.0284661};//fixed eff
-  Double_t dhruvStat_pp[numBins] = {0.487914, 0.225647, 0.127018, 0.0863958, 0.0396474, 0.0276789, 0.0112095, 0.00333171};//fixed eff
+  //Double_t dhruvMean_pp[numBins] = {7.87918, 5.47635, 3.40843, 1.97586, 1.02774, 0.466082, 0.15491, 0.0284661};//fixed eff
+  //Double_t dhruvStat_pp[numBins] = {0.487914, 0.225647, 0.127018, 0.0863958, 0.0396474, 0.0276789, 0.0112095, 0.00333171};//fixed eff
+  Double_t dhruvMean_pp[numBins] = {8.76905, 4.84717, 2.97868, 1.69761, 0.920006, 0.440048, 0.1574, 0.030219};//post QM
+  Double_t dhruvStat_pp[numBins] = {0.42378, 0.255627, 0.192896, 0.108714, 0.0489118, 0.032834, 0.013023, 0.00392297};//post QM
   //Double_t dhruvMean_pp[numBins] = {9.411, 6.56199, 4.10474, 2.36822, 1.23861, 0.55767, 0.185445, 0.0338748};
   //Double_t dhruvStat_pp[numBins] = {0.593559, 0.286304, 0.171845, 0.123759, 0.0586284, 0.0385993, 0.016245, 0.00520473}; 
 
@@ -217,15 +223,15 @@ void drawSystematics(){
   EPPS16->SetLineColor(kBlue);
   EPPS16->SetLineWidth(6);
   EPPS16->SetLineStyle(9);
-  //EPPS16->Draw("L same");
+  EPPS16->Draw("L same");
     
-  TLegend* lRpA = new TLegend(0.13, 0.13, 0.8, 0.25);
+  TLegend* lRpA = new TLegend(0.13, 0.13, 0.8, 0.4);
   lRpA->SetFillStyle(0);
   lRpA->AddEntry(csRpaStat->GetFunction("pol0"), Form("Constant Fit: %f #pm %f", csRpaStat->GetFunction("pol0")->GetParameter(0), csRpaStat->GetFunction("pol0")->GetParError(0)), "l");
   lRpA->AddEntry((TObject*)0, Form("#chi^{2} = %f", csRpaStat->GetFunction("pol0")->GetChisquare()), "");
   lRpA->AddEntry((TObject*)0, Form("NDF = %i", csRpaStat->GetFunction("pol0")->GetNDF()), "");
-  //lRpA->AddEntry(EPPS16, "5.02 TeV, p-Pb-->direct photon", "l");
-  //lRpA->AddEntry((TObject*)0, "NLO pQCD parton model, PDFs: CT14, EPPS16", "");
+  lRpA->AddEntry(EPPS16, "5.02 TeV, p-Pb-->direct photon", "l");
+  lRpA->AddEntry((TObject*)0, "NLO pQCD parton model, PDFs: CT14, EPPS16", "");
   lRpA->Draw("same");
   
   TLegend* lRpA2 = new TLegend(0.1, 0.75, 0.8, 0.9);

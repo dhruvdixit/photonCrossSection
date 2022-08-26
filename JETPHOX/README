@@ -1,0 +1,19 @@
+NLO predictions are obtained with the newest version of JETPHOX which is 1.3.1.4.
+The centre-of-mass energy is given in the respective fill name.
+
+Cross section: dSigma/dpt dy (nb/GeV)
+histogram to use for comparison to data: _TOTAL_scl_10_10_10
+proton PDF: NNPDF40
+nuclear PDF for Pb in p-Pb: nNNPDF30
+NLO: yes
+isolation: 2.0GeV in R=0.4 (charged+neutral). This shoud roughly correspond to 1.5GeV charged only
+photon rapidity: -0.8<y<0.8 (but xsection is normalized by dy)
+events: 5mio per pt hard bin (12 pt hard bins)
+fragmentation: BFG set II
+IS factorization scale: 1 * photon pt
+renormalisation scale: 1 * photon pt 
+FS factorisation scale: 1 * photon pt
+
+Scale variations:
+scl_05_05_05 = all three mentioned scale varied to 0.5 * photon pt
+scl_20_20_20 = all three mentioned scale varied to 2.0 * photon pt

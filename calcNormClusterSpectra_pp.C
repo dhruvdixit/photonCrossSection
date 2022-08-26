@@ -15,7 +15,7 @@
 #include "TDatabasePDG.h"
 #include "TEfficiency.h"
 
-#include <algorithm>
+/*#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <iostream>
@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <bitset>
 #include <bits/stdc++.h>
-#include <cstring>
+#include <cstring>//*/
 
 void calcNormClusterSpectra_pp(){
 
@@ -75,8 +75,18 @@ void calcNormClusterSpectra_pp(){
   //TFile* fin = new TFile(Form("%sfout_4_14bins_firstEvent0_17q_ITSonly_run282393_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_run282402_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/StdCutsNLPurity/fout_4_14bins_firstEvent0_17q_ITSonly_allRuns_kMuonCalo_mannualAndGreen_split10_wNL_StdCuts_EX0PurityFit_NonlinPurity_noNorm.root", path.Data()), "READ");
   //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/StdCutsNLMinusPurity/fout_4_14bins_firstEvent0_17q_ITSonly_runsAll_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_NonlinPurityMinusNL_noNorm.root", path.Data()), "READ");
-
-
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/EmcalCorrectionCompare/fout_4_14bins_firstEvent0_17q_noCorrections_nonlinFunction_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/EmcalCorrectionCompare/fout_4_14bins_firstEvent0_17q_allCorrections_nonlinFunction_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/EmcalCorrectionCompare/fout_4_14bins_firstEvent0_17q_noNLTemp_nonlinFunction_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/NonLin/EmcalCorrectionCompare/fout_4_14bins_firstEvent0_17q_noNLOnly_nonlinFunction_noNorm.root", path.Data()), "READ");
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/17q/ntuplizerComparison/Feb20AliPhysics/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_part000_StdCuts_EX0PurityFit_run282440_noNorm.root", path.Data()), "READ");//Using Feb 20,2022 AliPhysics gh ntuple
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/17q/ntuplizerComparison/Feb20AliPhysics/fout_4_14bins_firstEvent0_17q_run282440_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_run282440_noNorm.root", path.Data()), "READ");//post QM ntuple, feb 20, 2022 AliPhysics
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/Feb20AliPhysics/postQMNtuples/fout_4_14bins_firstEvent0_17q_3runs_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_postQM_noNorm.root", path.Data()), "READ");//post QM ntuple, feb 20, 2022 AliPhysics
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/Feb20AliPhysics/ghNtuplpes/fout_4_14bins_firstEvent0_17q_ITSonly_noThresh_muonCalo_phySel_part0001234_StdCuts_EX0PurityFit_postQM_noNorm.root", path.Data()), "READ");//using gh ntuples to compare with post QM ntuples
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/Feb20AliPhysics/postQMNtuples/CutFlowAfterCuts/fout_4_14bins_firstEvent0_17q_runAll_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit__CutFlowAfterCuts_noNorm.root", path.Data()), "READ");//using gh ntuples to compare with post QM ntuples - all runs
+  //TFile* fin = new TFile(Form("%scsOutput/ppOutput/Feb20AliPhysics/postQMNtuples/wEtaCorr/fout_4_14bins_firstEvent0_17q_runAll_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wEtaCorr_noNorm.root", path.Data()), "READ");//post QM ntuples wEtaCorr and no runs 282440 and 282365
+   TFile* fin = new TFile(Form("%scsOutput/ppOutput/Feb20AliPhysics/postQMNtuples/wPhiCorr/fout_4_14bins_firstEvent0_17q_runAll_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wPhiCorr_noNorm.root", path.Data()), "READ");//post QM ntuples wPhiCorr and no runs 282440 and 282365
+   
   
   TH1F* hEG2_caloE = (TH1F*)fin->Get("hEG2_caloE");
   TH1F* hEG2woPurity = (TH1F*)fin->Get("hEG2woPurity");  

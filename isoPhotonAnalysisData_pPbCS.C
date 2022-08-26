@@ -15,7 +15,7 @@
 #include "TDatabasePDG.h"
 #include "TEfficiency.h"
 
-#include <algorithm>
+/*#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <iostream>
@@ -23,7 +23,22 @@
 #include <stdio.h>
 #include <bitset>
 #include <bits/stdc++.h>
-#include <cstring>
+#include <cstring>//*/
+
+Float_t GetNonLinearityEnergy(Float_t rawE) {
+
+  Float_t nonlinE = rawE;
+
+  Float_t    fNonLinearityParams[10];
+  fNonLinearityParams[0] = 1.91897;
+  fNonLinearityParams[1] = 0.0264988;
+  fNonLinearityParams[2] = 0.965663;
+  fNonLinearityParams[3] = -187.501;
+  fNonLinearityParams[4] = 2762.51;
+  nonlinE /= ( 1.0505 * (fNonLinearityParams[0] + fNonLinearityParams[1] * TMath::Log(nonlinE) ) / ( 1 + ( fNonLinearityParams[2] * TMath::Exp( ( nonlinE - fNonLinearityParams[3] ) / fNonLinearityParams[4] ) ) ) );
+
+  return nonlinE;
+}
 
 Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
 
@@ -123,6 +138,67 @@ Float_t Get_Purity_ErrFunction(Float_t pT_GeV, std::string deviation = "") {
   return purity_val;
 }
 
+Float_t getEtaCorrectionFactor(Float_t eta){
+  
+  if(eta < -0.7)
+    return 1.0;
+  if(eta >= -0.7 && eta < -0.6)
+    return 0.909477;
+  if(eta >= -0.6 && eta < -0.5)
+    return 1.07125;
+  if(eta >= -0.5 && eta < -0.4)
+    return 1.11346;
+  if(eta >= -0.4 && eta < -0.3)
+    return 1.11198;
+  if(eta >= -0.3 && eta < -0.2)
+    return 1.1;
+  if(eta >= -0.2 && eta < -0.1)
+    return 1.16551;
+  if(eta >= -0.1 && eta < 0.0)
+    return 1.26965;
+  if(eta >= 0.0 && eta < 0.1)
+    return 1.24032;
+  if(eta >= 0.1 && eta < 0.2)
+    return 1.13874;
+  if(eta >= 0.2 && eta < 0.3)
+    return 0.993655;
+  if(eta >= 0.3 && eta < 0.4)
+    return 0.988635;
+  if(eta >= 0.4 && eta < 0.5)
+    return 1.04594;
+  if(eta >= 0.5 && eta < 0.6)
+    return 0.974622;
+  if(eta >= 0.6 && eta < 0.7)
+    return 0.937482;
+  if(eta >= 0.7)
+    return 1;
+
+  return 1;
+  
+    
+}
+
+Float_t getPhiCorrectionFactor(Float_t phi){
+
+  if(phi < 1.32278)
+    return 1.0;
+  if(phi >= 1.32278 && phi < 1.65347)
+    return 1.08491;
+  if(phi >= 1.65347 && phi < 1.98416)
+    return 1.0;
+  if(phi >= 1.98416 && phi < 2.31486)
+    return 1.06759;
+  if(phi >= 2.31486 && phi < 2.64555)
+    return 1.17386;
+  if(phi >= 2.64555 && phi < 2.97625)
+    return 1.16746;
+  if(phi >= 2.97625 && phi < 3.30694)
+    return 1.29302;
+  if(phi >= 3.30694)
+    return 1.0;
+
+  return 1.0;
+}
 
 void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_t lastEvent = 1000000000000000){
 
@@ -141,6 +217,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   }
   TTree* _tree_event;
   _tree_event = (TTree*)f->Get("AliAnalysisTaskNTGJ/_tree_event");
+  if(!_tree_event) _tree_event = (TTree*)f->Get("AliAnalysisTaskNTGJ_rpa/_tree_event");
   if(!_tree_event) _tree_event = (TTree*)f->Get("_tree_event");
   if(!_tree_event){ printf("Error: cannot find tree"); return;}
   
@@ -151,6 +228,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   Bool_t is_pileup_from_spd_3_08;
   Bool_t is_incomplete_daq;
   Float_t ue_estimate_its_const;
+  Float_t ue_estimate_tpc_const;
   int npileup_vertex_spd;
   int run_number;
   unsigned int ntrack;
@@ -165,12 +243,15 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   Float_t cluster_pt_nonLinCorr[kMax];
   Float_t cluster_eta_nonLinCorr[kMax];
   Float_t cluster_phi_nonLinCorr[kMax];
+  Float_t cluster_rawE[kMax];
+  Float_t cluster_nonlinE[kMax];
   Float_t cluster_tof[kMax];
   Float_t cluster_e_cross[kMax];
   Float_t cluster_e_max[kMax];
-  Float_t cluster_iso_tpc_04[kMax];
   Float_t cluster_iso_its_04[kMax];
   Float_t cluster_iso_its_04_ue[kMax];
+  Float_t cluster_iso_tpc_04[kMax];
+  Float_t cluster_iso_tpc_04_ue[kMax];
   Float_t cluster_iso_04_truth[kMax];
   Float_t cluster_frixione_tpc_04_02[kMax];
   Float_t cluster_frixione_its_04_02[kMax];
@@ -195,6 +276,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   _tree_event->SetBranchAddress("is_pileup_from_spd_3_08", &is_pileup_from_spd_3_08);
   //_tree_event->SetBranchAddress("is_incomplete_daq", &is_incomplete_daq);
   _tree_event->SetBranchAddress("ue_estimate_its_const", &ue_estimate_its_const);
+  _tree_event->SetBranchAddress("ue_estimate_tpc_const", &ue_estimate_tpc_const);
   _tree_event->SetBranchAddress("run_number", &run_number);
   _tree_event->SetBranchAddress("npileup_vertex_spd", &npileup_vertex_spd);
   _tree_event->SetBranchAddress("trigger_mask", trigger_mask);
@@ -210,15 +292,18 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   _tree_event->SetBranchAddress("cluster_pt_nonLinCorr", cluster_pt_nonLinCorr); // here
   _tree_event->SetBranchAddress("cluster_eta_nonLinCorr", cluster_eta_nonLinCorr);
   _tree_event->SetBranchAddress("cluster_phi_nonLinCorr", cluster_phi_nonLinCorr);
+  _tree_event->SetBranchAddress("cluster_rawE", cluster_rawE);
+  _tree_event->SetBranchAddress("cluster_nonlinE", cluster_nonlinE);
   _tree_event->SetBranchAddress("cluster_tof", cluster_tof);
   _tree_event->SetBranchAddress("cluster_e_cross", cluster_e_cross);
   _tree_event->SetBranchAddress("cluster_e_max", cluster_e_max);
   _tree_event->SetBranchAddress("cluster_s_nphoton", cluster_s_nphoton); // here
   _tree_event->SetBranchAddress("cluster_mc_truth_index", cluster_mc_truth_index);
   _tree_event->SetBranchAddress("cluster_lambda_square", cluster_lambda_square);
-  _tree_event->SetBranchAddress("cluster_iso_tpc_04",cluster_iso_tpc_04);
   _tree_event->SetBranchAddress("cluster_iso_its_04",cluster_iso_its_04);
   _tree_event->SetBranchAddress("cluster_iso_its_04_ue",cluster_iso_its_04_ue);
+  _tree_event->SetBranchAddress("cluster_iso_tpc_04",cluster_iso_tpc_04);
+  _tree_event->SetBranchAddress("cluster_iso_tpc_04_ue",cluster_iso_tpc_04_ue);
   _tree_event->SetBranchAddress("cluster_iso_04_truth", cluster_iso_04_truth);
   _tree_event->SetBranchAddress("cluster_frixione_tpc_04_02",cluster_frixione_tpc_04_02);
   _tree_event->SetBranchAddress("cluster_frixione_its_04_02",cluster_frixione_its_04_02);
@@ -228,7 +313,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   _tree_event->SetBranchAddress("cluster_cell_id_max", cluster_cell_id_max);
   _tree_event->SetBranchAddress("cell_e", cell_e);
   
-  const int nbinseta = 10;
+  const int nbinseta = 18;
   Double_t etabins[nbinseta+1] = {};
   double etamin = -0.9;
   double etamax = 0.9;
@@ -237,10 +322,10 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     etabins[i] = etamin + i*etastep;
   }
 
-  const int nbinsphi = 80;
+  const int nbinsphi = 76;
   Double_t phibins[nbinsphi+1] = {};
-  double phimin = -1.0*TMath::Pi();
-  double phimax = 1.0*TMath::Pi();
+  double phimin = -2.0*TMath::Pi();
+  double phimax = 2.0*TMath::Pi();
   double phistep = (phimax-phimin)/nbinsphi;
   for(int i=0; i<nbinsphi+1; i++){
     phibins[i] = phimin + i*phistep;
@@ -275,43 +360,72 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
   //cluster cuts histogram
   auto hCluster_tof = new TH1F("hCluster_tof", "", 200, -100, 100);
-  auto hCluster_tof20GeV = new TH1F("hCluster_tof20GeV", "", 200, -100, 100);
   auto hExoticity = new TH1F("hExtoticity", "", 100, 0, 1);
-  auto hCellEvClusterE = new TH1F("hCellEvClusterE", "", 100, -50, 50);
   auto hNcell = new TH1F("hNcell", "", 20, 0, 20);
   auto hNLM = new TH1F("hNLM", "", 10, 0, 10);
   auto hD2BC = new TH1F("hD2BC", "", 10, 0, 10);
   auto hEta = new TH1F("hEta", "", nbinseta, etabins);
   auto hPhi = new TH1F("hPhi", "", nbinsphi, phibins);
+  auto hEtaPhi = new TH2F("hEtaPhi", ";#eta; #varphi", nbinseta, etabins, nbinsphi, phibins); 
+  auto hEtawEtaCorr = new TH1F("hEtawEtaCorr", "", nbinseta, etabins);
+  auto hPhiwEtaCorr = new TH1F("hPhiwEtaCorr", "", nbinsphi, phibins);
+  auto hEtaPhiwEtaCorr = new TH2F("hEtaPhiCorr", ";#varphi; #eta", nbinsphi, phibins, nbinseta, etabins); 
+  auto hShowerShape = new TH1F("hShowerShape", "", 100, 0, 1);
   auto hIsolation = new TH1F("hIsolation", "", 1000, -500, 500);
+  auto hCluster_tof_ctflw = new TH1F("hCluster_tof_ctflw", "", 200, -100, 100);
+  auto hExoticity_ctflw = new TH1F("hExtoticity_ctflw", "", 100, 0, 1);
+  auto hNcell_ctflw = new TH1F("hNcell_ctflw", "", 20, 0, 20);
+  auto hNLM_ctflw = new TH1F("hNLM_ctflw", "", 10, 0, 10);
+  auto hD2BC_ctflw = new TH1F("hD2BC_ctflw", "", 10, 0, 10);
+  auto hEta_ctflw = new TH1F("hEta_ctflw", "", nbinseta, etabins);
+  auto hPhi_ctflw = new TH1F("hPhi_ctflw", "", nbinsphi, phibins);
+  auto hShowerShape_ctflw = new TH1F("hShowerShape_ctflw", "", 100, 0, 1);
+  auto hIsolation_ctflw = new TH1F("hIsolation_ctflw", "", 1000, -500, 500);
+  
 
+  auto hCluster_tof20GeV = new TH1F("hCluster_tof20GeV", "", 200, -100, 100);  
+  auto hCellEvClusterE = new TH1F("hCellEvClusterE", "", 100, -50, 50);
+  
   hCluster_tof->SetTitle(";cluster_tof [ns]; counts");
-  hCluster_tof20GeV->SetTitle("photons > 20 GeV;cluster_tof [ns]; counts");
   hExoticity->SetTitle(";E_{cross}/E_{max};counts");
-  hCellEvClusterE->SetTitle(";E_{max} - E_{cluster};counts");
   hNcell->SetTitle(";N_{cell};counts");
   hNLM->SetTitle(";NLM;counts");
   hD2BC->SetTitle(";Distance to bad channel; counts");
-  hIsolation->SetTitle(";isolation [GeV/c]; counts");
   hEta->SetTitle(";#eta; counts");
   hPhi->SetTitle(";#phi; counts");
-
+  hShowerShape->SetTitle(";#sigma^2_{long};counts");
+  hIsolation->SetTitle(";isolation [GeV/c]; counts");
+  hCellEvClusterE->SetTitle(";E_{max} - E_{cluster};counts");
+  hCluster_tof20GeV->SetTitle("photons > 20 GeV;cluster_tof [ns]; counts");
+    
   //Photon
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14, Erwann binning
   //Double_t clusterbins[nbinscluster+1] = {0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 11.00, 12.00, 13.00, 14.00, 15.00, 16.00, 17.00, 18.00, 20.00, 22.00, 26.00, 30.00, 35.00, 40.00, 50.00, 60.00};//nbinscluster = 26, rejection factor binning
 
   const int numRuns = 9;
+  auto hRaw_pt  = new TH1F("hRaw_pt","", nbinscluster, clusterbins);
   auto hReco_pt  = new TH1F("hReco_pt","", nbinscluster, clusterbins);
   auto hCluster_pt = new TH1F("hCluster_pt", "", nbinscluster, clusterbins);
+  auto hCluster_pt_noISO = new TH1F("hCluster_pt_noISO", "", nbinscluster, clusterbins);
   auto hEG1_E = new TH1F("hEG1_E", "", nbinscluster, clusterbins);
   auto hEG2_E = new TH1F("hEG2_E", "", nbinscluster, clusterbins);
   auto hMB_E = new TH1F("hMB_E", "", nbinscluster, clusterbins);
 
   auto hEG1woPurity = new TH1F("hEG1woPurity", "", nbinscluster, clusterbins);
   auto hEG2woPurity = new TH1F("hEG2woPurity", "", nbinscluster, clusterbins);
+  auto hEG1woPurity_nonlin = new TH1F("hEG1woPurity_nonlin", "", nbinscluster, clusterbins);
+  auto hEG2woPurity_nonlin = new TH1F("hEG2woPurity_nonlin", "", nbinscluster, clusterbins);
   auto hEG1woPurityFineBin = new TH1F("hEG1woPurityFineBin", "", 600, 0, 150);
   auto hEG2woPurityFineBin = new TH1F("hEG2woPurityFineBin", "", 600, 0, 150);
+  auto hEG1_rawE = new TH1F("hEG1_rawE", "", nbinscluster, clusterbins);
+  auto hEG2_rawE = new TH1F("hEG2_rawE", "", nbinscluster, clusterbins);
+  auto hEG1_nonlinE = new TH1F("hEG1_nonlinE", "", nbinscluster, clusterbins);
+  auto hEG2_nonlinE = new TH1F("hEG2_nonlinE", "", nbinscluster, clusterbins);
+  auto hEG1wEtaCorr = new TH1F("hEG1wEtaCorr", "", nbinscluster, clusterbins);
+  auto hEG2wEtaCorr = new TH1F("hEG2wEtaCorr", "", nbinscluster, clusterbins);
+  auto hEG1wPhiCorr = new TH1F("hEG1wPhiCorr", "", nbinscluster, clusterbins);
+  auto hEG2wPhiCorr = new TH1F("hEG2wPhiCorr", "", nbinscluster, clusterbins);
 
   auto hEG1Less4Eta = new TH1F("hEG1Less4Eta", "", nbinscluster, clusterbins);
   auto hEG1More4Eta = new TH1F("hEG1More4Eta", "", nbinscluster, clusterbins);
@@ -331,23 +445,35 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   //auto hEventPerRun = new TH1F("hEventPerRun", "", numRuns, runListbins);
   //auto hEG1woPvsRuns = new TH2F("hEG1woPvsRuns", "", nbinscluster, clusterbins, numRuns, runListbins);
 
+  hRaw_pt->Sumw2();
   hReco_pt->Sumw2();
   hCluster_pt->Sumw2();
+  hCluster_pt_noISO->Sumw2();
   hEG1_E->Sumw2();  
   hEG2_E->Sumw2();
   hMB_E->Sumw2();
   hEG1woPurity->Sumw2();  
   hEG2woPurity->Sumw2();
+  hEG1woPurity_nonlin->Sumw2();  
+  hEG2woPurity_nonlin->Sumw2();
   //hEventPerRun->Sumw2();
   //hEG1woPvsRuns->Sumw2();
     
   hCluster_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
+  hCluster_pt_noISO->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
+  hRaw_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hReco_pt->SetTitle("; E_{T} (GeV/c) ; 1/N_{ev}dN/dE_{T}");
   hMB_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{MB}dN/dE_{T}");
   hEG1_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
   hEG2_E->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
+  hEG1_rawE->SetTitle("; E (GeV) ; 1/N_{ev}^{EG1}dN/dE");
+  hEG2_rawE->SetTitle("; E (GeV) ; 1/N_{ev}^{EG2}dN/dE");
+  hEG1_nonlinE->SetTitle("; E (GeV) ; 1/N_{ev}^{EG1}dN/dE");
+  hEG2_nonlinE->SetTitle("; E (GeV) ; 1/N_{ev}^{EG2}dN/dE");
   hEG1woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
   hEG2woPurity->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
+  hEG1woPurity_nonlin->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
+  hEG2woPurity_nonlin->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
   hEG1woPurityFineBin->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG1}dN/dE_{T}");
   hEG2woPurityFineBin->SetTitle("; E_{T} (GeV) ; 1/N_{ev}^{EG2}dN/dE_{T}");
 
@@ -370,6 +496,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   int numEvents_Zmore10 = 0;
   int numEvents_Zless10 = 0;
   int numEvents_noZ = 0;
+  int numEvents_pass12GeVPhoton = 0;
   int currentRunNumber = 0;
 
   const double maxEta = 0.4;
@@ -471,7 +598,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     hMultiplicityBefore->Fill(multp_sum);
 
     //Event Selection:
-    
+
     //13c
     if(run_number <= 195677)
       std::memcpy(trigMask, trigMask_13c_trigs, sizeof(trigMask));
@@ -574,13 +701,14 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
     numEvents_Zless10++;
     numEvents_passAll++;
     
+    Long64_t currentEvent = -1;
+    
     //hEventPerRun->Fill(run_number);
 
     int eventFill = 0;    
     hUE->Fill(ue_estimate_its_const);
     //hUEse->Fill(ue_estimate_its_const_se);
 
-    //continue;
     
     eventChange = true;
     bool eventChange2 = true;
@@ -592,9 +720,13 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
 	hIso_ITSue->Fill(cluster_iso_its_04_ue[n]);
+	//its isolation
 	double isolation = cluster_iso_its_04[n] + cluster_iso_its_04_ue[n];             //remove UE subtraction
 	isolation = isolation - ue_estimate_its_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
-	hIsolation->Fill(isolation);
+	//hybrid isolation
+	//double isolation = cluster_iso_tpc_04[n] + cluster_iso_tpc_04_ue[n];             //remove UE subtraction
+	//isolation = isolation - ue_estimate_tpc_const*0.4*0.4*TMath::Pi();               //Use rhoxA subtraction
+	//hIsolation->Fill(isolation);
 	
 	Float_t clusterPt = 0.0;
 	Float_t clusterE = 0.0;
@@ -605,16 +737,17 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	clusterE = cluster_e[n];
 	clusterEta = cluster_eta[n];
 	clusterPhi = cluster_phi[n];
-	
-	hNcell->Fill(cluster_ncell[n]);
-	hExoticity->Fill(cluster_e_cross[n]/cluster_e_max[n]);
-	hNLM->Fill(cluster_nlocal_maxima[n]);
-	hD2BC->Fill(cluster_distance_to_bad_channel[n]);
-	hCluster_tof->Fill(cluster_tof[n]);	
-	hEta->Fill(clusterEta);
-	hPhi->Fill(clusterPhi);
-	hCellEvClusterE->Fill(cluster_e_max[n]-clusterE);
 
+	if(cluster_pt[n] >= 12 && currentEvent == -1){
+	  currentEvent = ievent;
+	  numEvents_pass12GeVPhoton++;
+	}
+	
+	//if(clusterPt > 12.0)
+	{	  
+	  hCellEvClusterE->Fill(cluster_e_max[n]-clusterE);
+	}
+	hRaw_pt->Fill(clusterPt);
 
 
 	//Photon Selection
@@ -644,21 +777,48 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	hClusterCutFlow->Fill(0);
 
 
-	if(not (cluster_ncell[n]>=2)) {hClusterCutFlow->Fill(1); continue;}
-	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
-	if(not (cluster_nlocal_maxima[n]<= 2)) continue;
-	if(not (cluster_distance_to_bad_channel[n]>=1))continue;
+	hCluster_tof_ctflw->Fill(cluster_tof[n]);	
 	if(not ((cluster_tof[n] > -20 ) && (cluster_tof[n] < 20))) continue;
+	hExoticity_ctflw->Fill(cluster_e_cross[n]/cluster_e_max[n]);
+	if(not (cluster_e_cross[n]/cluster_e_max[n]>0.05)) continue;
+	hNcell_ctflw->Fill(cluster_ncell[n]);	  
+	if(not (cluster_ncell[n]>=2)) {hClusterCutFlow->Fill(1); continue;}
+	hNLM_ctflw->Fill(cluster_nlocal_maxima[n]);
+	if(not (cluster_nlocal_maxima[n]<= 2)) continue;
+	hD2BC_ctflw->Fill(cluster_distance_to_bad_channel[n]);
+	if(not (cluster_distance_to_bad_channel[n]>=1))continue;
+
 	
 	//acceptance cuts
 	//if(not (TMath::Abs(cluster_eta[n]) < 0.4)) continue; //its radius acceptance
 	//if(not (0.4 < TMath::Abs(cluster_eta[n]) && TMath::Abs(cluster_eta[n]) < 0.67)) continue; //outside radius acceptance
+	hEta_ctflw->Fill(clusterEta);
 	if(not (TMath::Abs(cluster_eta[n]) < 0.67)) continue;
+	hPhi_ctflw->Fill(clusterPhi);
 	if(not (1.396 < cluster_phi[n] && cluster_phi[n] < 3.28)) continue;
+
 	
 	//shower shape and isolation
+	hShowerShape_ctflw->Fill(cluster_lambda_square[n][0]);
 	if(not (( 0.1 < cluster_lambda_square[n][0]) &&  ( 0.3 > cluster_lambda_square[n][0]))) continue;
+
+	hCluster_pt_noISO->Fill(clusterPt,1);
+	hIsolation_ctflw->Fill(isolation);
 	if(not (isolation < 1.5)) continue;
+
+
+	if(clusterPt >= 12){
+	  hCluster_tof->Fill(cluster_tof[n]);	
+	  hExoticity->Fill(cluster_e_cross[n]/cluster_e_max[n]);
+	  hNcell->Fill(cluster_ncell[n]);	  
+	  hNLM->Fill(cluster_nlocal_maxima[n]);
+	  hD2BC->Fill(cluster_distance_to_bad_channel[n]);
+	  hEta->Fill(clusterEta);
+	  hPhi->Fill(clusterPhi);
+	  hEtaPhi->Fill(clusterEta, clusterPhi);
+	  hShowerShape->Fill(cluster_lambda_square[n][0]);
+	  hIsolation->Fill(isolation);//*/
+	}
 
 	if(ievent%1000==0){
 	  std::cout << "cluster accepted" << std::endl;
@@ -669,7 +829,19 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	numClustersPost++;
 	
 	
-	double purity = Get_Purity_ErrFunction(clusterPt, "MinusNL");
+	double purity = Get_Purity_ErrFunction(clusterPt, "NonLin");
+	Float_t nonlinEnergy= GetNonLinearityEnergy(clusterPt);
+	double etaFactor = getEtaCorrectionFactor(cluster_eta[n]);
+	double phiFactor = getPhiCorrectionFactor(cluster_phi[n]);
+	double weight = purity*phiFactor;
+
+	if(clusterPt >= 12){
+	  hEtawEtaCorr->Fill(clusterEta, etaFactor);
+	  hPhiwEtaCorr->Fill(clusterPhi, etaFactor);
+	  hEtaPhiwEtaCorr->Fill(clusterEta, clusterPhi, etaFactor);
+	}
+	
+	
 	hReco_pt->Fill(clusterPt);
 	if(isMB) {
 	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
@@ -678,20 +850,34 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 	if(isEG2) {
 	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
 	  hEG2woPurity->Fill(clusterPt, 1);
+	  hEG2woPurity_nonlin->Fill(nonlinEnergy, 1);
 	  hEG2woPurityFineBin->Fill(clusterPt, 1);
-	  hEG2_E->Fill(clusterPt, purity);
-	  if((TMath::Abs(cluster_eta[n]) < 0.4)) hEG2Less4Eta->Fill(clusterPt, purity);
-	  if((TMath::Abs(cluster_eta[n]) > 0.4 && TMath::Abs(cluster_eta[n]) < maxEta)) hEG2More4Eta->Fill(clusterPt, purity);
+	  hEG2wEtaCorr->Fill(clusterPt, purity*etaFactor);
+	  hEG2wPhiCorr->Fill(clusterPt, purity*phiFactor);
+	  hEG2_E->Fill(clusterPt, weight);
+	  hEG2_rawE->Fill(cluster_rawE[n]);
+	  hEG2_nonlinE->Fill(cluster_nonlinE[n]);
+	  if((TMath::Abs(cluster_eta[n]) < 0.4))
+	    hEG2Less4Eta->Fill(clusterPt, weight);
+	  if((TMath::Abs(cluster_eta[n]) > 0.4 && TMath::Abs(cluster_eta[n]) < maxEta))
+	    hEG2More4Eta->Fill(clusterPt, weight);
 	}
 	if(isEG1){
 	  if(clusterPt > 5)
 	    numClusterMoreThan5GeV++;
 	  //cout << "ievent: " << ievent << "\tncluster: " << n << "\tp_{T}: " << clusterPt << endl;
 	  hEG1woPurity->Fill(clusterPt, 1);
+	  hEG1woPurity_nonlin->Fill(nonlinEnergy, 1);
 	  hEG1woPurityFineBin->Fill(clusterPt, 1);
-	  hEG1_E->Fill(clusterPt, purity);
-	  if((TMath::Abs(cluster_eta[n]) < 0.4)) hEG1Less4Eta->Fill(clusterPt, purity);
-	  if((TMath::Abs(cluster_eta[n]) > 0.4) && (TMath::Abs(cluster_eta[n]) < maxEta)) hEG1More4Eta->Fill(clusterPt, purity);
+	  hEG1wEtaCorr->Fill(clusterPt, purity*etaFactor);
+	  hEG1wPhiCorr->Fill(clusterPt, purity*phiFactor);
+	  hEG1_E->Fill(clusterPt, weight);
+	  hEG1_rawE->Fill(cluster_rawE[n]);
+	  hEG1_nonlinE->Fill(cluster_nonlinE[n]);
+	  if((TMath::Abs(cluster_eta[n]) < 0.4))
+	    hEG1Less4Eta->Fill(clusterPt, weight);
+	  if((TMath::Abs(cluster_eta[n]) > 0.4) && (TMath::Abs(cluster_eta[n]) < maxEta))
+	    hEG1More4Eta->Fill(clusterPt, weight);
 	}
 	hCluster_pt->Fill(clusterPt,1);
 	hIso_ITS->Fill(cluster_iso_its_04[n]);
@@ -738,8 +924,9 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   normalizer->SetBinContent(12, numEvents_EG1);
   normalizer->SetBinContent(13, numEvents_EG2);
   normalizer->SetBinContent(15, numEvents_Zless10);
-  normalizer->SetBinContent(15, numEvents_Zmore10);
+  normalizer->SetBinContent(16, numEvents_Zmore10);
   normalizer->SetBinContent(17, numEvents_noZ);
+  normalizer->SetBinContent(18, numEvents_pass12GeVPhoton);
 
   
   normalizer->GetXaxis()->SetBinLabel(1,"deltaEta");
@@ -756,6 +943,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   normalizer->GetXaxis()->SetBinLabel(15,"numEvents_Zless10");
   normalizer->GetXaxis()->SetBinLabel(16,"numEvents_Zmore10");
   normalizer->GetXaxis()->SetBinLabel(17,"numEvents_noZ");
+  normalizer->GetXaxis()->SetBinLabel(18, "numEvents_pass12GeVPhoton");
 
   hClusterCut->GetXaxis()->SetBinLabel(1,"All clusters");
   hClusterCut->GetXaxis()->SetBinLabel(2,"ncell");
@@ -816,7 +1004,7 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
 
   
 //Writing to file
-  filename += "_StdCuts_EX0PurityFit_ReCheck_RFEventCount_MinusNL_noNorm";
+  filename += "_StdCuts_EX0PurityFit_wPhiCorr_noNorm";
   cout << filename << endl;
   auto fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/fout_%llu_%ibins_firstEvent%lld_%s.root",TriggerBit, nbinscluster, firstEvent, filename.Data()), "RECREATE");  
 
@@ -826,31 +1014,57 @@ void Run(ULong64_t TriggerBit, TString address, Long64_t firstEvent = 0, Long64_
   hMB_E->Write("hMB_E");
   hEG1_E->Write("hEG1_E");
   hEG2_E->Write("hEG2_E");
+  hEG1_rawE->Write("hEG1_rawE");
+  hEG2_rawE->Write("hEG2_rawE");
+  hEG1_nonlinE->Write("hEG1_nonlinE");
+  hEG2_nonlinE->Write("hEG2_nonlinE");
   hEG1Less4Eta->Write("hEG1Less4Eta");
   hEG1More4Eta->Write("hEG1More4Eta");
   hEG2Less4Eta->Write("hEG2Less4Eta");
   hEG2More4Eta->Write("hEG2More4Eta");
   hEG1woPurity->Write("hEG1woPurity");
   hEG2woPurity->Write("hEG2woPurity");
+  hEG1wEtaCorr->Write("hEG2wEtaCorr");
+  hEG2wEtaCorr->Write("hEG2wEtaCorr");
+  hEG1wPhiCorr->Write("hEG2wPhiCorr");
+  hEG2wPhiCorr->Write("hEG2wPhiCorr");
+  hEG1woPurity_nonlin->Write("hEG1woPurity_nonlin");
+  hEG2woPurity_nonlin->Write("hEG2woPurity_nonlin");
   hEG1woPurityFineBin->Write("hEG1woPurityFineBin");
   hEG2woPurityFineBin->Write("hEG2woPurityFineBin");
   normalizer->Write("hNormalizer");
   
   hCluster_pt->Write("hCluster_pt");
+  hCluster_pt_noISO->Write("hCluster_pt_noISO");
   hReco_pt->Write("hReco_pt");
+  hRaw_pt->Write("hRaw_pt");
   
   hCluster_tof->Write("hCluster_tof");
-  hCluster_tof20GeV->Write("hCluster_tof20GeV");
   hExoticity->Write("hExoticity");
-  hCellEvClusterE->Write("hCellEvClusterE");
   hNcell->Write("hNcell");
   hNLM->Write("hNLM");
   hD2BC->Write("hD2BC");
   hEta->Write("hEta");
   hPhi->Write("hPhi");
+  hEtaPhi->Write("hEtaPhi");
+  hEtawEtaCorr->Write("hEtawEtaCorr");
+  hPhiwEtaCorr->Write("hPhiwEtaCorr");
+  hEtaPhiwEtaCorr->Write("hEtaPhiwEtaCorr");
+  hShowerShape->Write("hShowerShape");
   hIsolation->Write("hIsolation");
+  hCluster_tof_ctflw->Write("hCluster_tof_ctflw");
+  hExoticity_ctflw->Write("hExoticity_ctflw");
+  hNcell_ctflw->Write("hNcell_ctflw");
+  hNLM_ctflw->Write("hNLM_ctflw");
+  hD2BC_ctflw->Write("hD2BC_ctflw");
+  hEta_ctflw->Write("hEta_ctflw");
+  hPhi_ctflw->Write("hPhi_ctflw");
+  hShowerShape_ctflw->Write("hShowerShape_ctflw");
+  hIsolation_ctflw->Write("hIsolation_ctflw");
   
-
+  hCluster_tof20GeV->Write("hCluster_tof20GeV");  
+  hCellEvClusterE->Write("hCellEvClusterE");
+  
   hZvertex->Write("hZvertex");
   hZvertexAfter->Write("hZvertexAfter");
   hPileUpVertex->Write("hPileUpVertex");
@@ -903,19 +1117,6 @@ p-Pb data sets:
   //Run(6, "pPb/13f/13f_new_9runs_noSkim_part2.root");
   //Run(6, "pPb/13f/13f_new_9runs_noSkim_part3.root");
 
-  //Using EMCal Framework
-  //Run(6, "pPb/13d/13d_all10Runs_noNonLin_kEMCEGA.root");
-  //Run(6, "pPb/13d/13d_all10Runs_noNonLin_kEMCEGA_isoFixTry1.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_isoFix.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_KINT7_isoFix.root");
-  //Run(6, "pPb/13f/13f_1runs_kAny_isoFix.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_greenlightTrue.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_greenlightTrue.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_mannualMode.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_mannualMode_greenlight.root ");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
-  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_kANy_mannualMode_greenlight_nonLinCorrFixed.root");
-
   //Using EMCal Frameowkr --> USE FOR NL CORRECTED ANALYSIS////////////////////////////////////////////////////////
   //Run(6, "pPb/13d/13d_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
   //Run(6, "pPb/13e/13e_part1_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
@@ -929,7 +1130,50 @@ p-Pb data sets:
   //Run(6, "pPb/13f/13fnew_part2_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
   //Run(6, "pPb/13f/13fnew_part3_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
 
-  //For RF check
+
+  //Using EMCal Framework, latest EMCal Corrections, AliPhysics Feb 20, 2022
+  //Run(6, "pPb/13d/13d_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13e/13e_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13e/13e_part2_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13f_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13f_part2_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13f_part3_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13f_part4_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13f_part5_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13fnew_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13fnew_part2_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(6, "pPb/13f/13fnew_part3_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  
+  //AOD ntuplizer
+  //Run(6, "pPb/13f/13fnew_9runs_AOD210_apr10AliPhysics_ghCorr.root");
+  //Run(6, "pPb/13f/13fnew_9runs_AOD210_apr10AliPhysics_ghCorr_kEMCGAkINT7.root");
+  
+  //NL testing
+  //Run(6, "pPb/13d/13d_kEMCEGA_kINT7_mannualMode_greenlight_noGetMomentumPar3.root");
+  //Run(6, "pPb/13d/13d_kEMCEGA_kINT7_mannualMode_greenlight_AddedRawAndNonlinE_kNonLinCorr.root");
+  //Run(6, "pPb/13d/13d_kEMCEGA_kINT7_mannualMode_greenlight_AddedRawAndNonlinE_kNonLinCor_noNLOnly.root");
+  //Run(6, "pPb/13d/13d_kEMCEGA_kINT7_mannualMode_greenlight_AddedRawAndNonlinE_kNonLinCor_noNLTemp.root");
+
+  //AliPhysics Version test
+  //Run(6, "pPb/13f/13f_1runsFeb22AliPhysics_kEMCEGA_kINT7_EMCalCorrNonlinpPb.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_latestEMCalCorr.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_kNonLinCorr_oldNonLinCorr_rpaName.root");
+  
+  //Using EMCal Framework
+  //Run(6, "pPb/13d/13d_all10Runs_noNonLin_kEMCEGA.root");
+  //Run(6, "pPb/13d/13d_all10Runs_noNonLin_kEMCEGA_isoFixTry1.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_isoFix.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_KINT7_isoFix.root");
+  //Run(6, "pPb/13f/13f_1runs_kAny_isoFix.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_greenlightTrue.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_greenlightTrue.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_mannualMode.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_mannualMode_greenlight.root ");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr.root");
+  //Run(6, "pPb/13f/13f_1runs_kEMCEGA_kINT7_kANy_mannualMode_greenlight_nonLinCorrFixed.root");
+
+  
+  ///////////////////////////////////For RF check/////////////////////////////////////////
   //mb spectra
   //Run(1, "pPb/13c/13c_14runs_noThresh_phySel_part000.root");//run 195529
   //Run(1, "pPb/13c/13c_14runs_noThresh_phySel_part002.root");//run 195566
@@ -961,6 +1205,25 @@ p-Pb data sets:
 
   
   //Using RF event count
+  //Using EMCal Framework, latest EMCal Corrections, AliPhysics Feb 20, 2022
+  //Run(7, "pPb/13d/13d_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13e/13e_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13e/13e_part2_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13f_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13f_part2_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13f_part3_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13f_part4_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13f_part5_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13fnew_part1_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13fnew_part2_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  //Run(7, "pPb/13f/13fnew_part3_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName.root");
+  
+  //Run(1, "pPb/13c/13c_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_part1.root");
+  //Run(1, "pPb/13c/13c_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_part2.root");
+  //Run(1, "pPb/13c/13c_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_part3.root");
+  //Run(1, "pPb/13c/13c_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_part4.root");
+
+
   //Run(7, "pPb/13d/13d_all10runs_noSkim.root");
   //Run(7, "pPb/13e/13e_10runs_noSkim_part1.root");
   //Run(7, "pPb/13e/13e_10runs_noSkim_part2.root");
@@ -1024,9 +1287,12 @@ p-Pb data sets:
 /*///////////////////////////////////////////////////////////////
 Notes:
 
+cell granularity: 0.014 x 0.014
+
 EMCal acceptance:
 -0.667 < eta < 0.667
 1.396 < phi < 3.28
+Total coverage: phi: 1.8675
 
 DCal acceptance:
 -0.667 < eta < -0.2275 and 0.2275 < eta < 0.667

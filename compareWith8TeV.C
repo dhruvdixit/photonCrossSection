@@ -1,11 +1,11 @@
-#include <fstream>
+/*#include <fstream>
 #include <vector>
 #include <algorithm>
 #include <iostream>
 #include <stdio.h>
 #include <bitset>
 #include <bits/stdc++.h>
-#include <cstring>
+#include <cstring>//*/
 
 void compareWith8TeV(){
 
@@ -16,7 +16,9 @@ void compareWith8TeV(){
 
   TString path = "/global/homes/d/ddixit/photonCrossSection/";
   //TFile* file_8pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPb/simpleOutput_pPb8TeV_EMC.root"), "READ");
-  TFile* file_8pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbNew/simpleOutput_pPbEMC.root"), "READ");
+  //TFile* file_8pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbNew/simpleOutput_pPbEMC.root"), "READ");
+  TFile* file_8pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbJune2022/simpleOutput_pPb8TeV_EMCalOnly.root"), "READ");
+  
 
   const int nbinscluster = 14;
   Double_t clusterbins[nbinscluster+1] = {5.00, 6.00, 7.00, 8.00, 9.00, 10.00, 12.00, 14.00, 16.00, 18.00, 20.00, 25.00, 30.00, 40.00, 60.00};//nbinscluster = 14
@@ -43,7 +45,8 @@ void compareWith8TeV(){
   hEG1_8TeVCS->Sumw2();
   
   //5.02 TeV hists
-  TFile* file_5pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_nonLinPurity_correctRFpPb_woPurityHists.root"), "READ");
+  //TFile* file_5pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_nonLinPurity_ppNonLin.root"), "READ");
+  TFile* file_5pPb = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/StdCuts_EX0PurityFit_postQM_pPb.root"), "READ");
   TH1F* hEff_5TeV = (TH1F*)file_5pPb->Get("hEff_pPb");
   TH1F* hEG1_5TeVNorm = (TH1F*)file_5pPb->Get("hClusterSpectrawoPurity_EG1");
   TH1F* hEG2_5TeVNorm = (TH1F*)file_5pPb->Get("hClusterSpectrawoPurity_EG2");
@@ -94,7 +97,7 @@ void compareWith8TeV(){
   //raw yields --> normalized yields and ratio
   //EG1
   for(int i = 1; i < hEG1_8TeVRaw->GetNbinsX()+1; i++){
-    cout << hEG1_8TeVRaw->GetBinLowEdge(i+6) << "\t" << purityABCD_EG1->GetBinLowEdge(i+1) <<  endl;
+    cout << hEG1_8TeVRaw->GetBinLowEdge(i+6) << "\t" << purityABCD_EG1->GetBinLowEdge(i) <<  endl;
     
     double dE = hEG1_8TeVRaw->GetBinWidth(i+6);
     
@@ -114,8 +117,8 @@ void compareWith8TeV(){
     hEG1_RatioNorm->SetBinError(i+6, errorRatiopPb);
 
     //Purity Corrected Yields
-    Double_t purity = purityABCD_EG1->GetBinContent(i+1);
-    Double_t purityErr = purityABCD_EG1->GetBinError(i+1);
+    Double_t purity = purityABCD_EG1->GetBinContent(i);
+    Double_t purityErr = purityABCD_EG1->GetBinError(i);
     Double_t purityCorr = temp8TeV*purity;
     Double_t purityCorrErr = purityCorr*(TMath::Sqrt(TMath::Power(tempErr8TeV/temp8TeV, 2) + TMath::Power(purityErr/purity, 2)));
     hEG1_8TeVPurity->SetBinContent(i+6,purityCorr);
@@ -129,8 +132,8 @@ void compareWith8TeV(){
 
     
     //Purity and Efficiency Corrected Yields
-    Double_t eff = totalEfficiency_EG1->GetBinContent(i+1);
-    Double_t effErr = totalEfficiency_EG1->GetBinError(i+1);
+    Double_t eff = totalEfficiency_EG1->GetBinContent(i);
+    Double_t effErr = totalEfficiency_EG1->GetBinError(i);
     Double_t purityEffCorr = purityCorr/eff;
     Double_t purityEffCorrErr = purityEffCorr*(TMath::Sqrt(TMath::Power(purityCorrErr/purityCorr, 2) + TMath::Power(effErr/eff, 2)));
     hEG1_8TeVPurityEff->SetBinContent(i+6,purityEffCorr);
@@ -488,12 +491,12 @@ void compareWith8TeV(){
   hEffpp_5TeV->SetMarkerStyle(kFullSquare);
   hEffpp_5TeV->SetMarkerSize(2);
 
-  TLegend* legEff= new TLegend(0.4,0.15,0.85,0.4);
+  TLegend* legEff= new TLegend(0.2,0.15,0.85,0.45);
   legEff->SetHeader("Photon Efficiency");
-  legEff->AddEntry(totalEfficiency_EG1,"Run 2, p-Pb, 8.16 TeV");
-  legEff->AddEntry(totalEfficiency_EGA,"Run 1, pp,  8 TeV");
-  legEff->AddEntry(hEff_5TeV,"Run 1, p-Pb, 5.02 TeV");
-  //legEff->AddEntry(hEffpp_5TeV,"pp 5.02 TeV");
+  legEff->AddEntry(totalEfficiency_EG1,"LHC21d2a: Run 2, p-Pb, 8.16 TeV anchored to LHC16rs");
+  legEff->AddEntry(totalEfficiency_EGA,"LHC17g5a1: Run 1, pp,  8 TeV anchored to LHC12");
+  legEff->AddEntry(hEff_5TeV,"LHC17g6a1: Run 1, p-Pb, 5.02 TeV anchored to LHC13def");
+  legEff->AddEntry(hEffpp_5TeV,"LHC18b10a: Run 2, pp 5.02 TeV anchored to LHC17pq");
   TCanvas* cEff = new TCanvas("cEff", "cEff");
   totalEfficiency_EG1->GetXaxis()->SetRangeUser(12, 60);
   totalEfficiency_EG1->GetYaxis()->SetRangeUser(0, 1);
@@ -501,20 +504,21 @@ void compareWith8TeV(){
   totalEfficiency_EG1->Draw("e1");
   totalEfficiency_EGA->Draw("same e1");
   hEff_5TeV->Draw("same e1");
-  //hEffpp_5TeV->Draw("same e1");
+  hEffpp_5TeV->Draw("same e1");
   legEff->Draw("same");
 
   //cross section comparison
-  TFile* file_8pPbEDC = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbNew/simpleOutput_pPbEDC.root"), "READ");
+  //TFile* file_8pPbEDC = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbNew/simpleOutput_pPbEDC.root"), "READ");
+  TFile* file_8pPbEDC = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbJune2022/simpleOutput_pPb8TeV_EDC_jun2022.root"), "READ");
   TH1F* xsection_EG1_8TeV = (TH1F*)file_8pPbEDC->Get("xsection_EG1");
   TH1F* xsection_EG1_ratio = new TH1F("xsection_EG1_ratio", ";E_{T} (GeV); #frac{8.16 TeV}{5.02 TeV}", nbinscluster, clusterbins);
 
   for(int i = 1; i < xsection_EG1_ratio->GetNbinsX()+1; i++){
     int fBinNum = i+1;
     int dBinNum = i+6;
-    cout << xsection_EG1_8TeV->GetBinLowEdge(i+1) << "\t" << xsection_EG1_ratio->GetBinLowEdge(i+6) << "\t" <<  hEG1_5TeVCS->GetBinLowEdge(i+6) << endl;
-    Double_t cont8TeV_EG1 = xsection_EG1_8TeV->GetBinContent(i+1);
-    Double_t cont8TeVErr_EG1 = xsection_EG1_8TeV->GetBinError(i+1);
+    cout << xsection_EG1_8TeV->GetBinLowEdge(i) << "\t" << xsection_EG1_ratio->GetBinLowEdge(i+6) << "\t" <<  hEG1_5TeVCS->GetBinLowEdge(i+6) << endl;
+    Double_t cont8TeV_EG1 = xsection_EG1_8TeV->GetBinContent(i);
+    Double_t cont8TeVErr_EG1 = xsection_EG1_8TeV->GetBinError(i);
     Double_t cont5TeV_EG1 = hEG1_5TeVCS->GetBinContent(i+6);
     Double_t cont5TeVErr_EG1 = hEG1_5TeVCS->GetBinError(i+6);
     Double_t contRatio_EG1 = cont8TeV_EG1/cont5TeV_EG1;

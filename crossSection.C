@@ -123,6 +123,7 @@ void Run(TString pPbFile, TString ppFile,
   TFile* mcFile_pp = new TFile(Form("%s", ppFile_MC.Data()),"READ");
   
   TH1D* hEff_pp = (TH1D*)mcFile_pp->Get("hTotalEfficiency");
+  //  TH1D* hEff_pp = (TH1D*)mcFile_pp->Get("totalEfficiency_EG1");
   hEff_pp->SetName("hEff_pp");
   hEff_pp->SetTitle("; E_{T} (GeV); #epsilon");
   hEff_pp->GetYaxis()->SetRangeUser(0,1);
@@ -142,7 +143,7 @@ void Run(TString pPbFile, TString ppFile,
   hFakeRate_pp->SetMarkerSize(1);
   hFakeRate_pp->SetLineWidth(2);//*/
   
-  TH1D* hBinMigration_pp = (TH1D*)mcFile_pp->Get("hBinMigration");
+  /*TH1D* hBinMigration_pp = (TH1D*)mcFile_pp->Get("hBinMigration");
   hBinMigration_pp->SetName("hbinMigration_pp");
   hBinMigration_pp->SetTitle("Bin Migration Effection = #frach{dN^{reco}/dE_{T}^{reco}}{dN^{reco}/dE_{T}^{truth}}; E_{T} (GeV); #epsilon");
   hBinMigration_pp->GetYaxis()->SetRangeUser(0,1);
@@ -162,16 +163,16 @@ void Run(TString pPbFile, TString ppFile,
   legEff->AddEntry((TObject*)0, "#sqrt{s_{NN}} = 5.02 TeV", "");
   legEff->AddEntry(hEff_pPb,"p-Pb Monte Carlo: Pythia #gamma-Jet in DPMJET");
   legEff->AddEntry(hEff_pp,"pp Monte Carlo: Pythia #gamma-Jet");
-  legEff->AddEntry(hBinMigration_pPb,"p-Pb: Bin Migration");
-  legEff->AddEntry(hBinMigration_pp,"pp: Bin Migration");
+  //legEff->AddEntry(hBinMigration_pPb,"p-Pb: Bin Migration");
+  //legEff->AddEntry(hBinMigration_pp,"pp: Bin Migration");
   
   TCanvas* cEff = new TCanvas();
   hEff_pPb->GetXaxis()->SetRangeUser(12,60);
   hEff_pPb->Draw("e1");
-  hBinMigration_pPb->Draw("samee1");
+  //hBinMigration_pPb->Draw("samee1");
   //hFakeRate_pPb->Draw("samee1");
   hEff_pp->Draw("samee1");
-  hBinMigration_pp->Draw("samee1");
+  //hBinMigration_pp->Draw("samee1");
   //hFakeRate_pp->Draw("samee1");
   legEff->Draw("same");//*/
   //cEff->SaveAs("efficiency.pdf");
@@ -277,7 +278,7 @@ void Run(TString pPbFile, TString ppFile,
   /*////////////////////////////////////////////////////////////
     pPb cross section using EG2 trigger
   ///////////////////////////////////////////////////////////*/
-  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n pp EG2 trigger cross section \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n p-Pb EG2 trigger cross section \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   
   TH1F* crossSection_EG2 = (TH1F*)hClusterSpectra_EG2->Clone();
   crossSection_EG2->SetName("crossSection_EG2");
@@ -377,6 +378,10 @@ void Run(TString pPbFile, TString ppFile,
     double error = crossSection_pp->GetBinError(i);
     double relError = error/content;
 
+    //double eff = hEff_pp->GetBinContent(i);
+    //double eff_error = hEff_pp->GetBinError(i);
+    //double relEffError = eff_error/eff;
+    
     double eff = hEff_pp->GetBinContent(i);
     double eff_error = hEff_pp->GetBinError(i);
     double relEffError = eff_error/eff;
@@ -397,7 +402,7 @@ void Run(TString pPbFile, TString ppFile,
     double xsection_error = relXSectionError*xsection;
     
     //cout statement
-    cout << crossSection_pp->GetBinLowEdge(i) << "\t" << crossSection_pp->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_pp << "\t" << lumi_pp << "\t" << eff << "\t" << xsection << endl;
+    cout << hEff_pp->GetBinLowEdge(i) << "\t" <<  crossSection_pp->GetBinLowEdge(i) << "\t" << crossSection_pp->GetBinLowEdge(i+1) << "\t" << content << "\t" << Nevtot_pp << "\t" << lumi_pp << "\t" << eff << "\t" << xsection << endl;
 
     //filling the cross section hist
     crossSection_pp->SetBinContent(i, xsection);
@@ -539,13 +544,22 @@ void Run(TString pPbFile, TString ppFile,
   crossSection_erwann->Draw("samee1");
   leg->Draw("same");
 
+  Double_t epps16_x[7] = {7.5, 17.7, 27.5, 37.5, 47.5, 57.5, 67.5};
+  Double_t epps16_y[7] = {0.81126, 0.90616, 0.95391, 0.98635, 1, 1.01158, 1.01745};
+  TGraph* EPPS16 = new TGraph(7, epps16_x, epps16_y);
+  EPPS16->SetLineColor(kBlue);
+  EPPS16->SetLineWidth(6);
+  EPPS16->SetLineStyle(9);
+  //EPPS16->Draw("L same");
+  
   TCanvas* cRpa = new TCanvas();
   h_RpA->GetXaxis()->SetRangeUser(12,60);
   h_RpA->GetYaxis()->SetRangeUser(0,2);
   h_RpA->SetMarkerSize(2);
   h_RpA->Draw("e1");
   line->Draw("same");
-
+  //EPPS16->Draw("L same");
+  
   h_RpA->Fit("pol0", "", "", 12, 60);
   TF1* f_RpA = (TF1*)h_RpA->GetFunction("pol0");
   TLegend* legRpA = new TLegend(0.15,0.15,0.7,0.35);
@@ -591,8 +605,13 @@ void Run(TString pPbFile, TString ppFile,
   crossSectionRatio_EG1->Draw("e1");
   crossSectionRatio_EG2->Draw("samee1");
   crossSectionRatio_pPb->Draw("samee1");
-  legRatio->Draw("samee1");
+  //legRatio->Draw("samee1");
   line->Draw("same");//*/
+  crossSectionRatio_pPb->Fit("pol0", "", "", 12, 60);
+  TF1* f_crossSectionRatio = (TF1*)crossSectionRatio_pPb->GetFunction("pol0");
+  legRatio->AddEntry(crossSectionRatio_pPb->GetFunction("pol0"), Form("Constant Fit: %f #pm %f", crossSectionRatio_pPb->GetFunction("pol0")->GetParameter(0), crossSectionRatio_pPb->GetFunction("pol0")->GetParError(0)), "l");
+  legRatio->AddEntry((TObject*)0, Form("#chi^{2} = %f", crossSectionRatio_pPb->GetFunction("pol0")->GetChisquare()), "");
+  legRatio->Draw("same");
 
   cout << "Cross Section EG1 = {";
   for(int i = 7; i < crossSection_EG1->GetNbinsX()+1; i++){
@@ -636,8 +655,7 @@ void Run(TString pPbFile, TString ppFile,
   int endingPoint = pPbFile.Index("cluster")-1;
   TString outputName = pPbFile(startingPoint, endingPoint-startingPoint);
   cout << "writing to file" << endl;
-  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFit_nonLinPurity_correctRFpPb_woPurityHists.root",outputName.Data()), "RECREATE");
-  
+  TFile* fout = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/xSectionHists/%sStdCuts_EX0PurityFit_postQM_pPbAndpp_wPhiCorr.root",outputName.Data()), "RECREATE");
   crossSection_EG1->Write("crossSection_EG1");
   crossSection_EG2->Write("crossSection_EG2");
   crossSection_pPb->Write("crossSection_pPb");
@@ -674,12 +692,50 @@ void crossSection(){
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/ARCComments/PerpConeUE/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_ParallelUECone.root",
       6917, 245, 1739, 56, 1240, 28);//StdCuts EX0Purity NOTE RESULTS*/
 
-  Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurity.root",
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurity.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/NonLin/StdCutsNLPurity/fout_4_14bins_firstEvent0_17q_ITSonly_allRuns_kMuonCalo_mannualAndGreen_split10_wNL_StdCuts_EX0PurityFit_NonlinPurity.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone.root",
-      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/Nonlin/fout_14bins_firstEvent0_18b10a_pthatAll_3runs_AddedAliEmcalMCTrackSelector_CellEnergyCellTimeFalse_wNLStdCuts_GenIsoFixed_PerpUECone.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents.root",
       6693, 278, 1609, 61, 1240, 28);//StdCuts EX0Purity NLPurity*/
+      //7132, 590, 1609, 61, 1240, 28);//StdCuts EX0Purity NLPurity*/
 
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_postQM.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/Feb20AliPhysics/postQMNtuples/CutFlowAfterCuts/fout_4_14bins_firstEvent0_17q_runAll_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit__CutFlowAfterCuts.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents.root",
+      7132, 590, 1609, 61, 1240, 28);//StdCuts EX0Purity PostQM ntuples Feb 2022 AliPhysics and EMCal Corr, all pp runs*/
+
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/wEtaCorr/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wEtaCorr.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/Feb20AliPhysics/postQMNtuples/wEtaCorr/fout_4_14bins_firstEvent0_17q_runAll_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wEtaCorr.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents.root",
+      7132, 590, 1609, 61, 1240, 28);//StdCuts EX0Purity PostQM ntuples Feb 2022 AliPhysics and EMCal Corr, wEtaCorr, all pp except 282365 282440runs*/
+
+   Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/wPhiCorr/fout_7_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wPhiCorr.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/Feb20AliPhysics/postQMNtuples/wPhiCorr/fout_4_14bins_firstEvent0_17q_runAll_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_wPhiCorr.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents.root",
+      7132, 590, 1609, 61, 1240, 28);//StdCuts EX0Purity PostQM ntuples Feb 2022 AliPhysics and EMCal Corr, wPhiCorr, all pp except 282365 282440runs*/
+
+    /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/Feb20AliPhysics/postQMNtuples/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_postQM.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/Feb20AliPhysics/postQMNtuples/fout_4_14bins_firstEvent0_17q_3runs_kMuonCalokCaloOnlykINT7_kNonLinCorr_latestEMCalCorr_rpaName_StdCuts_EX0PurityFit_postQM.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/ARCComments/PerpConeUE/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsStdCuts_GenIsoFixed_ITSAcceptance8_TrackPtMinCut_ConeAcceptanceCheck_PerpUECone.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/Nonlin/GetMomentumFixed/fout_14bins_firstEvent0_18b10a_pthatAll_2runs_wNL_GeMomentumFixedStdCuts_OldNewReCheck100KEvents.root",
+      6693, 278, 1739, 56, 1240, 28);//StdCuts EX0Purity PostQM ntuples (Feb 2022 AliPhysics and EMCal Corr)*/
+
+  
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurity.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/NonLin/StdCutsNLPurity/fout_4_14bins_firstEvent0_17q_ITSonly_allRuns_kMuonCalo_mannualAndGreen_split10_wNL_StdCuts_EX0PurityFit_NonlinPurity.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/Nonlin/With_ElecPositron/fout_14bins_firstEvent0_17g6a1_pthatAll_1run_wNL_GeMomentumFixedStdCuts_AddedElectronPositron_100KEvents.root",
+      "/global/homes/d/ddixit/photonCrossSection/8TeVResults/pPbNew/simpleOutput_pPbEMC.root",
+      6693, 278, 1609, 61, 1240, 28);//StdCuts EX0Purity NLPurity, Using 8TeV pPb Eff for pp*/
+  
+  /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/NonLinCorr/ESD/Iso133/fout_6_14bins_firstEvent0_13def_noNonLin_kEMCEGA_StdCuts_EX0PurityFit_ReCheck_ISO133.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/CorrectPurity/StdPurity/fout_4_14bins_firstEvent0_17qAll_StdCuts_EX0PurityFit.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/GenISO/StdCuts/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutralsISO1Point33_GenIsoFixed_ITSAcceptance8.root",
+      "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/18b10a/FullStats/fout_14bins_firstEvent0_18b10a_calo_pthatAll_wNeutralsFullStats.root",
+      6693, 278, 1739, 56, 1240, 28);//EX0Purity ISO < 1.33*/
+  
   /*Run("/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/pPbOutput/NonLinCorr/compare/13def/StdCutsNLMinusPurity/fout_6_14bins_firstEvent0_13def_kEMCEGA_kINT7_mannualMode_greenlight_nonLinCorr_StdCuts_EX0PurityFit_NonlinPurityMinusNL.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/csOutput/ppOutput/NonLin/StdCutsNLMinusPurity/fout_4_14bins_firstEvent0_17q_ITSonly_runsAll_kMuonCalo_mannualAndGreen_split5_wNL_StdCuts_EX0PurityFit_NonlinPurityMinusNL.root",
       "/global/homes/d/ddixit/photonCrossSection/isoPhotonOutput/MC/17g6a1/fout_14bins_firstEvent0_17g6a1_pthatAll_wNeutrals.root",

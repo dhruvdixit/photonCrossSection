@@ -1,5 +1,46 @@
 #include <fstream>
 #include <vector>
+#include "NLO/pQCD_iso2GeV_Werner.h"
+#include "NLO/plot_style.h"
+
+const int beamE_color[nbeamE] = {kRed, kBlue};
+const int scale_lstyle[nscale] = {3, 1, 6};
+const int scale_mstyle[nscale] = {24, 20, 21};
+
+static int cno = 0;
+
+const bool flag_use_average = true;
+
+void set_pQCD_Werner()
+{
+    for (int ibeamE = 0; ibeamE < 1; ++ibeamE)
+    {
+        for (int iscale = 0; iscale < nscale; ++iscale)
+        {
+            //==========================================
+            //                   pp
+            //==========================================
+            g_pQCD_frag_pp[ibeamE][iscale] = new TGraphErrors(npt,pQCD_pt,pQCD_frag_pp[ibeamE][iscale],0,0);
+            g_pQCD_direct_pp[ibeamE][iscale] = new TGraphErrors(npt,pQCD_pt,pQCD_direct_pp[ibeamE][iscale],0,0);
+            g_pQCD_sum_pp[ibeamE][iscale] = new TGraphErrors(npt,pQCD_pt,pQCD_sum_pp[ibeamE][iscale],0,0);
+            g_pQCD_frag_pp[ibeamE][iscale]->SetLineWidth(2);
+            g_pQCD_direct_pp[ibeamE][iscale]->SetLineWidth(2);
+            g_pQCD_sum_pp[ibeamE][iscale]->SetLineWidth(2);
+
+            //==========================================
+            //                   pPb
+            //==========================================
+            g_pQCD_nPDF_frag_pPb[ibeamE][iscale] = new TGraphErrors(npt,pQCD_pt,pQCD_nPDF_frag_pPb[ibeamE][iscale],0,0);
+            g_pQCD_nPDF_direct_pPb[ibeamE][iscale] = new TGraphErrors(npt,pQCD_pt,pQCD_nPDF_direct_pPb[ibeamE][iscale],0,0);
+            g_pQCD_nPDF_sum_pPb[ibeamE][iscale] = new TGraphErrors(npt,pQCD_pt,pQCD_nPDF_sum_pPb[ibeamE][iscale],0,0);
+
+            g_pQCD_nPDF_frag_pPb[ibeamE][iscale]->SetLineWidth(2);
+            g_pQCD_nPDF_direct_pPb[ibeamE][iscale]->SetLineWidth(2);
+            g_pQCD_nPDF_sum_pPb[ibeamE][iscale]->SetLineWidth(2);
+        }
+    }
+}
+
 void compareWithErwann(){
 
   gStyle->SetOptStat(0);
@@ -7,79 +48,272 @@ void compareWithErwann(){
   gStyle->SetEndErrorSize(5);
   
   
-  TLine *line = new TLine(12, 1, 54, 1);
+  TLine *line = new TLine(12, 1, 60, 1);
   line->SetLineColor(kBlack);
+  line->SetLineStyle(kDashed);
 
   const int numBins = 8;
   Double_t xBinCenters[numBins] = {13, 15, 17, 19, 22.5, 27.5, 35, 50};
   Double_t xErr[numBins] = {0};
+  Double_t xErrSys[numBins] = {1, 1, 1, 1, 2.5, 2.5, 5, 10};
   Double_t erwannCSMean[numBins] = {2015.57, 1151.86, 696.985, 444.604, 233.026, 104.87, 38.5216, 7.4227};
   Double_t erwannCSStat[numBins] = {337.901, 71.0714, 51.475, 35.3468, 15.5412, 10.4705, 4.64552, 1.38719};
   Double_t erwannCSSys[numBins] = {308.501, 167.064, 96.1471, 58.8658, 29.4243, 12.7484, 4.7213, 1.11858};
   
-  Double_t dhruvCSMean[numBins] = {1924.31, 1286.57, 823.076, 525.652, 284.654, 128.145, 49.117, 8.77088};//without nonlin
-  Double_t dhruvCSStat[numBins] = {12.091, 11.79, 10.4942, 9.00236, 4.47992, 3.15132, 1.38649, 0.411638};//without nonlin
-  //Double_t dhruvCSMean[numBins] = {1945.6, 1217.8, 775.414, 489.758, 253.291, 119.494, 46.5479, 8.74711};//With nonlin
-  //Double_t dhruvCSStat[numBins] = {25.942, 21.281, 17.6124, 14.5384, 6.87522, 4.91365, 2.17788, 0.663041};//With nonlin
+  //Double_t dhruvCSMean[numBins] = {1924.31, 1286.57, 823.076, 525.652, 284.654, 128.145, 49.117, 8.77088};//without nonlin
+  //Double_t dhruvCSStat[numBins] = {12.091, 11.79, 10.4942, 9.00236, 4.47992, 3.15132, 1.38649, 0.411638};//without nonlin
+  Double_t dhruvCSMean[numBins] = {1945.6, 1217.8, 775.414, 489.758, 253.291, 119.494, 46.5479, 8.74711};//With nonlin
+  Double_t dhruvCSStat[numBins] = {25.942, 21.281, 17.6124, 14.5384, 6.87522, 4.91365, 2.17788, 0.663041};//With nonlin
+  //Double_t dhruvCSMean[numBins] = {1914.6, 1193.4, 756.802, 475.074, 250.298, 117.458, 46.9281, 8.33274};//with nonlin iso < 1.33
+  //Double_t dhruvCSStat[numBins] = {33.1473, 26.0302, 20.3962, 15.7399, 7.28663, 5.1006, 2.27237, 0.665333};//with nonlin iso < 1.33
   Double_t dhruvCSSys[numBins] = {244.3, 135.641, 78.439, 47.7364, 25.2224, 11.4663, 4.48855, 0.811153};
   
-  TGraphErrors* csErwannStat = new TGraphErrors(8, xBinCenters, erwannCSMean, xErr, erwannCSStat);
-  TGraphErrors* csErwannSys = new TGraphErrors(8, xBinCenters, erwannCSMean, xErr, erwannCSSys);
-  TGraphErrors* csDhruvStat = new TGraphErrors(8, xBinCenters, dhruvCSMean, xErr, dhruvCSStat);
-  TGraphErrors* csDhruvSys = new TGraphErrors(8, xBinCenters, dhruvCSMean, xErr, dhruvCSSys);
 
-  csErwannStat->SetMarkerStyle(20); csErwannStat->SetMarkerColor(kBlue);
+  TGraphErrors* csErwannStat = new TGraphErrors(8, xBinCenters, erwannCSMean, xErr, erwannCSStat);
+  TGraphErrors* csErwannSys = new TGraphErrors(8, xBinCenters, erwannCSMean, xErrSys, erwannCSSys);
+  csErwannStat->SetMarkerStyle(20);
+  csErwannStat->SetMarkerColor(kBlue);
+  csErwannStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csErwannSys->SetLineColor(kBlue);
   csErwannSys->SetLineWidth(2);
-  csErwannSys->SetFillStyle(3004);
-  csErwannSys->SetFillColor(kBlue);
-  csDhruvStat->SetMarkerStyle(20); csDhruvStat->SetMarkerColor(kRed); csDhruvStat->SetLineColor(kRed);
+  csErwannSys->SetFillStyle(3001);
+  csErwannSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+    
+  TGraphErrors* csDhruvStat = new TGraphErrors(8, xBinCenters, dhruvCSMean, xErr, dhruvCSStat);
+  TGraphErrors* csDhruvSys = new TGraphErrors(8, xBinCenters, dhruvCSMean, xErrSys, dhruvCSSys);
+  csDhruvStat->SetMarkerStyle(20);
+  csDhruvStat->SetMarkerColor(kRed);
+  csDhruvStat->SetLineColor(kRed);
+  csDhruvStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");  
   csDhruvSys->SetLineColor(kRed);
   csDhruvSys->SetLineWidth(2);
   csDhruvSys->SetFillStyle(3001);
-  csDhruvSys->SetFillColor(kRed);
   csDhruvSys->GetXaxis()->SetRangeUser(12, 60);
-  //csDhruvSys->SetFillColor(kOrange);
-  csDhruvStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
-  csErwannStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
   csDhruvSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
-  csErwannSys->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");
+
 
   
-  TLegend* lDhruvCSTitle = new TLegend(0.52, 0.709, 0.87, 0.88);
+  TLegend* lDhruvCSTitle = new TLegend(0.45, 0.77, 0.82, 0.88);
+  lDhruvCSTitle->SetTextSize(0.035);
+  lDhruvCSTitle->SetFillStyle(0);
+  lDhruvCSTitle->SetMargin(0.3); 
   lDhruvCSTitle->AddEntry((TObject*)0, "ALICE Preliminary", "");
   lDhruvCSTitle->AddEntry((TObject*)0, "p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
   lDhruvCSTitle->AddEntry((TObject*)0, "#it{L}_{int} = 4.96 nb^{-1}, |#it{#eta}_{#gamma}| < 0.67", "");
-  TLegend* lDhruvCS = new TLegend(0.6, 0.59, 0.87, 0.698);
-  //lDhruvCS->AddEntry((TObject*)0, "ALICE Preliminary", "");
-  //lDhruvCS->AddEntry((TObject*)0, "p-Pb #sqrt{s_{NN}} = 5.02 TeV", "");
-  //lDhruvCS->AddEntry((TObject*)0, "#it{L}_{int} = 4.96 nb^{-1}, |#it{#eta}_{#gamma}| < 0.67", "");
-  lDhruvCS->AddEntry(csDhruvStat, "Data and stat. unc.", "PF");
+  TLegend* lDhruvCS = new TLegend(0.53, 0.66, 0.82, 0.77);
+  lDhruvCS->SetTextSize(0.035);
+  lDhruvCS->SetFillStyle(0);
+  lDhruvCS->SetMargin(0.3); 
+  lDhruvCS->AddEntry(csDhruvStat, "Data and stat. unc.", "EP");
   lDhruvCS->AddEntry(csDhruvSys, "Systematic unc.", "PF");
-  TCanvas* cDhruvCS = new TCanvas("cDhruvCS", "cDhruvCS", 500, 800);
+  TCanvas* cDhruvCS = new TCanvas("cDhruvCS", "cDhruvCS", 750, 900);
   cDhruvCS->DrawFrame(12, 1, 60, 3000);
   cDhruvCS->SetLogy();
-  csDhruvSys->Draw("E3A");
+  cDhruvCS->SetLeftMargin(0.15);
+  cDhruvCS->SetRightMargin(0.07);
+  csDhruvSys->Draw("AE5");
   csDhruvStat->Draw("PESame");
   lDhruvCSTitle->Draw("same");
   lDhruvCS->Draw("same");
+  csDhruvSys->GetYaxis()->SetTitleOffset(1.7);
 
+  //Drawing theory predictions
+  set_pQCD_Werner();
+  TLegend* leg = new TLegend(0.53,0.51,0.82,0.66);
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.035);
+  leg->SetFillStyle(0);
+  leg->SetMargin(0.3); 
 
-  TLegend* lCs = new TLegend(0.4, 0.6, 0.87, 0.87);
-  lCs->AddEntry(csErwannStat, "Erwann cross-section results", "PF");
-  lCs->AddEntry(csErwannSys, "Sys Err on Erwann cross-section results", "PF");
-  lCs->AddEntry(csDhruvStat, "Dhruv's cross-section results", "PF");
-  lCs->AddEntry(csDhruvSys, "Sys Err on Dhruv's cross-section results", "PF");
-  TCanvas* c1 = new TCanvas("c1", "c1");
+  for (int ibeamE = 0; ibeamE < 1; ++ibeamE){
+    for (int iscale = 0; iscale < nscale; ++iscale){
+      g_pQCD_nPDF_sum_pPb[ibeamE][iscale]->SetLineStyle(scale_lstyle[iscale]);
+      g_pQCD_nPDF_sum_pPb[ibeamE][iscale]->Draw("csame");
+      leg->AddEntry(g_pQCD_nPDF_sum_pPb[ibeamE][iscale],Form("#mu = %.1f",scale[iscale]),"l");
+    }
+  }
+  leg->Draw("same");
+  TLatex* tl_pQCD = new TLatex();
+  tl_pQCD->SetTextAlign(11);
+  tl_pQCD->SetTextSize(0.032);
+  tl_pQCD->DrawLatexNDC(0.19,0.27,"NLO pQCD");//.22 diff
+  tl_pQCD->DrawLatexNDC(0.19,0.23,"(by W. Vogelsang)");//.18
+  tl_pQCD->DrawLatexNDC(0.19,0.19,"pPb: nCTEQ & pp: CT18 PDF");//.14
+  tl_pQCD->DrawLatexNDC(0.19,0.15,"GRV FF");//.1*/
+  /*TFile* fout = new TFile("crossSection_pPb_FinalPlotOutput.root", "RECREATE");
+  csDhruvSys->Write("csDhruvSys");
+  csDhruvStat->Write("csDhruvStat");
+  cDhruvCS->Write("cDhruvCS");
+  fout->Close();*/
+
+  //Drawing JETPHOX
+  /*TFile* file_JETPHOX = new TFile(Form("/global/homes/d/ddixit/photonCrossSection/JETPHOX/2022_03_24_JETPHOX_NLO_5020GeV_5Mevts_NNPDF40_0_NNPDF40_0_iso2GeVinR04.root"), "READ");
+  TH1D* xsection_nlo_TOTAL_05 = (TH1D*)file_JETPHOX->Get("xsection_nlo_TOTAL_scl_05_05_05");
+  TH1D* xsection_nlo_TOTAL_10 = (TH1D*)file_JETPHOX->Get("xsection_nlo_TOTAL_scl_10_10_10");
+  TH1D* xsection_nlo_TOTAL_20 = (TH1D*)file_JETPHOX->Get("xsection_nlo_TOTAL_scl_20_20_20");
+  xsection_nlo_TOTAL_05->Scale(208.0);
+  xsection_nlo_TOTAL_10->Scale(208.0);
+  xsection_nlo_TOTAL_20->Scale(208.0);
+  xsection_nlo_TOTAL_05->Rebin(10);
+  xsection_nlo_TOTAL_05->Scale(1.0/10.0);
+  xsection_nlo_TOTAL_10->Rebin(10);
+  xsection_nlo_TOTAL_10->Scale(1.0/10.0);
+  xsection_nlo_TOTAL_20->Rebin(10);
+  xsection_nlo_TOTAL_20->Scale(1.0/10.0);
+  //xsection_nlo_TOTAL_05->SetMarkerStyle(kPlus);
+  //xsection_nlo_TOTAL_10->SetMarkerStyle(kStar);
+  //xsection_nlo_TOTAL_20->SetMarkerStyle(kMultiply);
+  xsection_nlo_TOTAL_05->SetLineColor(kBlack);
+  xsection_nlo_TOTAL_10->SetLineColor(kBlack);
+  xsection_nlo_TOTAL_20->SetLineColor(kBlack);
+  xsection_nlo_TOTAL_05->SetLineWidth(2);
+  xsection_nlo_TOTAL_10->SetLineWidth(2);
+  xsection_nlo_TOTAL_20->SetLineWidth(2);
+  xsection_nlo_TOTAL_05->SetLineStyle(3);
+  xsection_nlo_TOTAL_10->SetLineStyle(1);
+  xsection_nlo_TOTAL_20->SetLineStyle(6);
+  //xsection_nlo_TOTAL_05->SetFillColor(kMagenta);
+  //xsection_nlo_TOTAL_10->SetFillColor(kOrange);
+  //xsection_nlo_TOTAL_20->SetFillColor(kCyan);
+  xsection_nlo_TOTAL_05->Draw("hist l same");
+  xsection_nlo_TOTAL_10->Draw("hist c l same");
+  xsection_nlo_TOTAL_20->Draw("hist c same");
+  leg->AddEntry(xsection_nlo_TOTAL_05, "#mu = 0.5","l");
+  leg->AddEntry(xsection_nlo_TOTAL_10, "#mu = 1.0","l");
+  leg->AddEntry(xsection_nlo_TOTAL_20, "#mu = 2.0","l");
+  leg->Draw("same");
+
+  tl_pQCD->DrawLatexNDC(0.19,0.29,"NLO JETPHOX 1.3.14");//.22 diff
+  tl_pQCD->DrawLatexNDC(0.19,0.25,"R=0.4 ISO_{chrg+neut}<2GeV");//.18
+  tl_pQCD->DrawLatexNDC(0.19,0.21,"NNPDF40 for p");//.14
+  tl_pQCD->DrawLatexNDC(0.19,0.17,"nNNPDF30 for Pb");
+  tl_pQCD->DrawLatexNDC(0.19,0.13,"BFG set II");//*/
+  
+  
+  Double_t jtphx_pPb_05_Mean[numBins] = {2658.95 , 1541.91 , 953.757 , 621.343 , 309.171 , 132.519 , 49.7375 , 11.4203};
+  Double_t jtphx_pPb_10_Mean[numBins] = {2595.82 , 1493.53 , 920.695 , 587.754 , 287.807 , 121.858 , 45.6963 , 10.3567};
+  Double_t jtphx_pPb_20_Mean[numBins] = {2563.78 , 1435.65 , 880.959 , 553.534 , 272.244 , 114.785 , 42.5438 , 9.53536};
+    
+  Double_t jtphx_pPb_05_ratio_Mean[numBins] = {0};
+  Double_t jtphx_pPb_05_ratio_Stat[numBins] = {0};
+  Double_t jtphx_pPb_05_ratio_Sys[numBins] = {0};
+  Double_t jtphx_pPb_10_ratio_Mean[numBins] = {0};
+  Double_t jtphx_pPb_10_ratio_Stat[numBins] = {0};
+  Double_t jtphx_pPb_10_ratio_Sys[numBins] = {0};
+  Double_t jtphx_pPb_20_ratio_Mean[numBins] = {0};
+  Double_t jtphx_pPb_20_ratio_Stat[numBins] = {0};
+  Double_t jtphx_pPb_20_ratio_Sys[numBins] = {0};
+  for(int i = 0; i < numBins; i++){
+    Double_t contentRatio_05_Mean = dhruvCSMean[i]/jtphx_pPb_05_Mean[i];
+    Double_t contentRatio_05_Stat = contentRatio_05_Mean*dhruvCSStat[i]/dhruvCSMean[i];
+    Double_t contentRatio_05_Sys = contentRatio_05_Mean*dhruvCSSys[i]/dhruvCSMean[i];
+    jtphx_pPb_05_ratio_Mean[i] = contentRatio_05_Mean;
+    jtphx_pPb_05_ratio_Stat[i] = contentRatio_05_Stat;
+    jtphx_pPb_05_ratio_Sys[i] = contentRatio_05_Sys;
+	
+    Double_t contentRatio_10_Mean = dhruvCSMean[i]/jtphx_pPb_10_Mean[i];
+    Double_t contentRatio_10_Stat = contentRatio_10_Mean*dhruvCSStat[i]/dhruvCSMean[i];
+    Double_t contentRatio_10_Sys = contentRatio_10_Mean*dhruvCSSys[i]/dhruvCSMean[i];
+    jtphx_pPb_10_ratio_Mean[i] = contentRatio_10_Mean;
+    jtphx_pPb_10_ratio_Stat[i] = contentRatio_10_Stat;
+    jtphx_pPb_10_ratio_Sys[i] = contentRatio_10_Sys;
+
+    Double_t contentRatio_20_Mean = dhruvCSMean[i]/jtphx_pPb_20_Mean[i];
+    Double_t contentRatio_20_Stat = contentRatio_20_Mean*dhruvCSStat[i]/dhruvCSMean[i];
+    Double_t contentRatio_20_Sys = contentRatio_20_Mean*dhruvCSSys[i]/dhruvCSMean[i];
+    jtphx_pPb_20_ratio_Mean[i] = contentRatio_20_Mean;
+    jtphx_pPb_20_ratio_Stat[i] = contentRatio_20_Stat;
+    jtphx_pPb_20_ratio_Sys[i] = contentRatio_20_Sys;
+
+  }
+  
+  TGraphErrors* jetphox_pPb_05_ratioStat = new TGraphErrors(8, xBinCenters,  jtphx_pPb_05_ratio_Mean, xErr, jtphx_pPb_05_ratio_Stat);
+  TGraphErrors* jetphox_pPb_05_ratioSys = new TGraphErrors(8, xBinCenters,  jtphx_pPb_05_ratio_Mean, xErrSys, jtphx_pPb_05_ratio_Sys);
+  jetphox_pPb_05_ratioStat->SetMarkerStyle(20);
+  jetphox_pPb_05_ratioStat->SetMarkerColor(kBlack);
+  jetphox_pPb_05_ratioStat->SetLineColor(kBlack);
+  jetphox_pPb_05_ratioStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");  
+  jetphox_pPb_05_ratioSys->SetLineColor(kBlack);
+  jetphox_pPb_05_ratioSys->SetLineWidth(2);
+  jetphox_pPb_05_ratioSys->SetFillStyle(3001);
+  jetphox_pPb_05_ratioSys->GetXaxis()->SetRangeUser(12, 60);
+  jetphox_pPb_05_ratioSys->SetTitle("#mu = 0.5;E_{T} [GeV]; data/NLO JETPHOX");
+  TCanvas* cjetphoxpPb05Ratio = new TCanvas("cjetphoxpPb05Ratio",  "cjetphoxpPb05Ratio", 1500, 900);
+  cjetphoxpPb05Ratio->Divide(3, 1);
+  cjetphoxpPb05Ratio->cd(1);
+  cjetphoxpPb05Ratio->DrawFrame(12, 1, 60, 3000);
+  cjetphoxpPb05Ratio->SetLeftMargin(0.15);
+  cjetphoxpPb05Ratio->SetRightMargin(0.07);
+  jetphox_pPb_05_ratioSys->GetYaxis()->SetRangeUser(0, 2);
+  jetphox_pPb_05_ratioSys->Draw("AE5");
+  jetphox_pPb_05_ratioStat->Draw("PEsame");
+  line->Draw("same");
+
+  TGraphErrors* jetphox_pPb_10_ratioStat = new TGraphErrors(8, xBinCenters,  jtphx_pPb_10_ratio_Mean, xErr, jtphx_pPb_10_ratio_Stat);
+  TGraphErrors* jetphox_pPb_10_ratioSys = new TGraphErrors(8, xBinCenters,  jtphx_pPb_10_ratio_Mean, xErrSys, jtphx_pPb_10_ratio_Sys);
+  jetphox_pPb_10_ratioStat->SetMarkerStyle(20);
+  jetphox_pPb_10_ratioStat->SetMarkerColor(kBlack);
+  jetphox_pPb_10_ratioStat->SetLineColor(kBlack);
+  jetphox_pPb_10_ratioStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");  
+  jetphox_pPb_10_ratioSys->SetLineColor(kBlack);
+  jetphox_pPb_10_ratioSys->SetLineWidth(2);
+  jetphox_pPb_10_ratioSys->SetFillStyle(3001);
+  jetphox_pPb_10_ratioSys->GetXaxis()->SetRangeUser(12, 60);
+  jetphox_pPb_10_ratioSys->SetTitle("#mu = 1.0;E_{T} [GeV]; data/NLO JETPHOX");
+  //TCanvas* cjetphoxpPb10Ratio = new TCanvas("cjetphoxpPb10Ratio",  "cjetphoxpPb10Ratio", 750, 900);
+  cjetphoxpPb05Ratio->cd(2);
+  cjetphoxpPb05Ratio->DrawFrame(12, 1, 60, 3000);
+  //cjetphoxpPb05Ratio->SetLeftMargin(0.15);
+  cjetphoxpPb05Ratio->SetRightMargin(0.07);
+  jetphox_pPb_10_ratioSys->GetYaxis()->SetRangeUser(0, 2);
+  jetphox_pPb_10_ratioSys->Draw("AE5");
+  jetphox_pPb_10_ratioStat->Draw("PEsame");
+  line->Draw("same");
+
+   TGraphErrors* jetphox_pPb_20_ratioStat = new TGraphErrors(8, xBinCenters,  jtphx_pPb_20_ratio_Mean, xErr, jtphx_pPb_20_ratio_Stat);
+  TGraphErrors* jetphox_pPb_20_ratioSys = new TGraphErrors(8, xBinCenters,  jtphx_pPb_20_ratio_Mean, xErrSys, jtphx_pPb_20_ratio_Sys);
+  jetphox_pPb_20_ratioStat->SetMarkerStyle(20);
+  jetphox_pPb_20_ratioStat->SetMarkerColor(kBlack);
+  jetphox_pPb_20_ratioStat->SetLineColor(kBlack);
+  jetphox_pPb_20_ratioStat->SetTitle(";E_{T} [GeV]; #frac{d^{2}#sigma}{dE_{T}d#eta} [nb/GeV]");  
+  jetphox_pPb_20_ratioSys->SetLineColor(kBlack);
+  jetphox_pPb_20_ratioSys->SetLineWidth(2);
+  jetphox_pPb_20_ratioSys->SetFillStyle(3001);
+  jetphox_pPb_20_ratioSys->GetXaxis()->SetRangeUser(12, 60);
+  jetphox_pPb_20_ratioSys->SetTitle("#mu = 2.0;E_{T} [GeV]; data/NLO JETPHOX");
+  //TCanvas* cjetphoxpPb20Ratio = new TCanvas("cjetphoxpPb20Ratio",  "cjetphoxpPb20Ratio", 750, 900);
+  cjetphoxpPb05Ratio->cd(3);
+  cjetphoxpPb05Ratio->DrawFrame(12, 1, 60, 3000);
+  //cjetphoxpPb05Ratio->SetLeftMargin(0.15);
+  cjetphoxpPb05Ratio->SetRightMargin(0.07);
+  jetphox_pPb_20_ratioSys->GetYaxis()->SetRangeUser(0, 2);
+  jetphox_pPb_20_ratioSys->Draw("AE5");
+  jetphox_pPb_20_ratioStat->Draw("PEsame");
+  line->Draw("same");
+
+  
+  //Compare with Erwann
+  /*TLegend* lCs = new TLegend(0.35, 0.7, 0.77, 0.87);
+  lCs->SetTextSize(0.035);
+  lCs->SetFillStyle(0);
+  lCs->SetMargin(0.3); 
+  lCs->AddEntry(csErwannStat, "Erwann's cross-section results", "EP");
+  lCs->AddEntry(csErwannSys, "Sys unc on Erwann;'s results", "PF");
+  lCs->AddEntry(csDhruvStat, "Dhruv's cross-section results", "EP");
+  lCs->AddEntry(csDhruvSys, "Sys unc on Dhruv's results", "PF");
+  TCanvas* c1 = new TCanvas("c1", "c1", 750, 900);
   c1->DrawFrame(12, 1, 60, 3000);
   c1->SetLogy();
-  csDhruvSys->Draw("E3A");
-  csErwannSys->Draw("E3 same");
+  c1->SetLeftMargin(0.15);
+  c1->SetRightMargin(0.07);
+  csDhruvSys->Draw("AE5");
+  csErwannSys->Draw("E5 same");
   //csDhruvSys->Draw("E3 same");
   csErwannStat->Draw("PESame");
   csDhruvStat->Draw("PESame");
   lCs->Draw("same");
-  
+  csDhruvSys->GetYaxis()->SetTitleOffset(1.7);
+    
   Double_t ratioCSMean[numBins] = {0};
   Double_t ratioCSStat[numBins] = {0};
   Double_t ratioCSSys[numBins] = {0};
@@ -91,18 +325,22 @@ void compareWithErwann(){
   }
 
   TGraphErrors* csRatioStat = new TGraphErrors(8, xBinCenters, ratioCSMean, xErr, ratioCSStat);
-  TGraphErrors* csRatioSys = new TGraphErrors(8, xBinCenters, ratioCSMean, xErr, ratioCSSys);
+  TGraphErrors* csRatioSys = new TGraphErrors(8, xBinCenters, ratioCSMean, xErrSys, ratioCSSys);
   csRatioStat->SetTitle(";E_{T} [GeV];#frac{cross section_{Erwann}}{cross section_{dhruv}}");
   csRatioSys->SetTitle(";E_{T} [GeV];#frac{cross section_{Erwann}}{cross section_{dhruv}}");
   csRatioStat->GetXaxis()->SetRangeUser(12,60);
   csRatioSys->GetXaxis()->SetRangeUser(12,60);
   csRatioStat->GetYaxis()->SetRangeUser(0,2);
   csRatioSys->GetYaxis()->SetRangeUser(0,2);
-  csRatioStat->SetMarkerStyle(20); csRatioStat->SetMarkerColor(kBlack);
-  csRatioSys->SetFillColor(kBlack); csRatioSys->SetFillStyle(3004);
-  TCanvas* c2 = new TCanvas("c2", "c2");
+  csRatioStat->SetMarkerStyle(20);
+  csRatioStat->SetMarkerColor(kBlack);
+  //csRatioSys->SetFillColor(kBlack);
+  csRatioSys->SetFillStyle(3001);
+  TCanvas* c2 = new TCanvas("c2", "c2", 750, 900);
   c2->DrawFrame(12, 0, 60, 2);
-  csRatioSys->Draw("E3AL");
+  c2->SetLeftMargin(0.15);
+  c2->SetRightMargin(0.07);
+  csRatioSys->Draw("AE5");
   csRatioStat->Draw("PESame");
   line->Draw("Same");
 
